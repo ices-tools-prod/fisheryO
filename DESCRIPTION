@@ -1,0 +1,14 @@
+Package: fisheryO
+Type: Package
+Title: Fisheries Overviews for ICES Advice
+Version: 0.1.0
+Authors@R: person("Scott", "Large", email = "Scott.Large@ices.dk",
+                  role = c("aut", "cre"))
+Description: Functions that work with International Council for the Exploration
+             of the Sea (ICES) web services and databases to collate, aggregate,
+             and plot Fisheries Overviews products.
+Depends:
+    R (>= 3.3.1)
+License: GPL (>= 2)
+LazyData: TRUE
+RoxygenNote: 5.0.1

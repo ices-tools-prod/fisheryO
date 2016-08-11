@@ -1,0 +1,404 @@
+---
+title: "fisheryO: Effort Overview"
+author: ""
+date: '`r strftime(Sys.time(), format = "%d %B %Y")`'
+output:
+  rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{"fisheryO: Effort Overview"}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+[<img align="right" alt="ICES Logo" width="17%" height="17%" src="http://www.ices.dk/_layouts/15/1033/images/icesimg/iceslogo.png">](http://www.ices.dk/Pages/default.aspx) 
+
+# Effort Overview 
+
+## Introduction
+Fishing effort regimes have been reviewed by [STECF](https://stecf.jrc.ec.europa.eu/documents/43805/870977/2014-12_STECF+14-20+-+Evaluation+of+Fishing+Effort+Regimes+-p2_JRC93183.pdf). These data are aggregated as "effort trends by country" and "landings, discards and discard rates." To understand how fishing effort regimes have changed over time, it is useful to calculate a time series of total effort by country and species for each ecoregion. Countries have submitted these data at different spatial and taxonomic designations over time and several steps need to be taken to create a homologous dataset. Area designations are established by [STECF](https://datacollection.jrc.ec.europa.eu/c/document_library/get_file?uuid=62841ee4-dbbd-4628-a7a7-5036ce5d415b&groupId=10213).
+
+## Download Data and house-keeping
+```{r DataDownload, include = TRUE, message = FALSE}
+library(dplyr, quietly = TRUE)
+library(tidyr, quietly = TRUE)
+library(reshape2, quietly = TRUE)
+library(ggplot2, quietly = TRUE)
+library(knitr, quietly = TRUE)
+library(gridExtra, quietly = TRUE)
+library(dygraphs, quietly = TRUE)
+library(xts, quietly = TRUE)
+library(readxl, quietly = TRUE)
+library(grid, quietly = TRUE)
+
+options(scipen = 5)
+ 
+baseLoc <- system.file(package = "fisheryO")
+extPath <- file.path(baseLoc, "extdata")
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+# DATA SOURCE: STECF effort and catch statistics #
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+# (NOTE: Will be replaced with RDB data- SL)
+effortURL <- "http://stecf.jrc.ec.europa.eu/documents/43805/870977/2014_STECF+14-20+-+Fishing+Effort+Regimes+data+tables.zip"
+tmpFileEffort <- tempfile(fileext = ".zip")
+download.file(effortURL, destfile = tmpFileEffort, mode = "wb", quiet = TRUE)
+effortDat <- read_excel(unzip(tmpFileEffort,
+                              files = "Electronic_appendices/Effort_trends_by_country.xlsx"),
+                        sheet = "kWdays at sea")
+# 
+stecfCatchDat <- read_excel(unzip(tmpFileEffort,
+                                  files = "Electronic_appendices/Landings_Discards_Discard-rates.xlsx"),
+                            sheet = "Land_Disc_Disc-rate_by_Country")
+#
+
+```
+
+## Data manipulation
+To manipulate these raw data into something useable, "helper" files are downloaded 
+
+* spList - [FAO ASFIS species list](http://www.fao.org/fishery/collection/asfis/en)
+
+```{r WebHelpers, include = TRUE}
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+# DATA SOURCE: FAO species names and labels #
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+spURL <- "ftp://ftp.fao.org/FI/STAT/DATA/ASFIS_sp.zip"
+tmpFileSp <- tempfile(fileext = ".zip")
+download.file(spURL, destfile = tmpFileSp, mode = "wb", quiet = TRUE)
+spList <- read.delim(unz(tmpFileSp,
+                         "ASFIS_sp_Feb_2016.txt"), 
+                     fill = TRUE,
+                     stringsAsFactors = FALSE, header = TRUE)
+# 
+spList <- spList %>%
+  select(X3A_CODE, 
+         Scientific_name, 
+         English_name) %>%
+  bind_rows(data.frame(X3A_CODE = "OTH", 
+              Scientific_name = "OTHER",
+              English_name = "OTHER"))
+```
+
+A few other "helper" files have been created and are found in "extdata" folder within 'fisheryO' package. (SL- create a link to the R script when possible)
+
+* areaID - Manually creates a link between ICES Ecoregions and the area designations found in the STECF effort and catch databases
+* countryNames - Cleans up discrepancies between ICES and STECF country codes and corrects them to the ISO standards 
+* gearNames - STECF gear designations for each Effort Management Regime
+
+
+```{r LocalHelpers, include = TRUE}
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+# DATA SOURCE:STECF effort and ICES catch databases #
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+
+#(NOTE: this file was created manually - with stock list database this should not be necessary - SL)
+areaDat <- read.csv("~/git/ices-dk/fisheryO/inst/extdata/areaList.csv",
+                   stringsAsFactors = FALSE)
+
+areaID <- areaDat %>%
+  filter(areaType %in% c("STECFarea"),
+         FO2016 == TRUE) %>%
+  mutate(ANNEX = as.character(lapply(strsplit(value, "_"), head, n = 1)),
+         RegCodeArea = as.character(lapply(strsplit(value, "_"), tail, n = 1))) %>%
+  select(-ICESarea)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+# DATA SOURCE:STECF effort and ICES catch databases #
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+gearNames <- read.csv("~/git/ices-dk/fisheryO/inst/extdata/gearNames.csv",
+                      stringsAsFactors = FALSE)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+# CODE TO CREATE FILE: fisheryO/R/FisheriesAdvice/countryNames.R #
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+countryNames <- read.csv("~/git/ices-dk/fisheryO/inst/extdata/countryNames.csv",
+                         stringsAsFactors = FALSE)
+
+countryNames <- countryNames %>%
+  filter(VARIABLE %in% c("stNames"))
+```
+
+STECF reports landings and effort based on 11 effort management regimes. One caveat is that data must not be summed across different annexes. Management regimes cross ecoregion boundaries, but they are specified with ICES area designations. Therefore, each management regime can be subdivided into ICES Ecoregions. 
+
+```{r AggregateEffortData, include = TRUE}
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+# Data cleaning and aggregating #
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+# 
+effortDatClean <- effortDat %>%
+    Filter(f = function(x)!all(is.na(x))) %>%
+    rename(ANNEX = annex,
+           RegCodeArea = reg_area_cod,
+           RegCodeGear = reg_gear_cod) %>%
+    melt(id.vars = c("ANNEX", "RegCodeArea", "RegCodeGear", "Specon_calc", "country", "vessel_length"), 
+         variable.name = "YEAR",
+         value.name = "VALUE") %>%
+    mutate(YEAR = as.numeric(levels(YEAR))[YEAR]) %>%
+    full_join(gearNames, c("RegCodeGear" = "GEAR",
+                           "ANNEX" = "ANNEX")) %>% # merge with ISO country names
+    full_join(countryNames, c("country" = "VALUE")) %>% # merge with ISO country names
+    full_join(areaID, c("ANNEX" = "ANNEX",
+                        "RegCodeArea" = "RegCodeArea")) %>% # Merge to add ecoregions (only areas defined in catchAreaID!)
+    filter(RegCodeArea %in% areaID$RegCodeArea) %>%
+    select(YEAR, 
+         ECOREGION = Ecoregion,
+         COUNTRY,
+         ISO3,
+         ANNEX,
+         AREA = RegCodeArea,
+         GEAR = GEAR_NAME,
+         VALUE)
+
+```
+
+
+
+```{r stecfAreaPlotEffort, include = TRUE}
+stecfEffortAreaPlot <- function(IA, type = c("GEAR", "COUNTRY")[1], fig.save = FALSE, fig.plot = TRUE) {
+  # 
+  iaDat <- allDat[allDat$ECOREGION == IA,] 
+  # for(type in c("GEAR", "COUNTRY")) {
+    # 
+  dots <- lapply(c("ANNEX", type, "YEAR"), as.symbol)
+    # dots <- lapply(c("ANNEX", "GEAR", "YEAR"), as.symbol)
+  catchPlot <- iaDat %>%
+    group_by_(.dots = dots[1:2]) %>%
+    dplyr::summarize(typeTotal = sum(VALUE, na.rm = TRUE)) %>% # Overall catch to order plot
+    arrange(ANNEX, -typeTotal) %>%
+    filter(typeTotal >= 1) %>%
+    group_by(ANNEX) %>%
+    dplyr::mutate(RANK = min_rank(desc(typeTotal))) %>%
+    inner_join(iaDat, ifelse(type == "GEAR", 
+                             c("GEAR" = "GEAR"),
+                             c("COUNTRY" = "COUNTRY"))) %>%
+    ungroup() %>%
+    select(-ANNEX.y,
+           ANNEX = ANNEX.x) %>%
+    dplyr::mutate(GEAR = replace(GEAR, RANK > 10, "OTHER"),
+                  COUNTRY = replace(COUNTRY, RANK > 10, "OTHER")) %>%
+    group_by_(.dots = dots) %>%
+    dplyr::summarize(typeTotal = sum(VALUE, na.rm = TRUE))
+  # 
+  catchPlot <- rbind(catchPlot[!catchPlot[[type]] == "OTHER",],
+                     catchPlot[catchPlot[[type]] == "OTHER",])
+  
+  catchPlot$ANNEX <- as.factor(catchPlot$ANNEX)
+  # 
+  colList <- c("#DB9D85", "#C7A76C", "#ABB065", "#86B875", "#5CBD92",
+               "#39BEB1", "#4CB9CC", "#7DB0DD", "#ACA4E2", "#CD99D8")
+  # 
+ multiplot <- function(..., plotlist=NULL, file, cols=2, layout=NULL) {
+    # Make a list from the ... arguments and plotlist
+    plots <- c(list(...), plotlist)
+
+    numPlots = length(plots)
+    # If layout is NULL, then use 'cols' to determine layout
+    if (is.null(layout)) {
+      # Make the panel
+      # ncol: Number of columns of plots
+      # nrow: Number of rows needed, calculated from # of cols
+      layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                       ncol = cols, nrow = ceiling(numPlots/cols))
+    }
+    if (numPlots==1) {
+      print(plots[[1]])
+    } else {
+      # Set up the page
+      grid.newpage()
+      pushViewport(viewport(layout = grid.layout(nrow(layout), 
+                                                 ncol(layout))))
+
+      # Make each plot, in the correct location
+      for (i in 1:numPlots) {
+        # Get the i,j matrix positions of the regions that contain this subplot
+        matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+        print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                            layout.pos.col = matchidx$col))
+      }
+    }
+  }
+  # 
+  out <- by(data = catchPlot, INDICES = catchPlot$ANNEX, FUN = function(m) {
+    # 
+    m <- droplevels(m)
+    m[[type]] <- factor(m[[type]], levels = unique(m[[type]]))
+    mColors <- colList[1:length(unique(m[[type]]))]
+    names(mColors) <- levels(m[[type]])
+    mColors["OTHER"] <- "grey40"
+    # 
+    m <- ggplot(m, aes(x = YEAR, y = typeTotal)) + 
+                geom_area(aes_string(fill = type, color = type), alpha = .8, position = "stack") +
+                scale_fill_manual(values = mColors) +
+                scale_color_manual(values = mColors) +
+                scale_x_continuous(breaks = round(seq(min(catchPlot$YEAR), 
+                                                      max(catchPlot$YEAR), by = 2))) +
+                labs(title = m$ANNEX,
+                     x = "",
+                     y = "Effort (kW days at sea)",
+                     fill = ifelse(type == "GEAR", "Gear", "Country"),
+                     color = ifelse(type == "GEAR", "Gear", "Country")) +
+                theme_bw(base_size = 9*(81/169))
+  })
+
+  # plotMat <- seq(1, length(unique(catchPlot$ANNEX)), by = 1)
+  # lay =  matrix(plotMat, ncol = 2, byrow=TRUE)
+  if(fig.save == TRUE) {
+  figName <- ifelse(type == "COUNTRY", "figure2_", "figure6_")
+  png(filename = paste0("~/git/ices-dk/fisheryO/output/", figName, IA, ".png"),
+    width = 6.5,
+    height = 6.5,
+    units = "in",
+    res = 600)
+  multiplot(plotlist = out, cols = 2)
+  dev.off()
+  }
+  if(fig.plot == TRUE) {
+    multiplot(plotlist = out, cols = 2)
+  }
+}
+```
+
+ 
+  
+```{r plotStecfAreaEffort, echo=FALSE, results='hide', fig.keep='all'}
+allDat <- effortDatClean
+lapply(unique(allDat$ECOREGION), stecfEffortAreaPlot, type = "COUNTRY", fig.save = TRUE, fig.plot = FALSE)
+lapply(unique(allDat$ECOREGION), stecfEffortAreaPlot, type = "GEAR", fig.save = TRUE, fig.plot = FALSE)
+
+```
+
+
+
+```{r AggregateCatchData, include = TRUE}
+
+stecfCatchDatClean <- stecfCatchDat %>%
+  Filter(f = function(x)!all(is.na(x))) %>%
+  rename(ANNEX = annex,
+         RegCodeArea = reg_area,
+         RegCodeGear = reg_gear) %>%
+  melt(id.vars = c("ANNEX", "RegCodeArea", "country", "RegCodeGear", "specon", "species"), 
+       variable.name = "YEAR",
+       value.name = "VALUE") %>%
+  mutate(METRIC = as.character(gsub(".*\\s", "", YEAR)),
+         YEAR = as.numeric(gsub("\\s.+$", "", YEAR))) %>%
+  full_join(gearNames, c("RegCodeGear" = "GEAR",
+                         "ANNEX" = "ANNEX")) %>% # merge with ISO country names
+  # left_join(spList, c("species" = "X3A_CODE")) %>% # merge with FAO species names
+  # full_join(countryNames, c("country" = "VALUE")) %>% # merge with ISO country names
+  full_join(areaID, c("ANNEX" = "ANNEX",
+                      "RegCodeArea" = "RegCodeArea")) %>% # Merge to add ecoregions (only areas defined in catchAreaID!)
+  filter(RegCodeArea %in% areaID$RegCodeArea,
+         METRIC == "L") %>%
+  select(YEAR, 
+         ECOREGION = Ecoregion,
+         # COUNTRY,
+         # ISO3,
+         ANNEX,
+         AREA = RegCodeArea,
+         GEAR = GEAR_NAME,
+         # SPECIES_NAME = Scientific_name,
+         # COMMON_NAME = English_name,
+         # SPECIES_CODE = species,
+         VALUE)
+```
+
+
+```{r stecfAreaPlotCatch, include = TRUE}
+
+stecfCatchAreaPlot <- function(IA, fig.save = FALSE, fig.plot = TRUE) {
+  # 
+  iaDat <- allDat[allDat$ECOREGION == IA,] 
+  dots <- lapply(c("ANNEX", "GEAR", "YEAR"), as.symbol)
+  catchPlot <- iaDat %>%
+    group_by_(.dots = dots[1:2]) %>%
+    dplyr::summarize(typeTotal = sum(VALUE, na.rm = TRUE)) %>% # Overall catch to order plot
+    arrange(ANNEX, -typeTotal) %>%
+    filter(typeTotal >= 1) %>%
+    group_by(ANNEX) %>%
+    dplyr::mutate(RANK = min_rank(desc(typeTotal))) %>%
+    inner_join(iaDat, c("GEAR" = "GEAR",
+                        "ANNEX" = "ANNEX")) %>%
+    dplyr::mutate(GEAR = replace(GEAR, RANK > 10, "OTHER")) %>%
+    group_by_(.dots = dots) %>%
+    dplyr::summarize(typeTotal = sum(VALUE, na.rm = TRUE))
+  # 
+  catchPlot <- rbind(catchPlot[!catchPlot$GEAR == "OTHER",],
+                     catchPlot[catchPlot$GEAR == "OTHER",])
+  catchPlot$ANNEX <- as.factor(catchPlot$ANNEX)
+  # 
+  colList <- c("#DB9D85", "#C7A76C", "#ABB065", "#86B875", "#5CBD92",
+               "#39BEB1", "#4CB9CC", "#7DB0DD", "#ACA4E2", "#CD99D8")
+  # 
+  
+  multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+    # Make a list from the ... arguments and plotlist
+    plots <- c(list(...), plotlist)
+    numPlots = length(plots)
+    # If layout is NULL, then use 'cols' to determine layout
+    if (is.null(layout)) {
+      # Make the panel
+      # ncol: Number of columns of plots
+      # nrow: Number of rows needed, calculated from # of cols
+      layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                       ncol = cols, nrow = ceiling(numPlots/cols))
+    }
+    if (numPlots==1) {
+      print(plots[[1]])
+    } else {
+      # Set up the page
+      grid.newpage()
+      pushViewport(viewport(layout = grid.layout(nrow(layout), 
+                                                 ncol(layout))))
+      # Make each plot, in the correct location
+      for (i in 1:numPlots) {
+        # Get the i,j matrix positions of the regions that contain this subplot
+        matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+        print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                        layout.pos.col = matchidx$col))
+      }
+    }
+  }
+  # 
+  out <- by(data = catchPlot, INDICES = catchPlot$ANNEX, FUN = function(m) {
+    # 
+    m <- droplevels(m)
+    m$GEAR <- factor(m$GEAR, levels = unique(m$GEAR))
+    mColors <- colList[1:length(unique(m$GEAR))]
+    names(mColors) <- levels(m$GEAR)
+    mColors["OTHER"] <- "grey40"
+    # 
+    m <- ggplot(m, aes(x = YEAR, y = typeTotal)) + 
+                geom_area(aes(fill = GEAR, color = GEAR), alpha = .8, position = "stack") +
+                scale_fill_manual(values = mColors) +
+                scale_color_manual(values = mColors) +
+                scale_x_continuous(breaks = round(seq(min(catchPlot$YEAR), 
+                                                      max(catchPlot$YEAR), by = 2))) +
+                labs(title = m$ANNEX,
+                     x = "",
+                     y = "Landings (tonnes)",
+                     fill = "Gear",
+                     color = "Gear") +
+                theme_bw(base_size = 9*(81/169))
+  })
+
+ if(fig.save == TRUE) {
+
+  png(filename = paste0("~/git/ices-dk/fisheryO/output/figure5_", IA, ".png"),
+    width = 6.5,
+    height = 6.5,
+    units = "in",
+    res = 600)
+  multiplot(plotlist = out, cols = 2)
+  dev.off()
+  }
+  if(fig.plot == TRUE) {
+    multiplot(plotlist = out, cols = 2)
+  }
+}
+```
+
+ 
+  
+```{r plotStecfAreaCatch, echo=FALSE, fig.width = 20, results='hide', fig.keep='all'}
+allDat <- stecfCatchDatClean
+lapply(unique(allDat$ECOREGION), stecfCatchAreaPlot,  fig.save = TRUE, fig.plot = FALSE)
+```

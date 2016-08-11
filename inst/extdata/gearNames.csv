@@ -1,0 +1,142 @@
+ANNEX,GEAR,EffortManagementRegime,GEAR_NAME
+FDFIIC,3A,Multi-annual plan of Western Channel sole stock,Beam trawl
+IIC,3A,Multi-annual plan of Western Channel sole stock,Beam trawl
+IIB,3A,Recovery plan for Southern Hake and Norway lobster stocks,"Trawl, Danish seine or similar gears"
+IIB,3B,S,Gill nets
+IIC,3B,Multi-annual plan of Western Channel sole stock,Gill nets
+IIB,3C,Recovery plan for Southern Hake and Norway lobster stocks,Longlines
+IIB,3T,Recovery plan for Southern Hake and Norway lobster stocks,Trammel nets
+BAL,BEAM,Multi-annual plan for the cod stocks in the Baltic Sea,Beam trawl
+BOB,BEAM,Multi-annual plan for the sustainable exploitation of the stock of sole in the Bay of Biscay,Beam trawl
+CEL1,BEAM,Long term plan for cod stocks,Beam trawl
+CEL2,BEAM,Long term plan for cod stocks,Beam trawl
+FDFIIA,BEAM,Long term plan for cod stocks,Beam trawl
+DS,BEAM,R(EC) No 2347/2002 establishing specifiec access requirements and associated conditions applicable to fishing for deep sea stocks,Beam trawl
+FDFIIC,BEAM,Multi-annual plan of Western Channel sole stock,Beam trawl
+IIA,BEAM,Long term plan for cod stocks,Beam trawl
+IIB,BEAM,Recovery plan for Southern Hake and Norway lobster stocks,Beam trawl
+IIC,BEAM,Multi-annual plan of Western Channel sole stock,Beam trawl
+WW,BEAM,R(EC) No 1954/2003 on the management of the fishing effort relating to certain Community fishing areas and resources,Beam trawl
+DS,BOTTOM TRAWLS,R(EC) No 2347/2002 establishing specifiec access requirements and associated conditions applicable to fishing for deep sea stocks,Otter trawls and Danish seine
+WW,BOTTOM TRAWLS,R(EC) No 1954/2003 on the management of the fishing effort relating to certain Community fishing areas and resources,Otter trawls and Danish seine
+CEL1,BT1,Long term plan for cod stocks,Beam trawl
+CEL2,BT1,Long term plan for cod stocks,Beam trawl
+IIA,BT1,Long term plan for cod stocks,Beam trawl
+CEL1,BT2,Long term plan for cod stocks,Beam trawl
+CEL2,BT2,Long term plan for cod stocks,Beam trawl
+FDFIIA,BT2,Long term plan for cod stocks,Beam trawl
+IIA,BT2,Long term plan for cod stocks,Beam trawl
+BAL,DEM_SEINE,Multi-annual plan for the cod stocks in the Baltic Sea,Danish seine
+BOB,DEM_SEINE,Multi-annual plan for the sustainable exploitation of the stock of sole in the Bay of Biscay,Danish seine
+CEL1,DEM_SEINE,Long term plan for cod stocks,Danish seine
+CEL2,DEM_SEINE,Long term plan for cod stocks,Danish seine
+FDFIIA,DEM_SEINE,Long term plan for cod stocks,Danish seine
+IIA,DEM_SEINE,Long term plan for cod stocks,Danish seine
+IIB,DEM_SEINE,Recovery plan for Southern Hake and Norway lobster stocks,Danish seine
+IIC,DEM_SEINE,Multi-annual plan of Western Channel sole stock,Danish seine
+CEL1,DREDGE,Long term plan for cod stocks,Dredges
+CEL2,DREDGE,Long term plan for cod stocks,Dredges
+FDFIIA,DREDGE,Long term plan for cod stocks,Dredges
+BAL,DREDGE,Multi-annual plan for the cod stocks in the Baltic Sea,Dredges
+BOB,DREDGE,Multi-annual plan for the sustainable exploitation of the stock of sole in the Bay of Biscay,Dredges
+DS,DREDGE,R(EC) No 2347/2002 establishing specifiec access requirements and associated conditions applicable to fishing for deep sea stocks,Dredges
+FDFIIC,DREDGE,Multi-annual plan of Western Channel sole stock,Dredges
+IIA,DREDGE,Long term plan for cod stocks,Dredges
+IIB,DREDGE,Recovery plan for Southern Hake and Norway lobster stocks,Dredges
+IIC,DREDGE,Multi-annual plan of Western Channel sole stock,Dredges
+WW,DREDGE,R(EC) No 1954/2003 on the management of the fishing effort relating to certain Community fishing areas and resources,Dredges
+BAL,GILL,Multi-annual plan for the cod stocks in the Baltic Sea,Gill nets
+BOB,GILL,Multi-annual plan for the sustainable exploitation of the stock of sole in the Bay of Biscay,Gill nets
+DS,GILL,R(EC) No 2347/2002 establishing specifiec access requirements and associated conditions applicable to fishing for deep sea stocks,Gill nets
+IIB,GILL,Recovery plan for Southern Hake and Norway lobster stocks,Gill nets
+IIC,GILL,Multi-annual plan of Western Channel sole stock,Gill nets
+WW,GILL,R(EC) No 1954/2003 on the management of the fishing effort relating to certain Community fishing areas and resources,Gill nets
+CEL1,GN1,Long term plan for cod stocks,Gill nets
+CEL2,GN1,Long term plan for cod stocks,Gill nets
+FDFIIA,GN1,Long term plan for cod stocks,Gill nets
+IIA,GN1,Long term plan for cod stocks,Gill nets
+CEL1,GT1,Long term plan for cod stocks,Trammel nets
+CEL2,GT1,Long term plan for cod stocks,Trammel nets
+FDFIIA,GT1,Long term plan for cod stocks,Trammel nets
+IIA,GT1,Long term plan for cod stocks,Trammel nets
+CEL1,LL1,Long term plan for cod stocks,Longlines
+CEL2,LL1,Long term plan for cod stocks,Longlines
+FDFIIA,LL1,Long term plan for cod stocks,Longlines
+IIA,LL1,Long term plan for cod stocks,Longlines
+BOB,LONGLINE,Multi-annual plan for the sustainable exploitation of the stock of sole in the Bay of Biscay,Longlines
+DS,LONGLINE,R(EC) No 2347/2002 establishing specifiec access requirements and associated conditions applicable to fishing for deep sea stocks,Longlines
+IIC,LONGLINE,Multi-annual plan of Western Channel sole stock,Longlines
+WW,LONGLINE,R(EC) No 1954/2003 on the management of the fishing effort relating to certain Community fishing areas and resources,Longlines
+BAL,NONE,Multi-annual plan for the cod stocks in the Baltic Sea,Unspecified
+BOB,NONE,Multi-annual plan for the sustainable exploitation of the stock of sole in the Bay of Biscay,Unspecified
+CEL1,NONE,Long term plan for cod stocks,Unspecified
+CEL2,NONE,Long term plan for cod stocks,Unspecified
+DS,NONE,R(EC) No 2347/2002 establishing specifiec access requirements and associated conditions applicable to fishing for deep sea stocks,Unspecified
+IIA,NONE,Long term plan for cod stocks,Unspecified
+IIB,NONE,Recovery plan for Southern Hake and Norway lobster stocks,Unspecified
+IIC,NONE,Multi-annual plan of Western Channel sole stock,Unspecified
+WW,NONE,R(EC) No 1954/2003 on the management of the fishing effort relating to certain Community fishing areas and resources,Unspecified
+BAL,OTTER,Multi-annual plan for the cod stocks in the Baltic Sea,Otter trawl
+BOB,OTTER,Multi-annual plan for the sustainable exploitation of the stock of sole in the Bay of Biscay,Otter trawl
+CEL1,OTTER,Long term plan for cod stocks,Otter trawl
+CEL2,OTTER,Long term plan for cod stocks,Otter trawl
+FDFIIA,OTTER,Long term plan for cod stocks,Otter trawl
+IIA,OTTER,Long term plan for cod stocks,Otter trawl
+IIB,OTTER,Recovery plan for Southern Hake and Norway lobster stocks,Otter trawl
+IIC,OTTER,Multi-annual plan of Western Channel sole stock,Otter trawl
+CEL1,PEL_SEINE,Long term plan for cod stocks,Pelagic seine
+CEL2,PEL_SEINE,Long term plan for cod stocks,Pelagic seine
+BAL,PEL_SEINE,Multi-annual plan for the cod stocks in the Baltic Sea,Pelagic seine
+BOB,PEL_SEINE,Multi-annual plan for the sustainable exploitation of the stock of sole in the Bay of Biscay,Pelagic seine
+IIA,PEL_SEINE,Long term plan for cod stocks,Pelagic seine
+IIB,PEL_SEINE,Recovery plan for Southern Hake and Norway lobster stocks,Pelagic seine
+IIC,PEL_SEINE,Multi-annual plan of Western Channel sole stock,Pelagic seine
+BAL,PEL_TRAWL,Multi-annual plan for the cod stocks in the Baltic Sea,Pelagic trawl
+BOB,PEL_TRAWL,Multi-annual plan for the sustainable exploitation of the stock of sole in the Bay of Biscay,Pelagic trawl
+CEL1,PEL_TRAWL,Long term plan for cod stocks,Pelagic trawl
+CEL2,PEL_TRAWL,Long term plan for cod stocks,Pelagic trawl
+FDFBAL,PEL_TRAWL,Multi-annual plan for the cod stocks in the Baltic Sea,Pelagic trawl
+FDFIIA,PEL_TRAWL,Long term plan for cod stocks,Pelagic trawl
+IIA,PEL_TRAWL,Long term plan for cod stocks,Pelagic trawl
+IIB,PEL_TRAWL,Recovery plan for Southern Hake and Norway lobster stocks,Pelagic trawl
+IIC,PEL_TRAWL,Multi-annual plan of Western Channel sole stock,Pelagic trawl
+DS,PELAGIC TRAWLS,R(EC) No 2347/2002 establishing specifiec access requirements and associated conditions applicable to fishing for deep sea stocks,Pelagic trawl
+WW,PELAGIC TRAWLS,R(EC) No 1954/2003 on the management of the fishing effort relating to certain Community fishing areas and resources,Pelagic trawl
+BAL,POTS,Multi-annual plan for the cod stocks in the Baltic Sea,Pots
+BOB,POTS,Multi-annual plan for the sustainable exploitation of the stock of sole in the Bay of Biscay,Pots
+DS,POTS,R(EC) No 2347/2002 establishing specifiec access requirements and associated conditions applicable to fishing for deep sea stocks,Pots
+CEL1,POTS,Long term plan for cod stocks,Pots
+CEL2,POTS,Long term plan for cod stocks,Pots
+FDFIIA,POTS,Long term plan for cod stocks,Pots
+IIA,POTS,Long term plan for cod stocks,Pots
+IIB,POTS,Recovery plan for Southern Hake and Norway lobster stocks,Pots
+IIC,POTS,Multi-annual plan of Western Channel sole stock,Pots
+WW,POTS,R(EC) No 1954/2003 on the management of the fishing effort relating to certain Community fishing areas and resources,Pots
+BAL,R-BEAM,Multi-annual plan for the cod stocks in the Baltic Sea,Beam trawl
+BAL,R-DEM_SEINE,Multi-annual plan for the cod stocks in the Baltic Sea,Danish seine
+FDFBAL,R-DEM_SEINE,Multi-annual plan for the cod stocks in the Baltic Sea,Danish seine
+BAL,R-GILL,Multi-annual plan for the cod stocks in the Baltic Sea,Gill nets
+BAL,R-LONGLINE,Multi-annual plan for the cod stocks in the Baltic Sea,Longlines
+BAL,R-OTTER,Multi-annual plan for the cod stocks in the Baltic Sea,Otter trawl
+FDFBAL,R-OTTER,Multi-annual plan for the cod stocks in the Baltic Sea,Otter trawl
+BAL,R-PEL_TRAWL,Multi-annual plan for the cod stocks in the Baltic Sea,Pelagic trawl
+FDFBAL,R-PEL_TRAWL,Multi-annual plan for the cod stocks in the Baltic Sea,Pelagic trawl
+BAL,R-TRAMMEL,Multi-annual plan for the cod stocks in the Baltic Sea,Trammel nets
+CEL1,TR1,Long term plan for cod stocks,Bottom trawls and seines
+CEL2,TR1,Long term plan for cod stocks,Bottom trawls and seines
+FDFIIA,TR1,Long term plan for cod stocks,Bottom trawls and seines
+IIA,TR1,Long term plan for cod stocks,Bottom trawls and seines
+CEL1,TR2,Long term plan for cod stocks,Bottom trawls and seines
+CEL2,TR2,Long term plan for cod stocks,Bottom trawls and seines
+FDFIIA,TR2,Long term plan for cod stocks,Bottom trawls and seines
+IIA,TR2,Long term plan for cod stocks,Bottom trawls and seines
+CEL1,TR3,Long term plan for cod stocks,Bottom trawls and seines
+CEL2,TR3,Long term plan for cod stocks,Bottom trawls and seines
+FDFIIA,TR3,Long term plan for cod stocks,Bottom trawls and seines
+IIA,TR3,Long term plan for cod stocks,Bottom trawls and seines
+BAL,TRAMMEL,Multi-annual plan for the cod stocks in the Baltic Sea,Trammel nets
+BOB,TRAMMEL,Multi-annual plan for the sustainable exploitation of the stock of sole in the Bay of Biscay,Trammel nets
+DS,TRAMMEL,R(EC) No 2347/2002 establishing specifiec access requirements and associated conditions applicable to fishing for deep sea stocks,Trammel nets
+IIC,TRAMMEL,Multi-annual plan of Western Channel sole stock,Trammel nets
+WW,TRAMMEL,R(EC) No 1954/2003 on the management of the fishing effort relating to certain Community fishing areas and resources,Trammel nets
+FDFIIA,NONE,Long term plan for cod stocks,Unspecified

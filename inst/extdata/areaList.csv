@@ -1,0 +1,246 @@
+Ecoregion,areaType,value,areaIssue,FO2016,ICESarea,Issue
+ALL,historicArea,ICES Area (not specified),,FALSE,,
+Azores,historicArea,X a (not specified),X,TRUE,,Oceanic north-east Atlantic contains 10.a.1
+Baltic Sea,historicArea,III (not specified),X,TRUE,,Greater North Sea 3.a
+Baltic Sea,historicArea,III b  Baltic 23,,TRUE,,
+Baltic Sea,historicArea,III b+c (not specified),,TRUE,,
+Baltic Sea,historicArea,III b-d (not specified),,TRUE,,
+Baltic Sea,historicArea,III c  Baltic 22,,TRUE,,
+Baltic Sea,historicArea,III d  (not specified),,TRUE,,
+Baltic Sea,historicArea,III d  Baltic 24,,TRUE,,
+Baltic Sea,historicArea,III d  Baltic 25,,TRUE,,
+Baltic Sea,historicArea,III d  Baltic 26,,TRUE,,
+Baltic Sea,historicArea,III d  Baltic 27,,TRUE,,
+Baltic Sea,historicArea,III d  Baltic 28 (not specified),,TRUE,,
+Baltic Sea,historicArea,III d  Baltic 28-1,,TRUE,,
+Baltic Sea,historicArea,III d  Baltic 28-2,,TRUE,,
+Baltic Sea,historicArea,III d  Baltic 29,,TRUE,,
+Baltic Sea,historicArea,III d  Baltic 30,,TRUE,,
+Baltic Sea,historicArea,III d  Baltic 31,,TRUE,,
+Baltic Sea,historicArea,III d  Baltic 32,,TRUE,,
+Bay of Biscay and the Iberian Coast,historicArea,IX (not specified),X,TRUE,,Oceanic north-east Atlantic 9.b.1
+Bay of Biscay and the Iberian Coast,historicArea,IX a,,TRUE,,
+Bay of Biscay and the Iberian Coast,historicArea,IX b (not specified),X,TRUE,,Oceanic north-east Atlantic contains 9.b.1
+Bay of Biscay and the Iberian Coast,historicArea,IX b2,,TRUE,,
+Bay of Biscay and the Iberian Coast,historicArea,VIII (not specified),X,TRUE,,Oceanic north-east Atlantic 8.d.1 and 8.e.1
+Bay of Biscay and the Iberian Coast,historicArea,VIII a,,TRUE,,
+Bay of Biscay and the Iberian Coast,historicArea,VIII b,,TRUE,,
+Bay of Biscay and the Iberian Coast,historicArea,VIII c,,TRUE,,
+Bay of Biscay and the Iberian Coast,historicArea,VIII d (not specified),X,TRUE,,Oceanic north-east Atlantic 8.d.1
+Bay of Biscay and the Iberian Coast,historicArea,VIII d2,,TRUE,,
+Bay of Biscay and the Iberian Coast,historicArea,VIII e (not specified),X,TRUE,,Oceanic north-east Atlantic contains 8.e.1
+Bay of Biscay and the Iberian Coast,historicArea,VIII e2,,TRUE,,
+Celtic Seas,historicArea,VI (not specified),X,TRUE,,Oceanic north-east Atlantic 6.b.1
+Celtic Seas,historicArea,VI a,,TRUE,,
+Celtic Seas,historicArea,VI b (not specified),X,TRUE,,Oceanic north-east Atlantic 6.b.1
+Celtic Seas,historicArea,VI b2,,TRUE,,
+Celtic Seas,historicArea,VII (not specified),X,TRUE,,"Greater North Seas contains 7.d and Celtic Seas contains 7.b.2, 7.c.2, 7.k.2, and 7.j.2"
+Celtic Seas,historicArea,VII a,,TRUE,,
+Celtic Seas,historicArea,VII a-f  (not specified),X,TRUE,,"Greater North Sea 7.d, Oceanic north-east Atlantic 7.c.1"
+Celtic Seas,historicArea,VII b,,TRUE,,
+Celtic Seas,historicArea,VII b+c  (not specified),,TRUE,,
+Celtic Seas,historicArea,VII c (not specified),X,TRUE,,Oceanic north-east Atlantic contains 7.c.1
+Celtic Seas,historicArea,VII c2,,TRUE,,
+Celtic Seas,historicArea,VII d+e (not specified),,TRUE,,
+Celtic Seas,historicArea,VII d-k (not specified),X,TRUE,,"Greater North Sea 7.d, Oceanic north-east Atlantic 7.c.1"
+Celtic Seas,historicArea,VII e,,TRUE,,
+Celtic Seas,historicArea,VII f,,TRUE,,
+Celtic Seas,historicArea,VII f-k  (not specified),X,TRUE,,"Oceanic north-east Atlantic contain 7.j.1, 7.k.1 "
+Celtic Seas,historicArea,VII g,,TRUE,,
+Celtic Seas,historicArea,VII g-k  (not specified),,TRUE,,
+Celtic Seas,historicArea,VII h,,TRUE,,
+Celtic Seas,historicArea,VII j (not specified),X,TRUE,,Oceanic north-east Atlantic 7.j.1
+Celtic Seas,historicArea,VII j2,,TRUE,,
+Celtic Seas,historicArea,VII k (not specified),X,TRUE,,Oceanic north-east Atlantic contains 7.k.1
+Celtic Seas,historicArea,VII k2,,TRUE,,
+Faroes,historicArea,V b (not specified),X,TRUE,,Iceland Seas and Faroes contain 5.b
+Faroes,historicArea,V b1 (not specified),,TRUE,,
+Faroes,historicArea,V b1B,X,TRUE,,Iceland Seas contain 5.b.1.b
+Faroes,historicArea,V b2,,TRUE,,
+Greater North Sea,historicArea,III a,,TRUE,,
+Greater North Sea,historicArea,IIIa  and  IV  (not specified),,TRUE,,
+Greater North Sea,historicArea,IIIa  and  IVa+b  (not specified),,TRUE,,
+Greater North Sea,historicArea,IV (not specified),,TRUE,,
+Greater North Sea,historicArea,IV a,X,TRUE,,4.a. is part of Celtic Seas and Greater North Sea
+Greater North Sea,historicArea,IV a+b (not specified),,TRUE,,
+Greater North Sea,historicArea,IV b,,TRUE,,
+Greater North Sea,historicArea,IV b+c (not specified),,TRUE,,
+Greater North Sea,historicArea,IV c,,TRUE,,
+Greater North Sea,historicArea,VII d,,TRUE,,
+Greenland Sea,historicArea,XII a3,,TRUE,,
+Greenland Sea,historicArea,XIV (not specified),X,TRUE,,"Oceanic north-east Alantic, Norwegian Sea and Barents Seas and Iceland Seas contain 14"
+Greenland Sea,historicArea,XIV a,X,TRUE,,Norwegian Sea and Barents Sea and Iceland Seas contain 14.a
+Greenland Sea,historicArea,XIV b (not specified),X,TRUE,,Oceanic north-east Alantic and Iceland Seas contain 14.b
+Greenland Sea,historicArea,XIV b2,X,TRUE,,Iceland Seas 14.b.2
+Iceland Sea,historicArea,V (not specified),X,TRUE,,Faroes contain 5.b.1.b and 5.b.2 and Oceanic north-east Atlantic contain 5.b.1.a
+Iceland Sea,historicArea,V a (North-East),,TRUE,,
+Iceland Sea,historicArea,V a (not specified),,TRUE,,
+Iceland Sea,historicArea,V a (South-West),,TRUE,,
+Iceland Sea,historicArea,V a+b1  (not specified),X,TRUE,,"Faroes 5.b.1.b and 5.b.2, Oceanic north-east Atlantic 5.b.1.a"
+Iceland Sea,historicArea,V a1,,TRUE,,
+Iceland Sea,historicArea,V a2,X,TRUE,,Greenland Sea 5.a.2
+Norwegian Sea and Barents Sea,historicArea,I  and  IIa (not specified),X,TRUE,,"Iceland Sea, Faroes, and Celtic Seas contain 2.a.2"
+Norwegian Sea and Barents Sea,historicArea,I (not specified),,TRUE,,
+Norwegian Sea and Barents Sea,historicArea,I a,,TRUE,,
+Norwegian Sea and Barents Sea,historicArea,I b,,TRUE,,
+Norwegian Sea and Barents Sea,historicArea,II (not specified),X,TRUE,,"Greenland Sea, Celtic Seas, and Faroes contain 2"
+Norwegian Sea and Barents Sea,historicArea,II a (not specified),X,TRUE,,"Iceland Seas, Celtic Seas and Faroes contain 2.a.2"
+Norwegian Sea and Barents Sea,historicArea,II a1,,TRUE,,
+Norwegian Sea and Barents Sea,historicArea,II a2,X,TRUE,,"Iceland Seas, Celtic Seas and Faroes contain 2.a.2"
+Norwegian Sea and Barents Sea,historicArea,II b (not specified),X,TRUE,,Greenland Sea 2.b.2
+Norwegian Sea and Barents Sea,historicArea,II b1,,TRUE,,
+Norwegian Sea and Barents Sea,historicArea,II b2,X,TRUE,,Greenland Sea contains 2.b.2
+Oceanic north-east Atlantic,historicArea,IX b1,,TRUE,,
+Oceanic north-east Atlantic,historicArea,V b1A,,TRUE,,
+Oceanic north-east Atlantic,historicArea,VI b1,,TRUE,,
+Oceanic north-east Atlantic,historicArea,VII c1,,TRUE,,
+Oceanic north-east Atlantic,historicArea,VII j1,,TRUE,,
+Oceanic north-east Atlantic,historicArea,VII k1,,TRUE,,
+Oceanic north-east Atlantic,historicArea,VIII d1,,TRUE,,
+Oceanic north-east Atlantic,historicArea,VIII e1,,TRUE,,
+Oceanic north-east Atlantic,historicArea,X (not specified),X,TRUE,,Azures contains 10.a.2
+Oceanic north-east Atlantic,historicArea,X b,,TRUE,,
+Oceanic north-east Atlantic,historicArea,XII (not specified),X,TRUE,,Greenland Seas contain 12.a.3
+Oceanic north-east Atlantic,historicArea,XII a (not specified),X,TRUE,,"Greenland Seas contains 12.a.3, Oceanic north-east Atlantic 12.a.2, and Iceland Seas contain 12.a.4"
+Oceanic north-east Atlantic,historicArea,XII a1,,TRUE,,
+Oceanic north-east Atlantic,historicArea,XII b,,TRUE,,
+Oceanic north-east Atlantic,historicArea,XIV b1,,TRUE,,
+Adriatic Sea,ICESarea,NA,,FALSE,,
+Aegean-Levantine Sea,ICESarea,NA,,FALSE,,
+Arctic Ocean,ICESarea,NA,,FALSE,,
+Azores,ICESarea,27.10.A.2,,TRUE,,
+Azores,ICESarea,27.10.a_NK,,TRUE,,Mostly Portuguese probably caught near Azores
+Baltic Sea,ICESarea,27.3.BC,,TRUE,,
+Baltic Sea,ICESarea,27.3.D,,TRUE,,
+Baltic Sea,ICESarea,27.3_NK,,TRUE,,No landings
+Bay of Biscay and the Iberian Coast,ICESarea,27.8.A,,TRUE,,
+Bay of Biscay and the Iberian Coast,ICESarea,27.8.B,,TRUE,,
+Bay of Biscay and the Iberian Coast,ICESarea,27.8.C,,TRUE,,
+Bay of Biscay and the Iberian Coast,ICESarea,27.8.D.2,,TRUE,,
+Bay of Biscay and the Iberian Coast,ICESarea,27.8.E.2,,TRUE,,
+Bay of Biscay and the Iberian Coast,ICESarea,27.9.A,,TRUE,,
+Bay of Biscay and the Iberian Coast,ICESarea,27.9.B.2,,TRUE,,
+Bay of Biscay and the Iberian Coast,ICESarea,27.8_NK,,TRUE,,Majority of 8 is in BoB
+Bay of Biscay and the Iberian Coast,ICESarea,27.8.d_NK,,TRUE,,Majority of 8.d is in BoB
+Bay of Biscay and the Iberian Coast,ICESarea,27.9_NK,,TRUE,,Majority of 9 is in BoB
+Black Sea,ICESarea,NA,,FALSE,,
+Celtic Seas,ICESarea,27.6.A,,TRUE,,
+Celtic Seas,ICESarea,27.6.B.2,,TRUE,,
+Celtic Seas,ICESarea,27.7.A,,TRUE,,
+Celtic Seas,ICESarea,27.7.B,,TRUE,,
+Celtic Seas,ICESarea,27.7.C.2,,TRUE,,
+Celtic Seas,ICESarea,27.7.E,,TRUE,,
+Celtic Seas,ICESarea,27.7.F,,TRUE,,
+Celtic Seas,ICESarea,27.7.G,,TRUE,,
+Celtic Seas,ICESarea,27.7.H,,TRUE,,
+Celtic Seas,ICESarea,27.7.J.2,,TRUE,,
+Celtic Seas,ICESarea,27.7.K.2,,TRUE,,
+Celtic Seas,ICESarea,27.6_NK,,TRUE,,Mostly blue whiting and most of 6 is in CS
+Celtic Seas,ICESarea,27.6.b_NK,,TRUE,,Mostly blue whiting and most of 6.b is in CS
+Celtic Seas,ICESarea,27.7_NK,,TRUE,,Minor landings and most of 7 is in CS
+Celtic Seas,ICESarea,27.7.c_NK,,TRUE,,Mostly blue whiting and most of 7.c is in CS
+Celtic Seas,ICESarea,27.7.j_NK,,TRUE,,Majority of 7.j is in CS
+Celtic Seas,ICESarea,27.7.k_NK,,TRUE,,Lots of norway lobster 
+Faroes,ICESarea,27.5.b.1.b,,TRUE,,
+Faroes,ICESarea,27.5.b.2,,TRUE,,
+Faroes,ICESarea,27.5.b_NK,,TRUE,,Mostly within Faroe ecoregion
+Faroes,ICESarea,27.5.b.1_NK,,TRUE,,Mostly within Faroe ecoregion and main fishing activities are from Faroes
+Greater North Sea,ICESarea,27.4,,TRUE,,
+Greater North Sea,ICESarea,27.3.A,,TRUE,,
+Greater North Sea,ICESarea,27.7.D,,TRUE,,
+Greenland Sea,ICESarea,27.12.a.3,,TRUE,,
+Greenland Sea,ICESarea,27.14.a,,TRUE,,
+Greenland Sea,ICESarea,27.14.b.2,,TRUE,,
+Greenland Sea,ICESarea,27.14_NK,,TRUE,,Most of 14 is in the Greenland Sea 
+Greenland Sea,ICESarea,27.14.b_NK,,TRUE,,Most of 14.b is in the Greenland Sea 
+Iceland Sea,ICESarea,27.12.a.4,,TRUE,,
+Iceland Sea,ICESarea,27.5.a,,TRUE,,
+Iceland Sea,ICESarea,27.5_NK,,TRUE,,No landings
+Ionian Sea and the Central Mediterranean Sea,ICESarea,NA,,FALSE,,
+Norwegian Sea and Barents Sea,ICESarea,27.1,,TRUE,,
+Norwegian Sea and Barents Sea,ICESarea,27.2,,TRUE,,
+Oceanic north-east Atlantic,ICESarea,27.10.A.1,,TRUE,,
+Oceanic north-east Atlantic,ICESarea,27.10.b,,TRUE,,
+Oceanic north-east Atlantic,ICESarea,27.12.a.1,,TRUE,,
+Oceanic north-east Atlantic,ICESarea,27.12.a.2,,TRUE,,
+Oceanic north-east Atlantic,ICESarea,27.12.b,,TRUE,,
+Oceanic north-east Atlantic,ICESarea,27.12.c,,TRUE,,
+Oceanic north-east Atlantic,ICESarea,27.14.b.1,,TRUE,,
+Oceanic north-east Atlantic,ICESarea,27.5.b.1.a,,TRUE,,
+Oceanic north-east Atlantic,ICESarea,27.6.b.1,,TRUE,,
+Oceanic north-east Atlantic,ICESarea,27.7.c.1,,TRUE,,
+Oceanic north-east Atlantic,ICESarea,27.7.k.1,,TRUE,,
+Oceanic north-east Atlantic,ICESarea,27.7.k.1,,TRUE,,
+Oceanic north-east Atlantic,ICESarea,27.8.d.1,,TRUE,,
+Oceanic north-east Atlantic,ICESarea,27.8.e.1,,TRUE,,
+Oceanic north-east Atlantic,ICESarea,27.9.b.1,,TRUE,,
+Oceanic north-east Atlantic,ICESarea,27.8.e_NK,,TRUE,,"Majority of 8.e is in ONEA, minor landings"
+Oceanic north-east Atlantic,ICESarea,27.9.b_NK,,TRUE,,Minor landings
+Oceanic north-east Atlantic,ICESarea,27.10_NK,,TRUE,,Majority of 10 is ONEA
+Oceanic north-east Atlantic,ICESarea,27.12_NK,,TRUE,,Mostly deep-sea species and landed by countries without adjacent EEZs
+Oceanic north-east Atlantic,ICESarea,27.12.a_NK,,TRUE,,Minor landings and most of 12 is in ONEA
+Western Mediterranean Sea,ICESarea,NA,,FALSE,,
+Adriatic Sea,STECFarea,NA,,FALSE,,
+Aegean-Levantine Sea,STECFarea,NA,,FALSE,,
+Arctic Ocean,STECFarea,NA,,FALSE,,
+Azores,STECFarea,DS_10 EU,,TRUE,,Double check
+Azores,STECFarea,WW_10 EU,,TRUE,,Double check
+Baltic Sea,STECFarea,BAL_28.2,,TRUE,,
+Baltic Sea,STECFarea,BAL_A,,TRUE,,
+Baltic Sea,STECFarea,BAL_B,,TRUE,,
+Baltic Sea,STECFarea,BAL_C,,TRUE,,
+Baltic Sea,STECFarea,FDFBAL_A,,TRUE,,
+Baltic Sea,STECFarea,FDFBAL_B,,TRUE,,
+Baltic Sea,STECFarea,FDFIIA_3C,,TRUE,,
+Baltic Sea,STECFarea,FDFIIA_3D,,TRUE,,
+Baltic Sea,STECFarea,IIA_3C,,TRUE,,
+Baltic Sea,STECFarea,IIA_3D,,TRUE,,
+Bay of Biscay and the Iberian Coast,STECFarea,BOB_8A-BOB,,TRUE,,
+Bay of Biscay and the Iberian Coast,STECFarea,BOB_8B-BOB,,TRUE,,
+Bay of Biscay and the Iberian Coast,STECFarea,DS_8 EU,,TRUE,,
+Bay of Biscay and the Iberian Coast,STECFarea,DS_9 EU,,TRUE,,
+Bay of Biscay and the Iberian Coast,STECFarea,IIB_8C-9A,,TRUE,,
+Bay of Biscay and the Iberian Coast,STECFarea,WW_8 EU,,TRUE,,
+Bay of Biscay and the Iberian Coast,STECFarea,WW_9 EU,,TRUE,,
+Black Sea,STECFarea,NA,,FALSE,,
+Celtic Seas,STECFarea,CEL1_7BCEFGHJK,,TRUE,,
+Celtic Seas,STECFarea,CEL2_7FG,,TRUE,,
+Celtic Seas,STECFarea,DS_5 EU,,TRUE,,
+Celtic Seas,STECFarea,DS_6 EU,,TRUE,,
+Celtic Seas,STECFarea,DS_7 EU NO 7D,,TRUE,,
+Celtic Seas,STECFarea,FDFIIC_7E,,TRUE,,
+Celtic Seas,STECFarea,IIC_7E,,TRUE,,
+Celtic Seas,STECFarea,WW_5 EU,,TRUE,,Double check
+Celtic Seas,STECFarea,WW_6 EU,,TRUE,,
+Celtic Seas,STECFarea,WW_7 EU NO 7D,,TRUE,,
+Greater North Sea,STECFarea,DS_3 NO BALTIC,,TRUE,,
+Greater North Sea,STECFarea,DS_4,,TRUE,,
+Greater North Sea,STECFarea,DS_7D,,TRUE,,
+Greater North Sea,STECFarea,FDFIIA_3A,,TRUE,,
+Greater North Sea,STECFarea,FDFIIA_3B1,,TRUE,,
+Greater North Sea,STECFarea,FDFIIA_3B2,,TRUE,,
+Greater North Sea,STECFarea,FDFIIA_3B3,,TRUE,,
+Greater North Sea,STECFarea,IIA_3A,,TRUE,,
+Greater North Sea,STECFarea,IIA_3B1,,TRUE,,
+Greater North Sea,STECFarea,IIA_3B2,,TRUE,,
+Greater North Sea,STECFarea,IIA_3B3,,TRUE,,
+Greater North Sea,STECFarea,WW_7D,,TRUE,,
+Greenland Sea,STECFarea,DS_14 NON EU,,TRUE,,
+Iceland Sea,STECFarea,DS_5 NON EU,,TRUE,,Double check
+Iceland Sea,STECFarea,WW_5 NON EU,,TRUE,,Double check
+Ionian Sea and the Central Mediterranean Sea,STECFarea,NA,,FALSE,,
+Norwegian Sea and Barents Sea,STECFarea,DS_1 NON EU,,TRUE,,
+Norwegian Sea and Barents Sea,STECFarea,DS_2 EU,,TRUE,,
+Norwegian Sea and Barents Sea,STECFarea,DS_2 NON EU,,TRUE,,
+Oceanic north-east Atlantic,STECFarea,DS_6 NON EU,,TRUE,,
+Oceanic north-east Atlantic,STECFarea,DS_7 NON EU,,TRUE,,
+Oceanic north-east Atlantic,STECFarea,DS_8 NON EU,,TRUE,,
+Oceanic north-east Atlantic,STECFarea,DS_9 NON EU,,TRUE,,
+Oceanic north-east Atlantic,STECFarea,DS_10 NON EU,,TRUE,,
+Oceanic north-east Atlantic,STECFarea,DS_12 NON EU,,TRUE,,
+Oceanic north-east Atlantic,STECFarea,WW_6 NON EU,,TRUE,,
+Oceanic north-east Atlantic,STECFarea,WW_7 NON EU,,TRUE,,
+Oceanic north-east Atlantic,STECFarea,WW_8 NON EU,,TRUE,,
+Oceanic north-east Atlantic,STECFarea,WW_9 NON EU,,TRUE,,
+Oceanic north-east Atlantic,STECFarea,WW_10 NON EU,,TRUE,,
+Western Mediterranean Sea,STECFarea,NA,,FALSE,,

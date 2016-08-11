@@ -3,56 +3,36 @@ title: "fisheryO: Fisheries Overviews for ICES Advice"
 author: "Scott Large"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
+
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{"fisheryO: Fisheries Overviews for ICES Advice"}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+## Purpose
 
-Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
+The purpose of this document is to report how data were aggregate and manipulated to plot the Fisheries Overviews Advisory Products. The following systems will be included:
 
-- Never uses retina figures
-- Has a smaller default figure size
-- Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style
+1.	Baltic Sea Ecoregion
+2.	Azores Ecoregion
+3.	Oceanic north-east Atlantic Ecoregion
+4.	Bay of Biscay and the Iberian Coast Ecoregion
+5.	Celtic Seas Ecoregion
+6.	Greater North Sea Ecoregion
+7.	Faroes Ecoregion
+8.	Icelandic Ecoregion
+9.	Norwegian Sea and Barents Sea Ecoregions
+10.	Greenland Sea Ecoregion
 
-## Vignette Info
+## Data Sources
+The main data for the Fisheries Overviews come from several sources: 
 
-Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette.
+* [Catch Statistics](http://ices.dk/marine-data/dataset-collections/Pages/Fish-catch-and-stock-assessment.aspx) that are officially submitted by 20 ICES member countries and are collected and coordinated in collaboration with the Statistical Office of the European Communities (EUROSTAT). Questions about these data can be directed to <A HREF="mailto:anna.osypchuk@ices.dk?subject=EUROSTAT%20Data">anna.osypchuk@ices.dk</A>
+    * Historical (1950-2010)
+    * Official Nominal Catches (2006-2014) 
+* [Effort Data (STECF)](https://stecf.jrc.ec.europa.eu/documents/43805/870977/2014-12_STECF+14-20+-+Evaluation+of+Fishing+Effort+Regimes+-p2_JRC93183.pdf)
+* [Stock Assessment Graphs Database](http://ices.dk/marine-data/tools/Pages/stock-assessment-graphs.aspx) are the assessment results used to provide ICES single stock advice. Questions about these data can be directed to <A HREF="mailto:carlos@ices.dk?subject=SAG%20Data">carlos@ices.dk</A>
 
-## Styles
+## Data manipulation
+ICES Catch Statistics, STECF Effort Data, and Stock Assessment output are not provided at consistent spatial aggregations and must be manipulated.
 
-The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
-
-    output: 
-      rmarkdown::html_vignette:
-        css: mystyles.css
-
-## Figures
-
-The figure sizes have been customised so that you can easily put two images side-by-side. 
-
-```{r, fig.show='hold'}
-plot(1:10)
-plot(10:1)
-```
-
-You can enable figure captions by `fig_caption: yes` in YAML:
-
-    output:
-      rmarkdown::html_vignette:
-        fig_caption: yes
-
-Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
-
-## More Examples
-
-You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
-
-```{r, echo=FALSE, results='asis'}
-knitr::kable(head(mtcars, 10))
-```
-
-Also a quote using `>`:
-
-> "He who gives up [code] safety for [code] speed deserves neither."
-([via](https://twitter.com/hadleywickham/status/504368538874703872))

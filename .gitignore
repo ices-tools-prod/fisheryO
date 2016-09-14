@@ -2,6 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+*.Rproj
 packrat/lib*/
-^output/
-^Electronic_appendices/
+output/
+Electronic_appendices/

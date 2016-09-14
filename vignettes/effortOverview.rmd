@@ -48,7 +48,6 @@ effortDat <- read_excel(unzip(tmpFileEffort,
 stecfCatchDat <- read_excel(unzip(tmpFileEffort,
                                   files = "Electronic_appendices/Landings_Discards_Discard-rates.xlsx"),
                             sheet = "Land_Disc_Disc-rate_by_Country")
-#
 
 ```
 
@@ -153,13 +152,22 @@ effortDatClean <- effortDat %>%
 
 
 ```{r stecfAreaPlotEffort, include = TRUE}
-stecfEffortAreaPlot <- function(IA, type = c("GEAR", "COUNTRY")[1], fig.save = FALSE, fig.plot = TRUE) {
-  # 
+# IA = unique(allDat$ECOREGION)[1]
+# type = c("GEAR", "COUNTRY")[2]
+
+stecfEffortAreaPlot <- function(IA = unique(allDat$ECOREGION)[1], 
+                                type = c("GEAR", "COUNTRY")[1],
+                                fig.save = FALSE,
+                                fig.plot = TRUE,
+                                fig.width = 10,
+                                fig.height = 10,
+                                text.size = 9, 
+                                ...) {
+  
   iaDat <- allDat[allDat$ECOREGION == IA,] 
-  # for(type in c("GEAR", "COUNTRY")) {
-    # 
+  
   dots <- lapply(c("ANNEX", type, "YEAR"), as.symbol)
-    # dots <- lapply(c("ANNEX", "GEAR", "YEAR"), as.symbol)
+  
   catchPlot <- iaDat %>%
     group_by_(.dots = dots[1:2]) %>%
     dplyr::summarize(typeTotal = sum(VALUE, na.rm = TRUE)) %>% # Overall catch to order plot
@@ -177,19 +185,28 @@ stecfEffortAreaPlot <- function(IA, type = c("GEAR", "COUNTRY")[1], fig.save = F
                   COUNTRY = replace(COUNTRY, RANK > 10, "OTHER")) %>%
     group_by_(.dots = dots) %>%
     dplyr::summarize(typeTotal = sum(VALUE, na.rm = TRUE))
+  
+  if(nchar(max(catchPlot$typeTotal, na.rm = TRUE)) >= 6) {
+    catchPlot$typeTotal <- catchPlot$typeTotal / 1000
+    catchLabel <- "Effort (1000 kW days at sea)"
+  } else {
+    catchLabel <- "Effort (kW days at sea)"
+  }
+  
   # 
   catchPlot <- rbind(catchPlot[!catchPlot[[type]] == "OTHER",],
                      catchPlot[catchPlot[[type]] == "OTHER",])
+  
   
   catchPlot$ANNEX <- as.factor(catchPlot$ANNEX)
   # 
   colList <- c("#DB9D85", "#C7A76C", "#ABB065", "#86B875", "#5CBD92",
                "#39BEB1", "#4CB9CC", "#7DB0DD", "#ACA4E2", "#CD99D8")
   # 
- multiplot <- function(..., plotlist=NULL, file, cols=2, layout=NULL) {
+  multiplot <- function(..., plotlist = NULL, file, cols = 2, layout = NULL) {
     # Make a list from the ... arguments and plotlist
     plots <- c(list(...), plotlist)
-
+    
     numPlots = length(plots)
     # If layout is NULL, then use 'cols' to determine layout
     if (is.null(layout)) {
@@ -206,18 +223,18 @@ stecfEffortAreaPlot <- function(IA, type = c("GEAR", "COUNTRY")[1], fig.save = F
       grid.newpage()
       pushViewport(viewport(layout = grid.layout(nrow(layout), 
                                                  ncol(layout))))
-
+      
       # Make each plot, in the correct location
       for (i in 1:numPlots) {
         # Get the i,j matrix positions of the regions that contain this subplot
         matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
         print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
-                                            layout.pos.col = matchidx$col))
+                                        layout.pos.col = matchidx$col))
       }
     }
   }
   # 
-  out <- by(data = catchPlot, INDICES = catchPlot$ANNEX, FUN = function(m) {
+  out <- by(data = catchPlot, INDICES = catchPlot$ANNEX, FUN = function(m)) {
     # 
     m <- droplevels(m)
     m[[type]] <- factor(m[[type]], levels = unique(m[[type]]))
@@ -225,31 +242,36 @@ stecfEffortAreaPlot <- function(IA, type = c("GEAR", "COUNTRY")[1], fig.save = F
     names(mColors) <- levels(m[[type]])
     mColors["OTHER"] <- "grey40"
     # 
+    
     m <- ggplot(m, aes(x = YEAR, y = typeTotal)) + 
-                geom_area(aes_string(fill = type, color = type), alpha = .8, position = "stack") +
-                scale_fill_manual(values = mColors) +
-                scale_color_manual(values = mColors) +
-                scale_x_continuous(breaks = round(seq(min(catchPlot$YEAR), 
-                                                      max(catchPlot$YEAR), by = 2))) +
-                labs(title = m$ANNEX,
-                     x = "",
-                     y = "Effort (kW days at sea)",
-                     fill = ifelse(type == "GEAR", "Gear", "Country"),
-                     color = ifelse(type == "GEAR", "Gear", "Country")) +
-                theme_bw(base_size = 9*(81/169))
-  })
-
-  # plotMat <- seq(1, length(unique(catchPlot$ANNEX)), by = 1)
-  # lay =  matrix(plotMat, ncol = 2, byrow=TRUE)
+      geom_area(aes_string(fill = type, color = type), alpha = .8, position = "stack") +
+      scale_fill_manual(values = mColors) +
+      scale_color_manual(values = mColors) +
+      scale_x_continuous(breaks = round(seq(min(catchPlot$YEAR), 
+                                            max(catchPlot$YEAR), by = 2))) +
+      labs(title = m$ANNEX,
+           x = "",
+           y = catchLabel,
+           fill = ifelse(type == "GEAR", "Gear", "Country"),
+           color = ifelse(type == "GEAR", "Gear", "Country")) +
+      theme(legend.key.size = unit(0.25, "lines")) + 
+      # theme() + 
+      theme_bw(base_size = text.size)
+    # theme_get()
+  }
+  
+  
   if(fig.save == TRUE) {
-  figName <- ifelse(type == "COUNTRY", "figure2_", "figure6_")
-  png(filename = paste0("~/git/ices-dk/fisheryO/output/", figName, IA, ".png"),
-    width = 6.5,
-    height = 6.5,
-    units = "in",
-    res = 600)
-  multiplot(plotlist = out, cols = 2)
-  dev.off()
+    
+    figName <- ifelse(type == "COUNTRY", "figure2_", "figure6_")
+    
+    png(filename = paste0("~/git/ices-dk/fisheryO/output/", figName, IA, ".png"),
+        width = fig.width,
+        height = fig.height,
+        units = "cm",
+        res = 600)
+    multiplot(plotlist = out, cols = 2)
+    dev.off()
   }
   if(fig.plot == TRUE) {
     multiplot(plotlist = out, cols = 2)
@@ -260,9 +282,9 @@ stecfEffortAreaPlot <- function(IA, type = c("GEAR", "COUNTRY")[1], fig.save = F
  
   
 ```{r plotStecfAreaEffort, echo=FALSE, results='hide', fig.keep='all'}
-allDat <- effortDatClean
-lapply(unique(allDat$ECOREGION), stecfEffortAreaPlot, type = "COUNTRY", fig.save = TRUE, fig.plot = FALSE)
-lapply(unique(allDat$ECOREGION), stecfEffortAreaPlot, type = "GEAR", fig.save = TRUE, fig.plot = FALSE)
+allDat <- effortDatClean 
+lapply(unique(allDat$ECOREGION), stecfEffortAreaPlot, type = "COUNTRY", fig.save = TRUE, fig.plot = FALSE, fig.width = 15, fig.height = 10, text.size = 7) 
+lapply(unique(allDat$ECOREGION), stecfEffortAreaPlot, type = "GEAR", fig.save = TRUE, fig.plot = FALSE) 
 
 ```
 
@@ -304,7 +326,14 @@ stecfCatchDatClean <- stecfCatchDat %>%
 
 ```{r stecfAreaPlotCatch, include = TRUE}
 
-stecfCatchAreaPlot <- function(IA, fig.save = FALSE, fig.plot = TRUE) {
+stecfCatchAreaPlot <- function(IA = unique(allDat$ECOREGION)[1],
+                               fig.save = FALSE, 
+                               fig.plot = TRUE,
+                               fig.width = 10,
+                               fig.height = 10,
+                               text.size = 9, 
+                               ...) {
+  
   # 
   iaDat <- allDat[allDat$ECOREGION == IA,] 
   dots <- lapply(c("ANNEX", "GEAR", "YEAR"), as.symbol)
@@ -377,18 +406,19 @@ stecfCatchAreaPlot <- function(IA, fig.save = FALSE, fig.plot = TRUE) {
                      y = "Landings (tonnes)",
                      fill = "Gear",
                      color = "Gear") +
-                theme_bw(base_size = 9*(81/169))
+                theme_bw(base_size = text.size)
   })
-
- if(fig.save == TRUE) {
-
-  png(filename = paste0("~/git/ices-dk/fisheryO/output/figure5_", IA, ".png"),
-    width = 6.5,
-    height = 6.5,
-    units = "in",
-    res = 600)
-  multiplot(plotlist = out, cols = 2)
-  dev.off()
+  
+  if(fig.save == TRUE) {
+    
+    png(filename = paste0("~/git/ices-dk/fisheryO/output/figure5_", IA, ".png"),
+        width = fig.width,
+        height = fig.height,
+        units = "cm",
+        dpi = 600)
+    
+    multiplot(plotlist = out, cols = 2)
+    dev.off()
   }
   if(fig.plot == TRUE) {
     multiplot(plotlist = out, cols = 2)

@@ -114,10 +114,25 @@ countryNames <- read.csv("~/git/ices-dk/fisheryO/inst/extdata/countryNames.csv",
 
 countryNames <- countryNames %>%
   filter(VARIABLE %in% c("historicNames", "catchNames"))
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+# DATA SOURCE: FAO codes and ICES stock codes #
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+# (NOTE: current ICES stock codes do not necessarily match with FAO 3-character
+# codes, in the future this look-up table should not be necessary - SL)
+speciesID <- read.csv("~/git/ices-dk/fisheryO/inst/extdata/ICESspeciesID_v1.csv",
+                      stringsAsFactors = FALSE)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+# DATA SOURCE: Fishery guilds by ICES stock code #
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+# (NOTE: These guilds should become a part of the RECO database - SL)
+fisheryGuild <- read.csv("~/git/ices-dk/fisheryO/inst/extdata/fishGuild.csv",
+                         stringsAsFactors = FALSE)
 ```
 
 
-```{r SelectAreas, include = TRUE}
+```{r dataCleaning, include = TRUE}
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # Data cleaning and aggregating #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
@@ -127,6 +142,15 @@ catchAreaID <- areaID %>%
   mutate(value = tolower(value),
          value = gsub("_nk", "_NK", value))
  
+
+# ~~~ Clean up Fishery Guild information ~~~ #
+fisheryGuild <- fisheryGuild %>%
+  # mutate(speciesID = toupper(gsub( "-.*$", "", Stock.code))) %>%
+  # inner_join(speciesID, c("speciesID" = "oldCode")) %>%
+  select(GUILD,
+         SPECIES_CODE) %>%
+  distinct()
+
 ```
 
 
@@ -140,14 +164,16 @@ catchDat2010Clean <- catchDat2010 %>%
        value.name = "VALUE") %>%
   mutate(YEAR = as.numeric(gsub("X", "", YEAR)),
          VALUE = as.numeric(VALUE)) %>% 
-  full_join(spList, c("Species" = "X3A_CODE")) %>% # merge with FAO species names
-  full_join(countryNames, c("Country" = "VALUE")) %>% # merge with ISO country names
+  left_join(spList, c("Species" = "X3A_CODE")) %>% # merge with FAO species names
+  left_join(countryNames, c("Country" = "VALUE")) %>% # merge with ISO country names
   full_join(catchAreaID, c("ICES_Area" = "value")) %>% # Merge to add ecoregions (only areas defined in catchAreaID!)
+  left_join(fisheryGuild, c("Species" = "SPECIES_CODE")) %>% # merge with guild
   filter(ICES_Area %in% catchAreaID$value) %>% 
   select(YEAR, 
          ECOREGION = Ecoregion,
          COUNTRY,
          ISO3,
+         GUILD = GUILD,
          SPECIES_NAME = Scientific_name,
          COMMON_NAME = English_name,
          SPECIES_CODE = Species,
@@ -171,9 +197,12 @@ catchDat1950Clean <- catchDat1950 %>%
   left_join(y = historicID, c("historicName" = "historicName")) %>% # Merge to add information on ICES Areas
   left_join(y = areaID, c("historicName" = "value")) %>% # Merge to add ecoregions
   left_join(y = countryNames, c("Country" = "VALUE")) %>% # Merge to add consistent country codes
+  left_join(fisheryGuild, c("X3A_CODE" = "SPECIES_CODE")) %>% # merge with guild
   select(YEAR, 
          ECOREGION = Ecoregion,# Grab necessary columns and rename accordingly
-         COUNTRY, ISO3, 
+         COUNTRY, 
+         ISO3, 
+         GUILD,
          SPECIES_NAME = Scientific_name, 
          COMMON_NAME = Species,
          SPECIES_CODE = X3A_CODE,
@@ -219,100 +248,119 @@ catchDat1950Clean <- catchDat1950 %>%
 
 ```{r DataMerge}
 allDat <- catchDat2010Clean %>%
-  bind_rows(catchDat1950Clean)
+  bind_rows(catchDat1950Clean) %>%
+  mutate(GUILD = ifelse(is.na(GUILD), "undefined", GUILD))
 ```
 
 
 
 ```{r areaPlot, include = TRUE}
-icesAreaPlot <- function(area = unique(allDat$ECOREGION)[1],
-                         IA,
-                         type = c("COMMON_NAME", "COUNTRY")[1],
+
+# area = "ECOREGION"
+# IA = unique(allDat$ECOREGION)[7]
+# type = c("COMMON_NAME", "COUNTRY", "GUILD")[3]
+
+icesAreaPlot <- function(area = "ECOREGION",
+                         IA = unique(allDat$ECOREGION)[1],
+                         type = c("COMMON_NAME", "COUNTRY", "GUILD")[1],
                          fig.save = FALSE,
-                         fig.plot = TRUE) {
-  # 
-  # library(gridExtra)
-  # 
+                         fig.plot = TRUE,
+                         fig.width = 10,
+                         fig.height = 10,
+                         text.size = 9, 
+                         ...) {
+   
   iaDat <- allDat[allDat[[area]] == IA,] 
-  # for(type in c("COMMON_NAME", "COUNTRY")) {
-    # 
-    dots <- lapply(c(type, area, "YEAR"), as.symbol)
-    catchPlot <- iaDat %>%
-      group_by_(.dots = dots[1]) %>%
-      dplyr::summarize(typeTotal = sum(VALUE, na.rm = TRUE)) %>% # Overall catch to order plot
-      arrange(-typeTotal) %>%
-      filter(typeTotal >= 1) %>%
-      dplyr::mutate(RANK = min_rank(desc(typeTotal))) %>%
-      inner_join(iaDat, ifelse(type == "COMMON_NAME", 
-                               c("COMMON_NAME" = "COMMON_NAME"),
-                               c("COUNTRY" = "COUNTRY"))) %>%
-      dplyr::mutate(COUNTRY = replace(COUNTRY, RANK > 10, "OTHER"),
-                    COMMON_NAME = replace(COMMON_NAME, RANK > 10, "OTHER"),
-                    COMMON_NAME = gsub("\\(=", " \\(", COMMON_NAME)) %>%
-      group_by_(.dots = dots) %>%
-      dplyr::summarize(typeTotal = sum(VALUE, na.rm = TRUE))
-    # 
-    catchPlot <- rbind(catchPlot[!catchPlot[[type]] == "OTHER",],
-                       catchPlot[catchPlot[[type]] == "OTHER",])
-    # 
-    colList <- c("#DB9D85", "#C7A76C", "#ABB065", "#86B875", "#5CBD92",
-                 "#39BEB1", "#4CB9CC", "#7DB0DD", "#ACA4E2", "#CD99D8")
-    # 
-     
-    catchPlot[[type]] <- factor(catchPlot[[type]], levels = unique(catchPlot[[type]]))
-    myColors <- colList[1:length(unique(catchPlot[[type]]))]
-    names(myColors) <- levels(catchPlot[[type]])
-    myColors["OTHER"] <- "grey40"
-    # 
-    if(type == "COUNTRY"){
-      countryColors <- myColors
-      pl <- ggplot(catchPlot, aes(x = YEAR, y = typeTotal)) +
-        geom_area(aes_string(fill = type, color = type), alpha = .8, position = "stack") +
-        scale_fill_manual(values = countryColors) +
-        scale_color_manual(values = countryColors) +
-        labs(title = gsub("27.", "", IA),
-             x = "",
-             y = "Landings (tonnes)",
-             fill = "Country",
-             color = "Country") +
-        theme_bw(base_size = 9*(81/169))
-      }
-    if(type == "COMMON_NAME"){
-      commonColors <- myColors
-      pl <- ggplot(catchPlot, aes(x = YEAR, y = typeTotal)) +
-        geom_area(aes_string(fill = type, color = type), alpha = .8, position = "stack") +
-        scale_fill_manual(values = commonColors) +
-        scale_color_manual(values = commonColors) +
-        labs(title = gsub("27.", "", IA),
-             x = "",
-             y = "Landings (tonnes)",
-             fill = "Species",
-             color = "Species") +
-             theme_bw(base_size = 9*(81/169))
-    }
-    # 
-    if(fig.save == TRUE) {
-      figName <- ifelse(type == "COUNTRY", "figure1_", "figure4_")
-      # png(filename = paste0("~/git/ices-dk/fisheryO/output/", figName, IA, ".png"),
-      #     width = 6.5,
-      #     height = 6.5,
-      #     units = "in",
-      #     res = 600)
-      ggsave(filename = paste0("~/git/ices-dk/fisheryO/output/", figName, IA, ".png"),
-             plot = pl, 
-             width = 6.5,
-          height = 6.5,
-          units = "in",
-          dpi = 600)
-             
-      # dev.off()
-    }
-    if(fig.plot == TRUE) {
-      pl
-    }
-  # }
- # g <- grid.arrange(plCOUNTRY, plCOMMON, ncol = 2)
- # invisible(g)
+  # 
+  dots <- lapply(c(type, area, "YEAR"), as.symbol)
+  catchPlot <- iaDat %>%
+    group_by_(.dots = dots[1]) %>%
+    dplyr::summarize(typeTotal = sum(VALUE, na.rm = TRUE)) %>% # Overall catch to order plot
+    arrange(-typeTotal) %>%
+    filter(typeTotal >= 1) %>%
+    dplyr::mutate(RANK = min_rank(desc(typeTotal))) %>%
+    inner_join(iaDat, ifelse(type == "COMMON_NAME", 
+                             c("COMMON_NAME" = "COMMON_NAME"),
+                             ifelse(type == "COUNTRY",
+                                    c("COUNTRY" = "COUNTRY"),
+                                    c("GUILD" = "GUILD")))) %>%
+    dplyr::mutate(COUNTRY = replace(COUNTRY, RANK > 10, "OTHER"),
+                  COMMON_NAME = replace(COMMON_NAME, RANK > 10, "OTHER"),
+                  COMMON_NAME = gsub("\\(=", " \\(", COMMON_NAME)) %>%
+    group_by_(.dots = dots) %>%
+    dplyr::summarize(typeTotal = sum(VALUE, na.rm = TRUE)) %>%
+    filter(!is.na(YEAR))
+  # 
+  catchPlot <- rbind(catchPlot[!catchPlot[[type]] == "OTHER",],
+                     catchPlot[catchPlot[[type]] == "OTHER",])
+   
+  colList <- c("#DB9D85", "#C7A76C", "#ABB065", "#86B875", "#5CBD92",
+               "#39BEB1", "#4CB9CC", "#7DB0DD", "#ACA4E2", "#CD99D8")
+   
+  catchPlot[[type]] <- factor(catchPlot[[type]], levels = unique(catchPlot[[type]]))
+  myColors <- colList[1:length(unique(catchPlot[[type]]))]
+  names(myColors) <- levels(catchPlot[[type]])
+  myColors["OTHER"] <- "grey40"
+   
+  if(type == "COUNTRY"){
+    countryColors <- myColors
+    pl <- ggplot(catchPlot, aes(x = YEAR, y = typeTotal)) +
+      geom_area(aes_string(fill = type, color = type), alpha = .8, position = "stack") +
+      scale_fill_manual(values = countryColors) +
+      scale_color_manual(values = countryColors) +
+      labs(title = gsub("27.", "", IA),
+           x = "",
+           y = "Landings (tonnes)",
+           fill = "Country",
+           color = "Country") +
+      theme_bw(base_size = text.size)
+  }
+  if(type == "COMMON_NAME"){
+    commonColors <- myColors
+    pl <- ggplot(catchPlot, aes(x = YEAR, y = typeTotal)) +
+      geom_area(aes_string(fill = type, color = type), alpha = .8, position = "stack") +
+      scale_fill_manual(values = commonColors) +
+      scale_color_manual(values = commonColors) +
+      labs(title = gsub("27.", "", IA),
+           x = "",
+           y = "Landings (tonnes)",
+           fill = "Species",
+           color = "Species") +
+      theme_bw(base_size = text.size)
+  }
+  if(type == "GUILD"){
+    guildColors <- myColors
+    pl <- ggplot(catchPlot, aes(x = YEAR, y = typeTotal)) +
+      geom_area(aes_string(fill = type, color = type), alpha = .8, position = "stack") +
+      scale_fill_manual(values = guildColors) +
+      scale_color_manual(values = guildColors) +
+      labs(title = gsub("27.", "", IA),
+           x = "",
+           y = "Landings (tonnes)",
+           fill = "Fishery guild",
+           color = "Fishery guild") +
+      theme_bw(base_size = text.size)
+  }
+  
+  # 
+  if(fig.save == TRUE) {
+    figName <- ifelse(type == "COUNTRY",
+                      "figure1_",
+                      ifelse(type == "COMMON_NAME",
+                             "figure4_",
+                             "figure3_"))
+    
+    ggsave(filename = paste0("~/git/ices-dk/fisheryO/output/", figName, IA, ".png"),
+           plot = pl, 
+           width = fig.width,
+           height = fig.height,
+           units = "cm",
+           dpi = 600)
+    
+  }
+  if(fig.plot == TRUE) {
+    pl
+  }
 }
 ```
 
@@ -320,113 +368,113 @@ icesAreaPlot <- function(area = unique(allDat$ECOREGION)[1],
 Trace the plots to see annual landings for each aggregation. Click and highlight the time-series for a closer look and double-click to return to the original view.
 
 ```{r DynamicPlot, include = TRUE}
-icesAreaDy <- function(area = unique(allDat$ECOREGION)[1],
-                         IA) {
-  # 
-  colList <- c("#DB9D85", "#C7A76C", "#ABB065", "#86B875", "#5CBD92",
-               "#39BEB1", "#4CB9CC", "#7DB0DD", "#ACA4E2", "#CD99D8")
-  # 
-  type = "COUNTRY"
-  iaDat <- allDat[allDat[[area]] == IA,] 
-  for(type in c("COMMON_NAME", "COUNTRY")) {
-    # 
-    dots <- lapply(c(type, area, "YEAR"), as.symbol)
-    # dots2 <- lapply(c(type, "typeTotal", "YEAR"), as.symbol)
-    #
-    catchDy <- iaDat %>%
-      group_by_(.dots = dots[1]) %>%
-      dplyr::summarize(typeTotal = sum(VALUE, na.rm = TRUE)) %>% # Overall catch to order plot
-      arrange(-typeTotal) %>%
-      filter(typeTotal >= 1) %>%
-      dplyr::mutate(RANK = min_rank(desc(typeTotal))) %>%
-      inner_join(iaDat, ifelse(type == "COMMON_NAME", 
-                               c("COMMON_NAME" = "COMMON_NAME"),
-                               c("COUNTRY" = "COUNTRY"))) %>%
-      dplyr::mutate(COUNTRY = replace(COUNTRY, RANK > 10, "OTHER"),
-                    COMMON_NAME = replace(COMMON_NAME, RANK > 10, "OTHER"),
-                    COMMON_NAME = gsub("\\(=", " \\(", COMMON_NAME)) %>%
-      group_by_(.dots = dots) %>%
-      dplyr::summarize(typeTotal = sum(VALUE, na.rm = TRUE))
-    # 
-    catchDy <- rbind(catchDy[catchDy[[type]] == "OTHER",],
-                     catchDy[!catchDy[[type]] == "OTHER",])
-    # 
-    if(type == "COUNTRY"){
-      counOrder <- unique(catchDy$COUNTRY)
-      counOrder <- ifelse(counOrder %in% "OTHER", 
-                          c("OTHER", counOrder[!counOrder %in% c("OTHER")]),
-                          counOrder)
-      # 
-      counDy <- catchDy %>%
-        ungroup() %>%
-        select(COUNTRY, typeTotal, YEAR) %>%
-        tidyr::spread(COUNTRY, typeTotal) %>%
-        mutate(YEAR = as.Date(paste(YEAR, "-01",sep=""), format = "%Y-%M"))
-      # 
-      counDy <- counDy[,c("YEAR", counOrder)]
-      # 
-      counDyTS <- as.xts(counDy[ ,!(names(counDy) %in% c("YEAR"))],
-                         dateFormat = "Date",
-                         order.by = counDy$YEAR)
-      # 
-      counNames <- factor(names(counDyTS), levels = names(counDyTS))
-      counCols <- c("grey40", colList[1:length(levels(counNames))-1])
-      dyColors <- factor(counCols, levels = counCols)
-      names(dyColors) <- levels(counNames)
-      # 
-      cody <- dygraph(counDyTS,
-              main = paste0(gsub("27.", "", IA), " landings by country"),
-              ylab = "Landings (tonnes)") %>%
-        dyOptions(colors = levels(dyColors),
-                  labelsKMB = "M", 
-                  stackedGraph = TRUE) %>%
-        dyHighlight(highlightCircleSize = 5, 
-                    highlightSeriesBackgroundAlpha = .8,
-                    # highlightSeriesOpts = list(fillGraph = TRUE),
-                    hideOnMouseOut = FALSE) %>%
-        # dyRangeSelector(height = 50) %>%
-        dyLegend(labelsSeparateLines = FALSE)
-    }
-    if(type == "COMMON_NAME"){
-      specOrder <- unique(catchDy$COMMON_NAME)
-      specOrder <- ifelse(specOrder %in% "OTHER", 
-                          c("OTHER", specOrder[!specOrder %in% c("OTHER")]),
-                          specOrder)
-      # 
-      specDy <- catchDy %>%
-        ungroup() %>%
-        select(COMMON_NAME, typeTotal, YEAR) %>%
-        tidyr::spread(COMMON_NAME, typeTotal) %>%
-        mutate(YEAR = as.Date(paste(YEAR, "-01",sep=""), format = "%Y-%M"))
-      specDy <- specDy[,c("YEAR", specOrder)]
-      # 
-      specDyTS <- as.xts(specDy[ ,!(names(specDy) %in% c("YEAR"))],
-                       dateFormat = "Date",
-                       order.by = specDy$YEAR)
-      # 
-      specNames <- factor(names(specDyTS), levels = names(specDyTS))
-      specCols <- c("grey40", colList[1:length(levels(specNames))-1])
-      dySplors <- factor(specCols, levels = specCols)
-      names(dySplors) <- levels(specNames)
-      # 
-      spdy <- dygraph(specDyTS,
-              main = paste0(gsub("27.", "", IA), " landings by species"),
-              ylab = "Landings (tonnes)") %>%
-        dyOptions(colors = levels(dySplors),
-                  labelsKMB = "M", 
-                  stackedGraph = TRUE) %>%
-        dyHighlight(highlightCircleSize = 5, 
-                    highlightSeriesBackgroundAlpha = .8,
-                    hideOnMouseOut = FALSE) %>%
-        # dyRangeSelector(height = 50) %>%
-        dyLegend(width = 400,
-                 labelsSeparateLines = FALSE)
-    }
-  }
-  
-  htmltools::tagList(list(cody, spdy))
-# show(list(cody, spdy))
-}
+# icesAreaDy <- function(area = unique(allDat$ECOREGION)[1],
+#                          IA) {
+#   # 
+#   colList <- c("#DB9D85", "#C7A76C", "#ABB065", "#86B875", "#5CBD92",
+#                "#39BEB1", "#4CB9CC", "#7DB0DD", "#ACA4E2", "#CD99D8")
+#   # 
+#   type = "COUNTRY"
+#   iaDat <- allDat[allDat[[area]] == IA,] 
+#   for(type in c("COMMON_NAME", "COUNTRY")) {
+#     # 
+#     dots <- lapply(c(type, area, "YEAR"), as.symbol)
+#     # dots2 <- lapply(c(type, "typeTotal", "YEAR"), as.symbol)
+#     #
+#     catchDy <- iaDat %>%
+#       group_by_(.dots = dots[1]) %>%
+#       dplyr::summarize(typeTotal = sum(VALUE, na.rm = TRUE)) %>% # Overall catch to order plot
+#       arrange(-typeTotal) %>%
+#       filter(typeTotal >= 1) %>%
+#       dplyr::mutate(RANK = min_rank(desc(typeTotal))) %>%
+#       inner_join(iaDat, ifelse(type == "COMMON_NAME", 
+#                                c("COMMON_NAME" = "COMMON_NAME"),
+#                                c("COUNTRY" = "COUNTRY"))) %>%
+#       dplyr::mutate(COUNTRY = replace(COUNTRY, RANK > 10, "OTHER"),
+#                     COMMON_NAME = replace(COMMON_NAME, RANK > 10, "OTHER"),
+#                     COMMON_NAME = gsub("\\(=", " \\(", COMMON_NAME)) %>%
+#       group_by_(.dots = dots) %>%
+#       dplyr::summarize(typeTotal = sum(VALUE, na.rm = TRUE))
+#     # 
+#     catchDy <- rbind(catchDy[catchDy[[type]] == "OTHER",],
+#                      catchDy[!catchDy[[type]] == "OTHER",])
+#     # 
+#     if(type == "COUNTRY"){
+#       counOrder <- unique(catchDy$COUNTRY)
+#       counOrder <- ifelse(counOrder %in% "OTHER", 
+#                           c("OTHER", counOrder[!counOrder %in% c("OTHER")]),
+#                           counOrder)
+#       # 
+#       counDy <- catchDy %>%
+#         ungroup() %>%
+#         select(COUNTRY, typeTotal, YEAR) %>%
+#         tidyr::spread(COUNTRY, typeTotal) %>%
+#         mutate(YEAR = as.Date(paste(YEAR, "-01",sep=""), format = "%Y-%M"))
+#       # 
+#       counDy <- counDy[,c("YEAR", counOrder)]
+#       # 
+#       counDyTS <- as.xts(counDy[ ,!(names(counDy) %in% c("YEAR"))],
+#                          dateFormat = "Date",
+#                          order.by = counDy$YEAR)
+#       # 
+#       counNames <- factor(names(counDyTS), levels = names(counDyTS))
+#       counCols <- c("grey40", colList[1:length(levels(counNames))-1])
+#       dyColors <- factor(counCols, levels = counCols)
+#       names(dyColors) <- levels(counNames)
+#       # 
+#       cody <- dygraph(counDyTS,
+#               main = paste0(gsub("27.", "", IA), " landings by country"),
+#               ylab = "Landings (tonnes)") %>%
+#         dyOptions(colors = levels(dyColors),
+#                   labelsKMB = "M", 
+#                   stackedGraph = TRUE) %>%
+#         dyHighlight(highlightCircleSize = 5, 
+#                     highlightSeriesBackgroundAlpha = .8,
+#                     # highlightSeriesOpts = list(fillGraph = TRUE),
+#                     hideOnMouseOut = FALSE) %>%
+#         # dyRangeSelector(height = 50) %>%
+#         dyLegend(labelsSeparateLines = FALSE)
+#     }
+#     if(type == "COMMON_NAME"){
+#       specOrder <- unique(catchDy$COMMON_NAME)
+#       specOrder <- ifelse(specOrder %in% "OTHER", 
+#                           c("OTHER", specOrder[!specOrder %in% c("OTHER")]),
+#                           specOrder)
+#       # 
+#       specDy <- catchDy %>%
+#         ungroup() %>%
+#         select(COMMON_NAME, typeTotal, YEAR) %>%
+#         tidyr::spread(COMMON_NAME, typeTotal) %>%
+#         mutate(YEAR = as.Date(paste(YEAR, "-01",sep=""), format = "%Y-%M"))
+#       specDy <- specDy[,c("YEAR", specOrder)]
+#       # 
+#       specDyTS <- as.xts(specDy[ ,!(names(specDy) %in% c("YEAR"))],
+#                        dateFormat = "Date",
+#                        order.by = specDy$YEAR)
+#       # 
+#       specNames <- factor(names(specDyTS), levels = names(specDyTS))
+#       specCols <- c("grey40", colList[1:length(levels(specNames))-1])
+#       dySplors <- factor(specCols, levels = specCols)
+#       names(dySplors) <- levels(specNames)
+#       # 
+#       spdy <- dygraph(specDyTS,
+#               main = paste0(gsub("27.", "", IA), " landings by species"),
+#               ylab = "Landings (tonnes)") %>%
+#         dyOptions(colors = levels(dySplors),
+#                   labelsKMB = "M", 
+#                   stackedGraph = TRUE) %>%
+#         dyHighlight(highlightCircleSize = 5, 
+#                     highlightSeriesBackgroundAlpha = .8,
+#                     hideOnMouseOut = FALSE) %>%
+#         # dyRangeSelector(height = 50) %>%
+#         dyLegend(width = 400,
+#                  labelsSeparateLines = FALSE)
+#     }
+#   }
+#   
+#   htmltools::tagList(list(cody, spdy))
+# # show(list(cody, spdy))
+# }
 ```
 
 
@@ -438,9 +486,10 @@ icesAreaDy <- function(area = unique(allDat$ECOREGION)[1],
 
 <!-- ## Catch by ecoregion, aggregated by country and species (static plots) -->
 ```{r echo=FALSE, fig.width = 20, results='hide', fig.keep='all'}
-# icesAreaPlot(area = "ECOREGION", IA = "Greater North Sea")
+# icesAreaPlot(area = "ECOREGION", IA = unique(allDat$ECOREGION)[7],type = "GUILD", fig.save = FALSE, fig.plot = TRUE)
 # icesAreaPlot(area = "ECOREGION", IA = "Greater North Sea",  type = "COUNTRY", fig.save = TRUE, fig.plot = FALSE)
 lapply(unique(allDat$ECOREGION), icesAreaPlot, area = "ECOREGION", type = "COUNTRY", fig.save = TRUE, fig.plot = FALSE)
+lapply(unique(allDat$ECOREGION), icesAreaPlot, area = "ECOREGION", type = "GUILD", fig.save = TRUE, fig.plot = FALSE)
 lapply(unique(allDat$ECOREGION), icesAreaPlot, area = "ECOREGION", type = "COMMON_NAME", fig.save = TRUE, fig.plot = FALSE)
 
 ```

@@ -1,0 +1,409 @@
+---
+title: "Stock list table"
+author: ""
+date: ""
+output: html_document
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(DT)
+library(dplyr)
+library(shiny)
+library(jsonlite)
+library(XML)
+library(stringr)
+library(RCurl)
+library(reshape2)
+library(icesSAG)
+library(ReporteRs)
+```
+
+```{r makeData, include=FALSE}
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+# DATA SOURCE: FAO codes and ICES stock codes #
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+# (NOTE: current ICES stock codes do not necessarily match with FAO 3-character
+# codes, in the future this look-up table should not be necessary - SL)
+speciesID <- read.csv("~/git/ices-dk/fisheryO/inst/extdata/ICESspeciesID_v1.csv",
+                      stringsAsFactors = FALSE)
+# 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+# DATA SOURCE: Fishery guilds by ICES stock code #
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+# (NOTE: These guilds should become a part of the RECO database - SL)
+fisheryGuild <- read.csv("~/git/ices-dk/fisheryO/inst/extdata/fisheryGuild.csv",
+                         stringsAsFactors = FALSE)
+
+speciesGuild <- fisheryGuild %>%
+  mutate(speciesID = toupper(gsub( "-.*$", "", Stock.code)),
+         Stock.code = tolower(Stock.code)) %>%
+  full_join(speciesID, c("speciesID" = "oldCode")) %>%
+  select(STOCK.CODE = Stock.code,
+         FISHERIES.GUILD = Fisheries.Guild,
+         SPECIES.ID = speciesID,
+         SPECIES.NAME = speciesName,
+         -newCode)
+
+
+# Get stock list
+# url <- "http://admin.ices.dk/StockListServices/odata/StockListDWsOData?$filter=ActiveYear%20eq%202016"
+url <- "~/git/ices-dk/fisheryO/inst/extdata/StockListDWsOData.json"
+rawsl <- jsonlite::fromJSON(url, simplifyDataFrame = TRUE)$value
+
+# Combine Norwegian and Barents Sea Ecoregions
+rawsl$NorwegianSeaandBarentsSeaEcoregion[!is.na(rawsl$NorwegianSeaEcoregion) |
+                                          !is.na(rawsl$BarentsSeaEcoregion)] <- "x"
+# Reorganize from a wide data frame to a long data frame with species guild information
+ecoregions <- colnames(rawsl)[grepl("^.+(Ecoregion)$", colnames(rawsl))]
+
+dots <- lapply(c("StockCode", "Description", "DataCategory", "AdviceType", ecoregions),
+               as.symbol)
+
+sl <- rawsl %>%
+  select_(.dots = dots) %>%
+  melt(id.vars = c("StockCode", "Description", "DataCategory", "AdviceType")) %>%
+  filter(!is.na(value),
+         !variable %in% c("NorwegianSeaEcoregion", "BarentsSeaEcoregion")) %>%
+  select(STOCK.CODE = StockCode,
+         STOCK.NAME = Description,
+         CAT = DataCategory,
+         ADVICE.TYPE = AdviceType,
+         ECOREGION = variable,
+         -value) %>%
+  mutate(CAT = floor(as.numeric(CAT)),
+         STOCK.CODE = tolower(STOCK.CODE),
+         ADVICE.TYPE = ifelse(ADVICE.TYPE == "MSY/PA",
+                              "MSY", ADVICE.TYPE)) %>%
+  left_join(speciesGuild, c("STOCK.CODE" = "STOCK.CODE"))
+
+# Format the species names appropriately 
+slBinomial <- sl %>%
+  filter(!grepl(" spp", SPECIES.NAME),
+         grepl("[[:space:]]", SPECIES.NAME),
+         SPECIES.ID != "CYO") %>%
+  mutate(STOCK.NAME = str_replace_all(string = STOCK.NAME,
+                                      pattern = SPECIES.NAME, 
+                                      replacement = paste0("<em>", SPECIES.NAME, "</em>"))) 
+slANG <- sl %>%
+  filter(SPECIES.ID == "ANG") %>%
+  mutate(STOCK.NAME = str_replace_all(STOCK.NAME,
+                                      pattern = "Lophius piscatorius and L. budegassa",
+                                      replacement = "<em> Lophius piscatorius </em> and <em>L. budegassa</em>"))
+slSpp <- sl %>%
+  filter(grepl(" spp", SPECIES.NAME)) %>%
+  mutate(STOCK.NAME = str_replace_all(string = STOCK.NAME,
+                                      pattern = SPECIES.NAME, 
+                                      replacement = paste0("<em>",
+                                                           as.character(lapply(strsplit(SPECIES.NAME, split = " "), head, n = 1)),
+                                                           "</em> spp.")))
+slCYO <-  sl %>%
+  filter(SPECIES.ID == "CYO") %>%
+  mutate(STOCK.NAME = str_replace_all(STOCK.NAME,
+                                    pattern = "Centrophorus squamosus",
+                                    replacement = paste0("<em>Centrophorus squamosus</em>")),
+         STOCK.NAME = str_replace_all(STOCK.NAME,
+                                    pattern = SPECIES.NAME,
+                                    replacement = paste0("<em>", SPECIES.NAME, "</em>")))
+  
+# slRNG <- sl %>%
+#   filter(SPECIES.ID == "RNG") %>%
+#   filter(!grepl("[[:space:]]", SPECIES.NAME))
+# 
+# slCheck <- sl %>%
+#   select(-ECOREGION) %>%
+#   distinct %>%
+#   mutate(TT = str_match_all(STOCK.NAME,
+#                              pattern = SPECIES.NAME)) 
+# 
+# td <- slCheck[!lapply(slCheck$TT, length) >0,]
+# td$TT <- NULL
+# write.csv(x = td, file = "~/git/ices-dk/fisheryO/inst/extdata/stockListCheck.csv", row.names = FALSE)
+
+slOthers <- sl %>%
+  filter(SPECIES.ID != "ANG") %>%
+  filter(!grepl("[[:space:]]", SPECIES.NAME))
+#rng
+
+slFull <- slBinomial %>%
+  bind_rows(slANG, slSpp, slCYO, slOthers) %>%
+  select(STOCK.CODE,
+         STOCK.NAME,
+         FISHERIES.GUILD,
+         ECOREGION,
+         ADVICE.TYPE,
+         CAT)
+```
+
+```{r stockSummary, include = FALSE}
+summaryTbl <- getSummaryTable(2016)
+
+keeperF <- c("F", "F/FMSY", "F in winter rings", "Harvest rate", "Harvest rate/FMSY", "Fishing Pressure")
+relativeF <- c("F/FMSY", "Harvest rate/FMSY") 
+
+keeperSSB <- c("SSB", "B/BMSY", "SSB & Biomass Age 4+", "UW Tv Index", "Stock Size", "Total biomass/BMSY")
+relativeSSB <- c("B/BMSY", "Total biomass/BMSY") 
+
+summaryTblClean <- summaryTbl %>%
+  filter(Year >= 2013) %>%
+  select(Year, 
+         STOCK.CODE = fishstock,
+         F,
+         SSB,
+         fishingPressureDescription,
+         stockSizeDescription) %>%
+  mutate(STOCK.CODE = tolower(STOCK.CODE),
+         fishingPressureDescription = gsub("Fishing Pressure: " , "", fishingPressureDescription),
+         fishingPressureDescription = gsub("Fishing pressure: " , "", fishingPressureDescription),
+         fishingPressureDescription = gsub("msy" , "MSY", fishingPressureDescription),
+         
+         stockSizeDescription = gsub("Stock Size: ", "", stockSizeDescription),
+         stockSizeDescription = gsub("Stock size: ", "", stockSizeDescription),
+         stockSizeDescription = gsub("msy", "MSY", stockSizeDescription),
+         stockSizeDescription = ifelse(is.na(stockSizeDescription), "Relative",
+                                       stockSizeDescription),
+         FmsyDescription = "FMSY",
+         FmsyDescription = ifelse(fishingPressureDescription %in% relativeF, 
+                                  "F/FMSY",
+                                  fishingPressureDescription),
+         BmsyDescription = "MSYBtrigger",
+         BmsyDescription = ifelse(stockSizeDescription %in% relativeSSB, 
+                                  "SSB/BMSY",
+                                  stockSizeDescription)) %>%
+  filter(stockSizeDescription %in% keeperSSB |
+           fishingPressureDescription %in% keeperF)
+
+refPts <- getFishStockReferencePoints(2016)
+refPts[refPts == ""] <- NA
+
+refPtsClean <- refPts %>%
+  select(-key,
+         -AssessmentYear,
+         -RecruitmentAge,
+         -RecruitmentLength,
+         -MSYBescapement,
+         STOCK.CODE = FishStockName) %>%
+  mutate(STOCK.CODE = tolower(STOCK.CODE))
+
+fullSummary <- summaryTblClean %>%
+  left_join(refPtsClean, by = c("STOCK.CODE" = "STOCK.CODE")) %>%
+  mutate(MSYBtrigger = ifelse(stockSizeDescription %in% relativeSSB,
+                              0.5, 
+                              MSYBtrigger),
+         MSYBtrigger= ifelse(!stockSizeDescription %in% keeperSSB,
+                             NA, 
+                             MSYBtrigger),
+         FMSY = ifelse(fishingPressureDescription %in% relativeF,
+                       1, 
+                       FMSY),
+         FMSY = ifelse(!fishingPressureDescription %in% keeperF,
+                       NA, 
+                       FMSY))
+charCols <- c("STOCK.CODE", "fishingPressureDescription", 
+              "stockSizeDescription",
+              "FmsyDescription",
+              "BmsyDescription")
+fullSummary[!colnames(fullSummary) %in% charCols] <- lapply(fullSummary[!colnames(fullSummary) %in% charCols],
+                                                            as.numeric)
+         
+fmsySummary <- fullSummary %>%
+  filter(Year <= 2015) %>%
+  mutate(FMSY = ifelse(F <= FMSY, "GREEN", "RED"),
+         Year = paste0("FMSY", Year)) %>%
+  dcast(STOCK.CODE ~ Year, value.var = "FMSY")
+
+bmsySummary <- fullSummary %>%
+  filter(Year %in% 2013:2016) %>%
+  mutate(BMSY = ifelse(SSB >= MSYBtrigger, "GREEN", "RED"),
+         Year = paste0("BMSY", Year)) %>%
+  dcast(STOCK.CODE ~ Year, value.var = "BMSY")
+
+fpaSummary <- fullSummary %>%
+  filter(Year <= 2015) %>%
+  mutate(FPA = if_else(F <= FMSY,
+                      "GREEN",
+                      NA_character_),
+         FPA = if_else(F >= FLim, # If F is greater than Flim, FPA is
+                      missing = FPA,
+                       "RED", 
+                      ifelse(F <= FMSY, # if F is less than Flim and less than FMSY, FPA is 
+                             "GREEN",
+                             if_else(F <= Fpa , # If F is greater than FMSY but less than Fpa, FPA is 
+                                     "GREEN",
+                                     "ORANGE", # if F is greater than Fpa, FPA is orange
+                                     ifelse(F <= FLim, # if Fpa is NA but Flim is available, FPA is 
+                                                      "ORANGE",
+                                                      NA_character_)))), # If none of this fits the bill, NA.
+         Year = paste0("FPA", Year)) %>%
+  dcast(STOCK.CODE ~ Year, value.var = "FPA")
+
+bpaSummary <- fullSummary %>%
+  filter(Year %in% 2013:2016) %>%
+  mutate(BPA = if_else(SSB >= MSYBtrigger,
+                       "GREEN",
+                       NA_character_),
+         BPA = if_else(SSB <= Blim, # If SSB is less than Blim, BPA is
+                       missing = BPA,
+                       "RED", 
+                       ifelse(SSB >= MSYBtrigger, # if SSB is greater than Blim and greater than MSY, BPA is 
+                              "GREEN",
+                              if_else(SSB >= Bpa , # If SSB is less than MSY Btrigger but greater than Bpa, BPA is 
+                                      "GREEN",
+                                      "ORANGE", # if SSB is less than Bpa, BPA is orange
+                                      if_else(SSB >= Blim, # if Bpa is NA but Blim is available, BPA is
+                                              "ORANGE",
+                                              NA_character_)))), # If none of this fits the bill, NA.
+         Year = paste0("BPA", Year)) %>%
+  dcast(STOCK.CODE ~ Year, value.var = "BPA")
+
+stockDF <- fmsySummary %>%
+  left_join(bmsySummary, by = "STOCK.CODE") %>%
+  left_join(fpaSummary, by = "STOCK.CODE") %>%
+  left_join(bpaSummary, by = "STOCK.CODE") %>%
+  mutate(SBL = ifelse(FPA2015== "GREEN"  &  BPA2016 == "GREEN",
+                      "GREEN",
+                      ifelse(FPA2015== "RED"  &  BPA2016 == "RED",
+                             "RED", 
+                             NA)))
+
+stockDat <- slFull %>%
+  left_join(stockDF, by = "STOCK.CODE") %>%
+  mutate(F_2013 = ifelse(ADVICE.TYPE == "MSY",
+                         FMSY2013,
+                         FPA2013),
+         F_2014 = ifelse(ADVICE.TYPE == "MSY",
+                         FMSY2014,
+                         FPA2014),
+         F_2015 = ifelse(ADVICE.TYPE == "MSY",
+                         FMSY2015,
+                         FPA2015),
+         SSB_2014 = ifelse(ADVICE.TYPE == "MSY",
+                           BMSY2014,
+                           BPA2014),
+         SSB_2015 = ifelse(ADVICE.TYPE == "MSY",
+                           BMSY2015,
+                           BPA2015),
+         SSB_2016 = ifelse(ADVICE.TYPE == "MSY",
+                           BMSY2016,
+                           BPA2016)) %>%
+  select(STOCK.CODE, 
+         STOCK.NAME, 
+         FISHERIES.GUILD,
+         ECOREGION,
+         ADVICE.TYPE,
+         CAT,
+         SBL,
+         F_2013, F_2014, F_2015,
+         SSB_2014, SSB_2015, SSB_2016)
+
+stockDat[c("SBL", "F_2013", "F_2014", "F_2015", 
+           "SSB_2014", "SSB_2015", "SSB_2016")][is.na(stockDat[c("SBL", "F_2013", "F_2014", "F_2015",
+                                                                 "SSB_2014", "SSB_2015", "SSB_2016")])] <- "GREY"
+
+
+```
+
+
+```{r icons, include=FALSE}
+
+stockDat[stockDat == "GREEN"] <- "<i class=\"glyphicon glyphicon-ok-sign\" style=\"color:green; font-size:2.2em\"></i>"
+stockDat[stockDat == "RED"] <- "<i class=\"glyphicon glyphicon-remove-sign\" style=\"color:red; font-size:2.2em\"></i>"
+stockDat[stockDat == "GREY"] <- "<i class=\"glyphicon glyphicon-question-sign\" style=\"color:grey; font-size:2.2em\"></i>"
+stockDat[stockDat == "ORANGE"] <- "<i class=\"glyphicon glyphicon-record\" style=\"color:#FAB700; font-size:2.2em\"></i>"
+
+stockDat <- data.frame(lapply(stockDat, factor))
+
+```
+
+```{r flextable, eval=FALSE, include=FALSE}
+
+base_text_prop <- textProperties(font.size = 10, color = "black", font.family = "Calibri")
+base_par_prop = parProperties( text.align = "left")
+icon_par_prop = parProperties( text.align = "center" )
+base_cell_prop = cellProperties( padding = 6 )
+
+FT <- stockDat %>%
+  filter(ECOREGION != "GreaterNorthSeaEcoregion") %>%
+  select(-ECOREGION) %>%
+  distinct() %>%
+  arrange(STOCK.CODE) %>%
+  FlexTable(header.columns = FALSE,
+            header.cell.props = base_cell_prop, 
+            header.par.props = base_par_prop, 
+            header.text.props = chprop(base_text_prop, font.weight = "bold"), 
+            body.cell.props = base_cell_prop, 
+            body.par.props = base_par_prop, 
+            body.text.props = base_text_prop) %>%
+  addHeaderRow(value = c("", "F reference points", "SSB reference points"), colspan = c(6, 3, 3)) %>%
+  addHeaderRow(value = c("Stock code", "Stock name", "Fishery guild", 
+                         "Advice type", "Data category", "Safe biological limits",
+                         "2013", "2014", "2015", "2014", "2015", "2016")) %>%
+  setZebraStyle(odd = "#F9F9F9", even = "#FFFFFF" ) %>%
+  setFlexTableBorders(inner.vertical = borderProperties(width = 0), 
+                      inner.horizontal = borderProperties( width = 1 , color = "#DDDDDD"),
+                      outer.vertical = borderProperties( width = 0 ),
+                      outer.horizontal = borderProperties( width = 1, color = "grey30")) %>%
+  setFlexTableWidths(widths = c(0.5, 3, 1, 0.7, rep(0.5, 8)))
+
+FT[, 5:12] <- chprop(base_par_prop, text.align = "center")
+# writeDoc(addFlexTable(bsdoc(), flextable = FT),
+#          file = "~/example.html" )
+
+```
+
+
+
+```{r container, include = FALSE}
+colContainer <- htmltools::withTags(table(
+  class = 'display',
+  thead(
+    tr(
+      th(rowspan = 2, 'Stock code'),
+      th(rowspan = 2, 'Stock name'),
+      th(rowspan = 2, 'Fishery guild'),
+      th(rowspan = 2, 'Ecoregion'),
+      th(rowspan = 2, 'Advice type'),
+      th(rowspan = 2, 'Data category'),
+      th(rowspan = 2, 'Within Safe Biological Limits'),
+      th(colspan = 3, 'F reference point'),
+      th(colspan = 3, 'SSB reference point')
+    ),
+    tr(
+      lapply(c(seq(2013, 2015),
+               seq(2014, 2016)), th)
+      )
+  )
+))
+```
+
+```{r table, echo = FALSE}
+
+datatable(stockDat,
+          class = "display",
+          rownames = FALSE, 
+          container = colContainer, 
+          caption = NULL,
+          filter = c("none", "bottom","top")[3],
+          escape = FALSE,
+          extensions = 'Buttons', 
+          options = list(
+            # dom = 'Bfrtip',
+            # buttons = c('copy', 'csv', 'excel', 'pdf', 'print'), # need to work on formatting
+            pageWidth = '100%',
+            autoWidth = TRUE,
+            columnDefs = list(list(className = 'dt-center', targets = 4:12),
+                              list(orderable = FALSE, targets = 6:12),
+                              list(searchable = FALSE, targets = 6:12),
+                              list(width = '25%', targets = 'Stock name')
+                              )
+            )
+          )
+
+# rmarkdown::render("~/git/ices-dk/FisheryO/vignettes/stockSummaryTable.Rmd",
+#           output_dir = "~",
+#           rmarkdown::html_document(template = NULL))
+
+```
+
+

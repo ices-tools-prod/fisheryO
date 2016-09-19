@@ -1,0 +1,99 @@
+---
+title: ""
+author: ""
+date: ""
+output: html_document
+---
+
+
+```{r echo = FALSE, include = FALSE}
+library(DT)
+library(sparkline)
+library(shiny, quietly = TRUE)
+# library(dplyr)
+# library(htmlwidgets)
+```
+
+<style type="text/css"> 
+
+.jqstooltip {
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+}
+</style>
+
+```{r dynamicPie}
+
+columnDefs = list(list(
+  targets = c(2:6),
+  render = JS("function(data, type, full){
+    return '<span class=spark>' + data + '</span>'           
+  }")
+))
+
+# green: #4daf4a
+# grey: #d3d3d3 
+# orange: #ff7f00
+# red: #e41a1c
+
+# greater than or equal &#8805
+# less than or equal &#8804
+# less than &#062
+# greater than &#060
+
+# green F <= Fmsy
+# grey Unknown
+# orange ""
+# red F < Fmsy
+
+
+fnDrawCallback = JS("function (oSettings, json) {
+  $('.spark:not(:has(canvas))').sparkline('html', {
+    type: 'pie',
+    width: '120px',
+    height: '120px',
+    sliceColors: ['#4daf4a', '#d3d3d3', '#ff7f00', '#e41a1c', 
+                  '#4daf4a', '#d3d3d3', '#ff7f00', '#e41a1c',
+                  '#4daf4a', '#d3d3d3', '#ff7f00', '#e41a1c',
+                  '#4daf4a', '#d3d3d3', '#ff7f00', '#e41a1c',
+                  '#4daf4a', '#d3d3d3', '#ff7f00', '#e41a1c'],
+    borderColor: '#f5f5f5',
+    tooltipFormat: '{{offset:names}} ({{value}})',
+        tooltipValueLookups: {
+            names: {
+                0: 'F &#8804 F<sub>MSY</sub>',
+                1: 'Unknown',
+                2: '',
+                3: 'F &#062 F<sub>MSY</sub>',
+                4: 'SSB &#060 MSY B<sub>trigger</sub>',
+                5: 'Unknown',
+                6: '',
+                7: 'SSB &#8804 MSY B<sub>trigger</sub>',
+                8: 'F &#8804 F<sub>pa</sub>',
+                9: 'Unknown',
+                10: 'F &#8804 F<sub>pa</sub> &#060 F<sub>lim</sub>',
+                11: 'F &#8805 F<sub>lim</sub>',
+                12: 'SSB &#062 B<sub>pa</sub>',
+                13: 'Unknown',
+                14: 'B<sub>lim</sub> &#8804 SSB &#8804 B<sub>pa</sub>',
+                15: 'SSB &#8804 B<sub>lim</sub>',
+                16: 'F &#8804 F<sub>pa</sub> and SSB &#8805 B<sub>pa</sub>',
+                17: 'Unknown',
+                18: '',
+                19: 'F &#060 F<sub>pa</sub> and SSB &#062 B<sub>pa</sub>'
+            }
+        }
+
+  });
+}")
+
+d1 <- datatable(dyPie,
+                rownames = FALSE,
+                options = list(
+  columnDefs = columnDefs,
+  fnDrawCallback = fnDrawCallback
+))
+d1$dependencies <- htmlwidgets:::getDependency('sparkline')
+d1
+```

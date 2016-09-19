@@ -1,0 +1,50 @@
+---
+title: ""
+author: ""
+date: ""
+output: html_document
+---
+
+```{r flextable, echo=FALSE}
+library(ReporteRs)
+library(dplyr)
+
+flexDat <- pieDat[pieDat$ECOREGION == ecoregion,]
+
+rowList <- unique(flexDat$FISHERIES.GUILD)
+
+plotPie <- data.frame("Fisheries guild" = rowList,
+                      FMSY = sprintf('<img src=\"TEMP_FMSY2015-%s.png" style=\"width:200px; height:200px;">', rowList),
+                      BMSY = sprintf('<img src=\"TEMP_BMSY2016-%s.png" style=\"width:200px; height:200px;">', rowList),
+                      FPA = sprintf('<img src=\"TEMP_FPA2015-%s.png" style=\"width:200px; height:200px;">', rowList),
+                      BPA = sprintf('<img src=\"TEMP_BPA2016-%s.png" style=\"width:200px; height:200px;">', rowList),
+                      SBL = sprintf('<img src=\"TEMP_SBL-%s.png" style=\"width:200px; height:200px;">', rowList))
+
+base_text_prop <- textProperties(font.size = 10, color = "black", font.family = "Calibri")
+base_par_prop = parProperties( text.align = "left")
+icon_par_prop = parProperties( text.align = "center" )
+base_cell_prop = cellProperties( padding = 6 )
+
+# 
+FT <- plotPie %>%
+  FlexTable(header.columns = FALSE,
+            header.cell.props = base_cell_prop,
+            header.par.props = icon_par_prop,
+            header.text.props = chprop(base_text_prop, font.weight = "bold"),
+            body.cell.props = base_cell_prop,
+            body.par.props = base_par_prop,
+            body.text.props = base_text_prop) %>%
+  addHeaderRow(value = c("Fisheries guild", 
+                         "Fishing pressure <br> MSY", "Stock size <br> MSY",
+                         "Fishing pressure <br> PA", "Stock size <br> PA", 
+                         "Within safe biological limits"), 
+               colspan = rep(1,6)) %>%
+  setFlexTableBorders(inner.vertical = borderProperties(width = 0),
+                      inner.horizontal = borderProperties( width = 1 , color = "#DDDDDD"),
+                      outer.vertical = borderProperties( width = 0 ),
+                      outer.horizontal = borderProperties( width = 1, color = "grey30"))
+
+FT[, 2:5] <- chprop(base_par_prop, text.align = "center")
+
+FT
+```

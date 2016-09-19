@@ -286,7 +286,18 @@ stockDat <- slFull %>%
                            BPA2015),
          SSB_2016 = ifelse(ADVICE.TYPE == "MSY",
                            BMSY2016,
-                           BPA2016)) %>%
+                           BPA2016),
+         ECOREGION = recode(ECOREGION, "AzoresEcoregion" = "Azores"),
+         ECOREGION = recode(ECOREGION, "BayofBiscayandtheIberianCoastEcoregion" = "Bay of Biscay and the Iberian Coast"),
+         ECOREGION = recode(ECOREGION, "BalticSeaEcoregion" = "Baltic Sea"),
+         ECOREGION = recode(ECOREGION, "CelticSeasEcoregion" = "Celtic Seas"),
+         ECOREGION = recode(ECOREGION, "FaroesEcoregion" = "Faroes"),
+         ECOREGION = recode(ECOREGION, "GreenlandSeaEcoregion" = "Greenland Sea"),
+         ECOREGION = recode(ECOREGION, "IcelandSeaEcoregion" = "Iceland Sea"),
+         ECOREGION = recode(ECOREGION, "GreaterNorthSeaEcoregion" = "Greater North Sea"),
+         ECOREGION = recode(ECOREGION, "OceanicNortheastAtlanticEcoregion" = "Oceanic north-east Atlantic"),
+         ECOREGION = recode(ECOREGION, "NorwegianSeaandBarentsSeaEcoregion" = "Norwegian Sea and Barents Sea")
+         ) %>%
   select(STOCK.CODE, 
          STOCK.NAME, 
          FISHERIES.GUILD,
@@ -307,48 +318,59 @@ stockDat[c("SBL", "F_2013", "F_2014", "F_2015",
 
 ```{r icons, include=FALSE}
 
-stockDat[stockDat == "GREEN"] <- "<i class=\"glyphicon glyphicon-ok-sign\" style=\"color:green; font-size:2.2em\"></i>"
-stockDat[stockDat == "RED"] <- "<i class=\"glyphicon glyphicon-remove-sign\" style=\"color:red; font-size:2.2em\"></i>"
-stockDat[stockDat == "GREY"] <- "<i class=\"glyphicon glyphicon-question-sign\" style=\"color:grey; font-size:2.2em\"></i>"
-stockDat[stockDat == "ORANGE"] <- "<i class=\"glyphicon glyphicon-record\" style=\"color:#FAB700; font-size:2.2em\"></i>"
+stockPlot <- stockDat
+stockPlot[stockPlot == "GREEN"] <- "<i class=\"glyphicon glyphicon-ok-sign\" style=\"color:green; font-size:2.2em\"></i>"
+stockPlot[stockPlot == "RED"] <- "<i class=\"glyphicon glyphicon-remove-sign\" style=\"color:red; font-size:2.2em\"></i>"
+stockPlot[stockPlot == "GREY"] <- "<i class=\"glyphicon glyphicon-question-sign\" style=\"color:grey; font-size:2.2em\"></i>"
+stockPlot[stockPlot == "ORANGE"] <- "<i class=\"glyphicon glyphicon-record\" style=\"color:#FAB700; font-size:2.2em\"></i>"
 
-stockDat <- data.frame(lapply(stockDat, factor))
+stockPlot <- data.frame(lapply(stockPlot, factor))
 
 ```
 
-```{r flextable, eval=FALSE, include=FALSE}
+```{r flextable, eval=TRUE, include=FALSE, echo = FALSE}
 
-base_text_prop <- textProperties(font.size = 10, color = "black", font.family = "Calibri")
-base_par_prop = parProperties( text.align = "left")
-icon_par_prop = parProperties( text.align = "center" )
-base_cell_prop = cellProperties( padding = 6 )
 
-FT <- stockDat %>%
-  filter(ECOREGION != "GreaterNorthSeaEcoregion") %>%
-  select(-ECOREGION) %>%
-  distinct() %>%
-  arrange(STOCK.CODE) %>%
-  FlexTable(header.columns = FALSE,
-            header.cell.props = base_cell_prop, 
-            header.par.props = base_par_prop, 
-            header.text.props = chprop(base_text_prop, font.weight = "bold"), 
-            body.cell.props = base_cell_prop, 
-            body.par.props = base_par_prop, 
-            body.text.props = base_text_prop) %>%
-  addHeaderRow(value = c("", "F reference points", "SSB reference points"), colspan = c(6, 3, 3)) %>%
-  addHeaderRow(value = c("Stock code", "Stock name", "Fishery guild", 
-                         "Advice type", "Data category", "Safe biological limits",
-                         "2013", "2014", "2015", "2014", "2015", "2016")) %>%
-  setZebraStyle(odd = "#F9F9F9", even = "#FFFFFF" ) %>%
-  setFlexTableBorders(inner.vertical = borderProperties(width = 0), 
-                      inner.horizontal = borderProperties( width = 1 , color = "#DDDDDD"),
-                      outer.vertical = borderProperties( width = 0 ),
-                      outer.horizontal = borderProperties( width = 1, color = "grey30")) %>%
-  setFlexTableWidths(widths = c(0.5, 3, 1, 0.7, rep(0.5, 8)))
+staticTable <- function(ecoregion) {
 
-FT[, 5:12] <- chprop(base_par_prop, text.align = "center")
-# writeDoc(addFlexTable(bsdoc(), flextable = FT),
-#          file = "~/example.html" )
+  base_text_prop <- textProperties(font.size = 10, color = "black", font.family = "Calibri")
+  base_par_prop = parProperties( text.align = "left")
+  icon_par_prop = parProperties( text.align = "center" )
+  base_cell_prop = cellProperties( padding = 6 )
+  
+  FT <- stockPlot %>%
+    filter(ECOREGION == ecoregion) %>%
+    select(-ECOREGION) %>%
+    distinct() %>%
+    arrange(STOCK.CODE) %>%
+    FlexTable(header.columns = FALSE,
+              header.cell.props = base_cell_prop, 
+              header.par.props = base_par_prop, 
+              header.text.props = chprop(base_text_prop, font.weight = "bold"), 
+              body.cell.props = base_cell_prop, 
+              body.par.props = base_par_prop, 
+              body.text.props = base_text_prop) %>%
+    addHeaderRow(value = c("", "F reference points", "SSB reference points"), colspan = c(6, 3, 3)) %>%
+    addHeaderRow(value = c("Stock code", "Stock name", "Fishery guild", 
+                           "Advice type", "Data category", "Safe biological limits",
+                           "2013", "2014", "2015", "2014", "2015", "2016")) %>%
+    setZebraStyle(odd = "#F9F9F9", even = "#FFFFFF" ) %>%
+    setFlexTableBorders(inner.vertical = borderProperties(width = 0), 
+                        inner.horizontal = borderProperties( width = 1 , color = "#DDDDDD"),
+                        outer.vertical = borderProperties( width = 0 ),
+                        outer.horizontal = borderProperties( width = 1, color = "grey30")) %>%
+    setFlexTableWidths(widths = c(0.5, 3, 1, 0.7, rep(0.5, 8)))
+  
+  FT[, 5:12] <- chprop(base_par_prop, text.align = "center")
+  tt <- paste(as.html(FT), collapse = '\n')
+  # writeDoc(addFlexTable(bsdoc(), flextable = FT),
+  #          file = paste0("~/git/ices-dk/fisheryO/output/annexA_", ecoregion, ".html"))
+}
+str(tt)
+tt <- staticTable("Greater North Sea")
+write.table(tt, file =  paste0("~/git/ices-dk/fisheryO/output/test.html"),
+            row.names = FALSE, quote = FALSE)
+lapply(unique(stockPlot$ECOREGION), staticTable) 
 
 ```
 
@@ -377,33 +399,174 @@ colContainer <- htmltools::withTags(table(
 ))
 ```
 
-```{r table, echo = FALSE}
+```{r table, echo = FALSE, eval = TRUE}
+fullTable <- DT::datatable(stockPlot,
+                       class = "display",
+                       rownames = FALSE, 
+                       container = colContainer, 
+                       caption = NULL,
+                       filter = c("none", "bottom","top")[3],
+                       escape = FALSE,
+                       extensions = 'Buttons', 
+                       options = list(
+                         # dom = 'Bfrtip',
+                         # buttons = c('copy', 'csv', 'excel', 'pdf', 'print'), # need to work on formatting
+                         pageWidth = '100%',
+                         autoWidth = TRUE,
+                         columnDefs = list(list(className = 'dt-center', targets = 4:12),
+                                           list(orderable = FALSE, targets = 6:12),
+                                           list(searchable = FALSE, targets = 6:12),
+                                           list(width = '25%', targets = 'Stock name')
+                                           )
+                         )
+                       )
 
-datatable(stockDat,
-          class = "display",
-          rownames = FALSE, 
-          container = colContainer, 
-          caption = NULL,
-          filter = c("none", "bottom","top")[3],
-          escape = FALSE,
-          extensions = 'Buttons', 
-          options = list(
-            # dom = 'Bfrtip',
-            # buttons = c('copy', 'csv', 'excel', 'pdf', 'print'), # need to work on formatting
-            pageWidth = '100%',
-            autoWidth = TRUE,
-            columnDefs = list(list(className = 'dt-center', targets = 4:12),
-                              list(orderable = FALSE, targets = 6:12),
-                              list(searchable = FALSE, targets = 6:12),
-                              list(width = '25%', targets = 'Stock name')
-                              )
-            )
-          )
+
+return(fullTable)
 
 # rmarkdown::render("~/git/ices-dk/FisheryO/vignettes/stockSummaryTable.Rmd",
-#           output_dir = "~",
+#           output_file = "~/git/ices-dk/FisheryO/output/annexA_fullDynamic.html",
 #           rmarkdown::html_document(template = NULL))
 
 ```
 
 
+```{r pieStock, include = FALSE, eval=FALSE}
+pieDat <- stockDat
+
+stockDF <- fmsySummary %>%
+  left_join(bmsySummary, by = "STOCK.CODE") %>%
+  left_join(fpaSummary, by = "STOCK.CODE") %>%
+  left_join(bpaSummary, by = "STOCK.CODE") %>%
+  mutate(SBL = ifelse(FPA2015== "GREEN"  &  BPA2016 == "GREEN",
+                      "GREEN",
+                      ifelse(FPA2015== "RED"  &  BPA2016 == "RED",
+                             "RED", 
+                             NA)))
+
+pieDat <- slFull %>%
+  left_join(stockDF, by = "STOCK.CODE") %>%
+  select(ECOREGION, 
+         FISHERIES.GUILD,
+         FMSY2015, 
+         BMSY2016, 
+         FPA2015, 
+         BPA2016, 
+         SBL) %>%
+  # melt(id.vars = c("StockCode", "Description", "DataCategory", "AdviceType")) %>%
+  melt(id.vars = c("ECOREGION", "FISHERIES.GUILD"),
+       variable.name = "VARIABLE",
+       value.name = "VALUE") %>%
+  mutate(VALUE = ifelse(is.na(VALUE), 
+                        "GREY",
+                        VALUE)) %>%
+  group_by(ECOREGION, FISHERIES.GUILD, VARIABLE, VALUE) %>%
+  # tally()
+    summarize(COUNT = n())
+
+
+pieDat <- pieDat %>%
+  tidyr::expand(VALUE = c("GREY", "GREEN", "RED", "ORANGE")) %>%
+  left_join(pieDat, by = c("ECOREGION", "FISHERIES.GUILD", "VARIABLE", "VALUE")) %>%
+  arrange(ECOREGION, FISHERIES.GUILD, VARIABLE, VALUE)
+pieDat$COUNT[is.na(pieDat$COUNT)] <- 0
+
+
+```
+
+
+```{r stockSummaryTab, include = FALSE, eval=FALSE}
+
+
+pieContainer <- htmltools::withTags(table(
+  class = 'display',
+  thead(
+    tr(
+      th(rowspan = 4, 'Total <sub>number</sub> of stocks'),
+      th(rowspan = 1, colspan = 6, 'MSY'),
+      th(rowspan = 1, colspan = 10, 'PA'),
+      th(rowspan = 3, colspan = 2, HTML(paste0("F < F", sub("pa"),
+                                              " and SSB > B", sub("pa"))))
+    ),
+    tr(
+      th(colspan = 3, "Fishing pressure"),
+      th(colspan = 3, "Stock Size"),
+      th(colspan = 4, "Fishing pressure"),
+      th(colspan = 4, "Stock Size")
+    ),
+    tr(
+      lapply(c("Unknown",
+               "F F<sub>MSY</sub>",
+               "F<FMSY",
+               "Unknown",
+               "SSB<MSY",
+               "SSB>MSY",
+               "Unknown",
+               "F>Flim",
+               "Fpa<F<Flim",
+               HTML('<sup>superscript</sup>'),
+               # paste0("F < F", sub("pa")),
+               "Unknown",
+               "SSB<Blim",
+               "Blim<SSB<Bpa",
+               "SSB>Bpa"), th)
+    ),
+    tr(
+      lapply(1:14, th)
+  )
+)
+))
+
+
+dat <- data.frame(pieDat, 
+                  FMSY = 0,
+                  BMSY = 0,
+                  FPA = 0,
+                  BPA = 0,
+                  SBL = 0)
+
+dat$FMSY[dat$VARIABLE == "FMSY2015"] <- dat$COUNT[dat$VARIABLE == "FMSY2015"] 
+dat$BMSY[dat$VARIABLE == "BMSY2016"] <- dat$COUNT[dat$VARIABLE == "BMSY2016"] 
+dat$FPA[dat$VARIABLE == "FPA2015"] <- dat$COUNT[dat$VARIABLE == "FPA2015"] 
+dat$BPA[dat$VARIABLE == "BPA2016"] <- dat$COUNT[dat$VARIABLE == "BPA2016"] 
+dat$SBL[dat$VARIABLE == "SBL"] <- dat$COUNT[dat$VARIABLE == "SBL"] 
+
+
+daty <- dat %>%
+  # filter(ECOREGION == "GreaterNorthSeaEcoregion") %>%
+  select(ECOREGION, FISHERIES.GUILD, FMSY, BMSY, FPA, BPA, SBL) %>%
+  group_by(ECOREGION, FISHERIES.GUILD) %>%
+  # melt(id.vars = "FISHERIES.GUILD")
+  mutate(FMSY = paste(FMSY, collapse = ","),
+         BMSY = paste(BMSY, collapse = ","),
+         FPA = paste(FPA, collapse = ","),
+         BPA = paste(BPA, collapse = ","),
+         SBL = paste(SBL, collapse = ",")) %>%
+  distinct(.keep_all = TRUE)
+
+dput(as.data.frame(daty))
+
+datatable(daty,
+          class = "display",
+          rownames = FALSE, 
+          container = pieContainer, 
+          caption = NULL,
+          filter = c("none", "bottom","top")[1],
+          escape = FALSE)
+          # ,
+          # extensions = 'Buttons', 
+          # options = list(
+          #   # dom = 'Bfrtip',
+          #   # buttons = c('copy', 'csv', 'excel', 'pdf', 'print'), # need to work on formatting
+          #   pageWidth = '100%',
+          #   autoWidth = TRUE,
+          #   columnDefs = list(list(className = 'dt-center', targets = 4:12),
+          #                     list(orderable = FALSE, targets = 6:12),
+          #                     list(searchable = FALSE, targets = 6:12),
+          #                     list(width = '25%', targets = 'Stock name')
+          #                     )
+          #   )
+
+
+
+```

@@ -1,0 +1,904 @@
+SPECIES_NAME,COMMON_NAME,SPECIES_CODE,GUILD
+Lophiidae,Anglerfishes nei,ANF,benthic
+Trisopterus luscus,Pouting(=Bib),BIB,NA
+Scophthalmus rhombus,Brill,BLL,benthic
+Spondyliosoma cantharus,Black seabream,BRB,NA
+Dicentrarchus labrax,European seabass,BSS,demersal
+Anarhichas lupus,Atlantic wolffish,CAA,benthic
+Chondrichthyes,Cartilaginous fishes nei,CAR,elasmobranch
+Clupeoidei,Clupeoids nei,CLU,pelagic
+Bivalvia,"Clams, etc. nei",CLX,NA
+Crangon spp,Crangon shrimps nei,CNZ,crustacean
+Cerastoderma edule,Common edible cockle,COC,NA
+Gadus morhua,Atlantic cod,COD,demersal
+Conger conger,European conger,COE,NA
+Cancer pagurus,Edible crab,CRE,crustacean
+Crustacea,Marine crustaceans nei,CRU,crustacean
+Crangon crangon,Common shrimp,CSH,crustacean
+Sepia officinalis,Common cuttlefish,CTC,NA
+Limanda limanda,Common dab,DAB,benthic
+"Squalidae, Scyliorhinidae",Dogfishes and hounds nei,DGH,elasmobranch
+Squalus acanthias,Picked dogfish,DGS,elasmobranch
+Squalus spp,Dogfishes nei,DGZ,elasmobranch
+Osteichthyes,Diadromous fishes nei,DIA,NA
+Perciformes,Demersal percomorphs nei,DPX,NA
+Anguilla anguilla,European eel,ELE,NA
+Osteichthyes,Finfishes nei,FIN,NA
+Platichthys flesus,European flounder,FLE,benthic
+Gadiformes,Gadiformes nei,GAD,NA
+Eutrigla gurnardus,Grey gurnard,GUG,demersal
+Aspitrigla cuculus,Red gurnard,GUR,demersal
+Chelidonichthys lucerna,Tub gurnard,GUU,NA
+Triglidae,"Gurnards, searobins nei",GUX,NA
+Melanogrammus aeglefinus,Haddock,HAD,demersal
+Hippoglossus hippoglossus,Atlantic halibut,HAL,benthic
+Clupea harengus,Atlantic herring,HER,pelagic
+Merluccius merluccius,European hake,HKE,demersal
+Trachurus trachurus,Atlantic horse mackerel,HOM,pelagic
+Invertebrata,Aquatic invertebrates nei,INV,NA
+Trachurus spp,Jack and horse mackerels nei,JAX,pelagic
+Zeus faber,John dory,JOD,NA
+Homarus gammarus,European lobster,LBE,crustacean
+Microstomus kitt,Lemon sole,LEM,benthic
+Lepidorhombus spp,Megrims nei,LEZ,NA
+Molva molva,Ling,LIN,demersal
+Scomber scombrus,Atlantic mackerel,MAC,pelagic
+Melanocharacidium blennioides,,MEB,NA
+Lepidorhombus whiffiagonis,Megrim,MEG,benthic
+Liza ramada,Thinlip grey mullet,MGC,NA
+Lophius spp,Monkfishes nei,MNZ,benthic
+Mollusca,Marine molluscs nei,MOL,NA
+Mullus surmuletus,Surmullet,MUR,demersal
+Mytilus edulis,Blue mussel,MUS,NA
+Osteichthyes,Marine fishes nei,MZZ,NA
+Nephrops norvegicus,Norway lobster,NEP,crustacean
+Octopus spp,Octopuses nei,OCZ,NA
+Ostrea edulis,European flat oyster,OYF,NA
+Littorina littorea,Common periwinkle,PEE,NA
+Sardina pilchardus,European pilchard(=Sardine),PIL,pelagic
+Pleuronectes platessa,European plaice,PLE,benthic
+Pollachius virens,Saithe(=Pollock),POK,pelagic
+Pollachius pollachius,Pollack,POL,demersal
+Lamna nasus,Porbeagle,POR,elasmobranch
+Perciformes,Pelagic percomorphs nei,PPX,pelagic
+Sebastes spp,Atlantic redfishes nei,RED,NA
+Raja batis,Blue skate,RJB,elasmobranch
+Raja clavata,Thornback ray,RJC,elasmobranch
+Raja microocellata,Small-eyed ray,RJE,elasmobranch
+Raja brachyura,Blonde ray,RJH,elasmobranch
+Raja circularis,Sandy ray,RJI,elasmobranch
+Raja montagui,Spotted ray,RJM,elasmobranch
+Raja naevus,Cuckoo ray,RJN,elasmobranch
+Raja radiata,Starry ray,RJR,elasmobranch
+Sparidae,"Porgies, seabreams nei",SBX,NA
+Pecten maximus,Great Atlantic scallop,SCE,NA
+Scyliorhinus spp,"Catsharks, nursehounds nei",SCL,elasmobranch
+Mustelus spp,Smooth-hounds nei,SDV,elasmobranch
+Raja spp,Raja rays nei,SKA,elasmobranch
+Selachimorpha (Pleurotremata),Various sharks nei,SKH,elasmobranch
+Mustelus mustelus,Smooth-hound,SMD,elasmobranch
+Solea solea,Common sole,SOL,benthic
+Solea lascaris,Sand sole,SOS,benthic
+Sprattus sprattus,European sprat,SPR,pelagic
+Loligo spp,Common squids nei,SQC,NA
+Loliginidae,Inshore squids nei,SQZ,NA
+Acipenseridae,Sturgeons nei,STU,NA
+Scyliorhinus canicula,Small-spotted catshark,SYC,elasmobranch
+Scyliorhinus stellaris,Nursehound,SYT,elasmobranch
+Psetta maxima,Turbot,TUR,benthic
+Brosme brosme,Tusk(=Cusk),USK,demersal
+Trachinus draco,Greater weever,WEG,NA
+Buccinum undatum,Whelk,WHE,NA
+Merlangius merlangus,Whiting,WHG,demersal
+Glyptocephalus cynoglossus,Witch flounder,WIT,benthic
+Labridae,"Wrasses, hogfishes, etc. nei",WRA,NA
+Pandalus montagui,Aesop shrimp,AES,crustacean
+Alepocephalus bairdii,Baird's slickhead,ALC,NA
+Engraulis encrasicolus,European anchovy,ANE,pelagic
+Apogonidae,"Cardinalfishes, etc. nei",APO,NA
+Argentina spp,Argentines,ARG,demersal
+Argentina silus,Greater argentine,ARU,NA
+Argentina sphyraena,Argentine,ARY,NA
+Thunnus thynnus,Atlantic bluefin tuna,BFT,pelagic
+Molva dypterygia,Blue ling,BLI,demersal
+Aphanopus carbo,Black scabbardfish,BSF,demersal
+Mallotus villosus,Capelin,CAP,pelagic
+Anarhichas minor,Spotted wolffish,CAS,benthic
+Anarhichas spp,Wolffishes(=Catfishes) nei,CAT,benthic
+Conger oceanicus,American conger,COA,NA
+Brachyura,Marine crabs nei,CRA,crustacean
+Centroscymnus coelolepis,Portuguese dogfish,CYO,elasmobranch
+Squalidae,Dogfish sharks nei,DGX,elasmobranch
+Zoarces viviparus,Eelpout,ELP,NA
+Abramis spp,Freshwater breams nei,FBR,NA
+Lota lota,Burbot,FBU,NA
+Carassius carassius,Crucian carp,FCC,NA
+Cyprinus carpio,Common carp,FCP,NA
+Leuciscus idus,Orfe(=Ide),FID,NA
+Pleuronectiformes,Flatfishes nei,FLX,benthic
+Perca fluviatilis,European perch,FPE,NA
+Esox lucius,Northern pike,FPI,NA
+Sander lucioperca,Pike-perch,FPP,NA
+Osteichthyes,Freshwater fishes nei,FRF,NA
+Rutilus rutilus,Roach,FRO,NA
+Tinca tinca,Tench,FTE,NA
+Belone belone,Garfish,GAR,NA
+Phycis blennoides,Greater forkbeard,GFB,demersal
+Reinhardtius hippoglossoides,Greenland halibut,GHL,benthic
+Gadus ogac,Greenland cod,GRC,demersal
+Osteichthyes,Groundfishes nei,GRO,demersal
+Centrophorus squamosus,Leafscale gulper shark,GUQ,elasmobranch
+Chaceon affinis,Deep-sea red crab,KEF,crustacean
+Bothidae,Lefteye flounders nei,LEF,benthic
+Cyclopterus lumpus,Lumpfish(=Lumpsucker),LUM,NA
+Scomber colias,Atlantic chub mackerel,VMA,pelagic
+Lophius piscatorius,Angler(=Monk),MON,benthic
+Mytilidae,Sea mussels nei,MSX,NA
+Mugilidae,Mullets nei,MUL,NA
+Mullus spp,Surmullets(=Red mullets) nei,MUX,NA
+Trisopterus esmarkii,Norway pout,NOP,pelagic
+Hoplostethus atlanticus,Orange roughy,ORY,demersal
+Osteichthyes,Pelagic fishes nei,PEL,pelagic
+Hippoglossoides platessoides,Amer. plaice(=Long rough dab),PLA,benthic
+Coregonus lavaretus,European whitefish,PLN,NA
+Pandalus borealis,Northern prawn,PRA,crustacean
+Coryphaenoides rupestris,Roundnose grenadier,RNG,demersal
+Salmo salar,Atlantic salmon,SAL,pelagic
+Ammodytes spp,Sandeels(=Sandlances) nei,SAN,demersal
+Pagellus bogaraveo,Blackspot(=red) seabream,SBR,demersal
+Argopecten irradians,Atlantic bay scallop,SCB,NA
+Dalatias licha,Kitefin shark,SCK,elasmobranch
+Lepidopus caudatus,Silver scabbardfish,SFS,NA
+"Alosa alosa, A. fallax",Allis and twaite shads,SHD,NA
+Sardinella spp,Sardinellas nei,SIX,NA
+Osmerus eperlanus,European smelt,SME,pelagic
+Illex illecebrosus,Northern shortfin squid,SQI,NA
+Loligo vulgaris,European squid,SQR,NA
+"Loliginidae, Ommastrephidae",Various squids nei,SQU,NA
+Prionotus spp,Atlantic searobins,SRA,NA
+Rajiformes,"Rays, stingrays, mantas nei",SRX,elasmobranch
+Morone saxatilis,Striped bass,STB,NA
+Salmo spp,Trouts nei,TRO,NA
+Salmo trutta,Sea trout,TRS,NA
+Micromesistius poutassou,Blue whiting(=Poutassou),WHB,demersal
+Astacus astacus,Noble crayfish,AAS,elasmobranch
+Blicca bjoerkna,White bream,ABK,NA
+Blenniidae,Combtooth blennies,BLE,NA
+Thunnus atlanticus,Blackfin tuna,BLF,NA
+Caproidae,Boarfishes nei,BOR,NA
+Prionace glauca,Blue shark,BSH,elasmobranch
+Cephalopoda,Cephalopods nei,CEP,NA
+Arctica islandica,Ocean quahog,CLQ,NA
+Chimaera monstrosa,Rabbit fish,CMO,NA
+Palaemon serratus,Common prawn,CPR,NA
+Crangonidae,Crangonid shrimps nei,CRN,crustacean
+"Sepiidae, Sepiolidae","Cuttlefish, bobtail squids nei",CTL,NA
+Lycodes spp,Eelpouts,ELZ,NA
+Abramis brama,Freshwater bream,FBM,NA
+Galeorhinus galeus,Tope shark,GAG,elasmobranch
+Gobius spp,Atlantic gobies nei,GOB,NA
+Gobiidae,Gobies nei,GPA,NA
+Coregonus oxyrinchus,Houting,HOU,NA
+Paralithodes spp,King crabs,KCS,crustacean
+Lithodes maja,Stone king crab,KCT,crustacean
+Meganyctiphanes norvegica,Norwegian krill,NKR,NA
+Littorina spp,Periwinkles nei,PER,NA
+Brama brama,Atlantic pomfret,POA,NA
+Aequipecten opercularis,Queen scallop,QSC,NA
+Sebastes mentella,Beaked redfish,REB,NA
+Sebastes marinus,Golden redfish,REG,NA
+Scorpaenidae,Scorpionfishes nei,SCO,NA
+Maja squinado,Spinous spider crab,SCR,crustacean
+Myoxocephalus spp,Sculpins,SCU,NA
+Pectinidae,Scallops nei,SCX,NA
+Gasterosteus spp,Sticklebacks,SKB,NA
+Chaenocephalus aceratus,Blackfin icefish,SSI,NA
+Asteroidea,Starfishes nei,STF,NA
+Asterias rubens,Red starfish,STH,NA
+Chamelea gallina,Striped venus,SVE,NA
+Xiphias gladius,Swordfish,SWO,NA
+Microchirus spp,Thickback soles nei,THS,NA
+Oncorhynchus mykiss,Rainbow trout,TRR,NA
+Alosa fallax,Twaite shad,TSD,NA
+Spisula solida,Solid surf clam,ULO,NA
+Echinus esculentus,European edible sea urchin,URS,NA
+Echinoidea,"Sea urchins, etc. nei",URX,NA
+Labrus bergylta,Ballan wrasse,USB,NA
+Vasum capitellum,Spiny vase,VSP,NA
+Busycon spp,Whelks,WHX,NA
+Ammodytes tobianus,Small sandeel,ABZ,NA
+Gymnocephalus cernuus,Ruffe,ACC,NA
+Squatina squatina,Angelshark,AGN,elasmobranch
+Alburnus alburnus,Bleak,ALR,NA
+Acipenser sturio,Sturgeon,APU,NA
+Centroscyllium fabricii,Black dogfish,CFB,elasmobranch
+Carassius auratus,Goldfish,CGO,NA
+Centroscymnus crepidater,Longnose velvet dogfish,CYP,elasmobranch
+Erosa erosa,Pitted stonefish,ERO,NA
+Cyprinidae,Cyprinids nei,FCY,NA
+Somniosus microcephalus,Greenland shark,GSK,elasmobranch
+Gasterosteus aculeatus,Three-spined stickleback,GTA,NA
+Urophycis tenuis,White hake,HKW,NA
+Lampetra fluviatilis,River lamprey,LAR,NA
+Petromyzontidae,Lampreys nei,LAS,NA
+Petromyzon marinus,Sea lamprey,LAU,NA
+Neogobius melanostomus,Round goby,NBU,NA
+Rajidae,Rays and skates nei,RAJ,elasmobranch
+Macrourus berglax,Roughhead grenadier,RHG,demersal
+Etmopterus spp,Lanternsharks nei,SHL,elasmobranch
+Scardinius erythrophthalmus,Rudd,SRE,NA
+Rhodophyceae,Red seaweeds,SWR,NA
+Vimba vimba,Vimba bream,VIV,NA
+Acanthocardia echinata,European prickly cockle,AKJ,NA
+Thunnus alalunga,Albacore,ALB,NA
+Beryx spp,Alfonsinos nei,ALF,demersal
+Aluterus monoceros,Unicorn leatherjacket filefish,ALM,NA
+Alopias vulpinus,Thresher,ALV,NA
+Seriola dumerili,Greater amberjack,AMB,NA
+Lophius budegassa,Blackbellied angler,ANK,NA
+Diplodus annularis,Annular seabream,ANN,NA
+Apristurus spp,Deep-water catsharks,API,elasmobranch
+Aristeidae,Aristeid shrimps nei,ARI,crustacean
+Alosa alosa,Allis shad,ASD,NA
+Squatinidae,"Angelsharks, sand devils nei",ASK,elasmobranch
+Atherina boyeri,Big-scale sand smelt,ATB,NA
+Atherina presbyter,Sand smelt,ATP,NA
+Sphyraena spp,Barracudas nei,BAR,NA
+Serranus spp,Combers nei,BAS,NA
+Scorpaena porcus,Black scorpionfish,BBS,NA
+Belonidae,"Needlefishes, etc. nei",BEN,NA
+Thunnus obesus,Bigeye tuna,BET,NA
+Pomadasys incisus,Bastard grunt,BGR,NA
+Halobatrachus didactylus,Lusitanian toadfish,BHD,NA
+Bathyraja spp,Bathyraja rays nei,BHY,elasmobranch
+Istiophoridae,"Marlins,sailfishes,etc. nei",BIL,NA
+Stromateus fiatola,Blue butterfish,BLB,NA
+Auxis rochei,Bullet tuna,BLT,NA
+Pomatomus saltatrix,Bluefish,BLU,NA
+Capros aper,Boarfish,BOC,pelagic
+Boops boops,Bogue,BOG,NA
+Sarda sarda,Atlantic bonito,BON,NA
+Bolinus brandaris,Purple dye murex,BOY,NA
+Spicara maena,Blotched picarel,BPI,NA
+Helicolenus dactylopterus,Blackbelly rosefish,BRF,NA
+Gonostomatidae,Bristlemouths,BRI,NA
+Carcharhinus brachyurus,Copper shark,BRO,elasmobranch
+Borostomias antarcticus,Snaggletooth,BRT,NA
+Berycidae,"Alfonsinos, etc. nei",BRX,NA
+Pagrus caeruleostictus,Bluespotted seabream,BSC,NA
+Dicentrarchus spp,Seabasses nei,BSE,NA
+Serranidae,"Groupers, seabasses nei",BSX,NA
+Alopias superciliosus,Bigeye thresher,BTH,NA
+Makaira nigricans,Blue marlin,BUM,NA
+Stromateidae,"Butterfishes, pomfrets nei",BUX,NA
+Beryx decadactylus,Alfonsino,BXD,NA
+Beryx splendens,Splendid alfonsino,BYS,NA
+Sarda spp,Bonitos nei,BZX,NA
+Cepola macrophthalma,Red bandfish,CBC,NA
+Sciaena umbra,Brown meagre,CBM,NA
+Serranus cabrilla,Comber,CBR,NA
+Carcharias taurus,Sand tiger shark,CCT,elasmobranch
+Sciaenidae,"Croakers, drums nei",CDX,NA
+Centrolophidae,"Ruffs, barrelfishes nei",CEN,NA
+Centrolophus niger,Rudderfish,CEO,NA
+Dicologlossa cuneata,Wedge sole,CET,NA
+Carangidae,Carangids nei,CGX,NA
+Citharus linguatula,Spotted flounder,CIL,NA
+Pseudotolithus senegallus,Law croaker,CKL,NA
+Mya arenaria,Sand gaper,CLS,NA
+Veneridae,Venus clams nei,CLV,NA
+Chromis chromis,Damselfish,CMK,NA
+Umbrina cirrosa,Shi drum,COB,NA
+Corallium spp,Precious corals nei,COR,NA
+Coris julis,Rainbow wrasse,COU,NA
+Congridae,"Conger eels, etc. nei",COX,NA
+Carcinus maenas,Green crab,CRG,crustacean
+Portunus spp,Portunus swimcrabs nei,CRS,crustacean
+Palinurus spp,Palinurid spiny lobsters nei,CRW,crustacean
+Diplodus vulgaris,Common two-banded seabream,CTB,NA
+Ruditapes decussatus,Grooved carpet shell,CTG,NA
+Venerupis pullastra,Pullet carpet shell,CTS,NA
+Chelidonichthys lastoviza,Streaked gurnard,CTZ,NA
+Trichiuridae,"Hairtails, scabbardfishes nei",CUT,NA
+Holothuroidea,Sea cucumbers nei,CUX,NA
+Caranx hippos,Crevalle jack,CVJ,NA
+Deania calcea,Birdbeak dogfish,DCA,elasmobranch
+Natantia,Natantian decapods nei,DCP,NA
+Dentex dentex,Common dentex,DEC,NA
+Dentex macrophthalmus,Large-eye dentex,DEL,NA
+Dentex gibbosus,Pink dentex,DEP,NA
+Dentex spp,Dentex nei,DEX,NA
+Donax spp,Donax clams,DON,NA
+Parapenaeus longirostris,Deep-water rose shrimp,DPS,crustacean
+Dosinia exoleta,Mature dosinia,DSX,NA
+Donax trunculus,Truncate donax,DXL,NA
+Dactylopterus volitans,Flying gurnard,DYL,NA
+Myliobatidae,Eagle rays nei,EAG,elasmobranch
+Cheilopogon heterurus,,ECE,NA
+Echinodermata,Echinoderms,ECH,NA
+Epinephelus caninus,Dogtooth grouper,EFJ,NA
+Sepia elegans,Elegant cuttlefish,EJE,NA
+Anguilla spp,River eels nei,ELX,NA
+Eledone cirrhosa,Horned octopus,EOI,NA
+Epigonus telescopus,Black cardinal fish,EPI,NA
+Ensis ensis,Pod razor shell,EQE,NA
+Ensis siliqua,Sword razor shell,EQI,NA
+Etmopterus spinax,Velvet belly,ETX,NA
+Scorpaena elongata,Slender rockfish,EZS,NA
+Carcharhinus falciformis,Silky shark,FAL,elasmobranch
+Pasiphaea sivado,White glass shrimp,FAV,crustacean
+Aphia minuta,Transparent goby,FIM,NA
+Exocoetidae,Flyingfishes nei,FLY,NA
+Phycis phycis,Forkbeard,FOR,NA
+Phycis spp,Forkbeards nei,FOX,NA
+Auxis thazard,Frigate tuna,FRI,NA
+"Auxis thazard, A. rochei",Frigate and bullet tunas,FRZ,NA
+Fucaceae,Wracks nei,FUA,NA
+Galeus murinus,Mouse catshark,GAM,elasmobranch
+Gastropoda,Gastropods nei,GAS,NA
+Galeus spp,Crest-tail catsharks nei,GAU,elasmobranch
+Gobiusculus flavescens,Two-spotted goby,GBF,NA
+Gobius niger,Black goby,GBN,NA
+Plectorhinchus mediterraneus,Rubberlip grunt,GBR,NA
+Gadiculus argenteus,Silvery pout,GDG,NA
+Gelidium spp,Gelidium seaweeds,GEL,NA
+Gempylidae,"Snake mackerels, escolars nei",GEP,NA
+Chaceon spp,Chaceon geryons nei,GER,NA
+Geryonidae,"Deep-sea crabs, geryons nei",GEY,crustacean
+Gaidropsarus mediterraneus,Shore rockling,GGD,NA
+Gaidropsarus vulgaris,Three-bearded rockling,GGU,NA
+Gaidropsarus biscayensis,Mediterranean bigeye rockling,GGY,NA
+Glycymeris glycymeris,Common European bittersweet,GKL,NA
+Lepas spp,Goose barnacles nei,GOO,NA
+Epinephelus marginatus,Dusky grouper,GPD,NA
+Epinephelus aeneus,White grouper,GPW,NA
+Epinephelus spp,Groupers nei,GPX,NA
+Haemulidae (=Pomadasyidae),"Grunts, sweetlips nei",GRX,NA
+Buglossidium luteum,Solenette,GSM,NA
+Chelidonichthys spp,Indo-Pacific gurnards,GUI,NA
+Chelidonichthys obscurus,Longfin gurnard,GUM,NA
+Trigla lyra,Piper gurnard,GUN,NA
+Centrophorus granulosus,Gulper shark,GUP,elasmobranch
+Trigla spp,Gurnards nei,GUY,NA
+Hirundichthys rondeletii,Black wing flyingfish,HDR,NA
+Haliotis tuberculata,Tuberculate abalone,HLT,NA
+Himanthalia elongata,Sea thong,HLZ,NA
+Trachurus mediterraneus,Mediterranean horse mackerel,HMM,NA
+Caranx rhonchus,False scad,HMY,NA
+Chimaeriformes,"Chimaeras, etc. nei",HOL,NA
+Hoplostethus mediterraneus,Mediterranean slimehead,HPR,NA
+Heptranchias perlo,Sharpnose sevengill shark,HXT,elasmobranch
+Sepia orbignyana,Pink cuttlefish,IAR,NA
+Sepia spp,Cuttlefishes nei,IAX,NA
+Liocarcinus depurator,Blue-leg swimcrab,IOD,crustacean
+Chlamys islandica,Iceland scallop,ISC,NA
+Sepietta oweniana,Common bobtail squid,ITW,NA
+Trachurus picturatus,Blue jack mackerel,JAA,pelagic
+Raja radula,Rough ray,JAR,elasmobranch
+Lampadena anomala,Anomalous lanternfish,JBA,NA
+Centrolabrus trutta,Emerald wrasse,JCN,NA
+Stichopus regalis,Royal cucumber,JCR,NA
+Maja spp,Maja spider crabs nei,JCX,crustacean
+Dasyatis pastinaca,Common stingray,JDP,elasmobranch
+Raja leopardus,Leopard skate,JFV,elasmobranch
+Zenopsis conchifer,Silvery John dory,JOS,NA
+Raja asterias,Mediterranean starry ray,JRS,elasmobranch
+Jujubinus exasperatus,Exasperating jujubine,JUX,NA
+Lithodes spp,King crabs nei,KCZ,crustacean
+Callista chione,Smooth callista,KLK,NA
+Cerastoderma glaucum,Olive green cockle,KTG,NA
+Acanthocardia tuberculata,Tuberculate cockle,KTT,NA
+Kyphosidae,Sea chubs nei,KYX,NA
+Lampris guttatus,Opah,LAG,NA
+Laminariaceae,Kelps nei,LAZ,NA
+Homarus spp,Homarus lobsters nei,LBS,crustacean
+Lepidorhombus boscii,Four-spot megrim,LDB,NA
+Lampadena speculigera,,LDS,NA
+Lepidotrigla cavillone,Large-scaled gurnard,LDV,NA
+Lepidocybium flavobrunneum,Escolar,LEC,NA
+Lichia amia,Leerfish,LEE,NA
+Trichiurus lepturus,Largehead hairtail,LHT,NA
+Necora puber,Velvet swimcrab,LIO,crustacean
+Lithothamnion spp,Lithothamnion,LIT,NA
+Molva spp,Lings nei,LNZ,NA
+Scyllaridae,Slipper lobsters nei,LOS,crustacean
+Reptantia,Lobsters nei,LOX,crustacean
+Lepidion eques,North Atlantic codling,LPS,NA
+Patella spp,Limpets nei,LPZ,NA
+Liocarcinus arcuatus,Arched swimming crab,LQA,crustacean
+Euthynnus alletteratus,Little tunny(=Atl.black skipj),LTA,NA
+Callionymus lyra,Dragonet,LYY,NA
+Isurus spp,Mako sharks,MAK,elasmobranch
+Mactridae,Mactra surf clams nei,MAT,NA
+Scombridae,Mackerels nei,MAX,NA
+Scomber spp,Scomber mackerels nei,MAZ,NA
+Liza aurata,Golden grey mullet,MGA,NA
+Argyrosomus regius,Meagre,MGR,NA
+Mugil spp,,MGS,NA
+Microchirus azevia,,MIA,NA
+Chelon labrosus,Thicklip grey mullet,MLR,NA
+Muraena helena,Mediterranean moray,MMH,NA
+Melanostomias tentaculatus,,MNE,NA
+Moridae,Moras nei,MOR,NA
+Mola mola,Ocean sunfish,MOX,NA
+Macropipus tuberculatus,Knobby swimcrab,MQL,crustacean
+Arnoglossus laterna,Mediterranean scaldfish,MSF,NA
+Lamnidae,"Mackerel sharks,porbeagles nei",MSK,elasmobranch
+Mytilus galloprovincialis,Mediterranean mussel,MSM,NA
+Melanostigma atlanticum,Atlantic soft pout,MTC,NA
+Squilla mantis,Spottail mantis squillid,MTS,NA
+Murex spp,Murex,MUE,NA
+Mugil cephalus,Flathead grey mullet,MUF,NA
+Muraenidae,Morays nei,MUI,NA
+Mullidae,"Goatfishes, red mullets nei",MUM,NA
+Mullus barbatus,Red mullet,MUT,NA
+Myliobatis aquila,Common eagle ray,MYL,elasmobranch
+Anemonia sulcata,Snakelocks anemone,NOW,NA
+Anomura,Anomuran decapods nei,NUQ,NA
+Octopus vulgaris,Common octopus,OCC,NA
+Eledone spp,Horned and musky octopuses,OCM,NA
+Octopodidae,"Octopuses, etc. nei",OCT,NA
+Porphyra linearis,Ribboned nori,OFN,NA
+Apogon imberbis,Cardinal fish,OGT,NA
+Ruvettus pretiosus,Oilfish,OIL,NA
+Ommastrephes spp,Flying squids nei,OMM,NA
+Ommastrephidae,Ommastrephidae squids nei,OMZ,NA
+Alloteuthis subulata,European common squid,OUL,NA
+Alloteuthis media,Midsize squid,OUM,NA
+Alloteuthis spp,Alloteuthis squids nei,OUW,NA
+Oxynotus paradoxus,Sailfin roughshark,OXN,elasmobranch
+Crassostrea spp,Cupped oysters nei,OYC,NA
+Crassostrea gigas,Pacific cupped oyster,OYG,NA
+Pagellus erythrinus,Common pandora,PAC,NA
+Palaemonidae,Palaemonid shrimps nei,PAL,crustacean
+Pandalus spp,Pandalus shrimps nei,PAN,crustacean
+Pagellus spp,Pandoras nei,PAX,NA
+Pollicipes pollicipes,Barnacle,PCB,NA
+Pandalidae,Pandalid shrimps nei,PDZ,crustacean
+Penaeus spp,Penaeus shrimps nei,PEN,crustacean
+Penaeidae,Penaeid shrimps nei,PEZ,crustacean
+Spicara spp,Picarels nei,PIC,NA
+Pleuronectidae,Righteye flounders nei,PLZ,NA
+Palaemon elegans,Rockpool prawn,PNQ,NA
+Penaeus vannamei,Whiteleg shrimp,PNV,crustacean
+Trisopterus minutus,Poor cod,POD,NA
+Pontinus kuhlii,Offshore rockfish,POI,NA
+Trachinotus spp,Pompanos nei,POX,NA
+Percoidei,Percoids nei,PRC,NA
+Priacanthidae,"Bigeyes,glasseyes,bulleyes nei",PRI,NA
+Tetraodontidae,Puffers nei,PUX,NA
+Palaemon spp,Palaemon shrimps nei,QPX,crustacean
+Patella vulgata,Limpet,QTV,NA
+Squalus blainville,Longnose spurdog,QUB,NA
+Solen marginatus,European razor clam,RAE,NA
+Hydrolagus colliei,Spotted ratfish,RAT,NA
+Solen spp,Solen razor clams nei,RAZ,NA
+Mora moro,Common mora,RIB,NA
+Raja alba,White skate,RJA,elasmobranch
+Raja fullonica,Shagreen ray,RJF,elasmobranch
+Raja hyperborea,Arctic skate,RJG,elasmobranch
+Raja lintea,Sailray,RJK,elasmobranch
+Raja oxyrinchus,Longnosed skate,RJO,elasmobranch
+Raja undulata,Undulate ray,RJU,elasmobranch
+Mobula mobular,Devil fish,RMM,NA
+Arnoglossus thori,Thor's scaldfish,RNH,NA
+Gaidropsarus spp,Rocklings nei,ROL,NA
+Pagrus pagrus,Red porgy,RPG,NA
+Scorpaena scrofa,Red scorpionfish,RSE,NA
+Carcharhinidae,Requiem sharks nei,RSK,elasmobranch
+Istiophorus albicans,Atlantic sailfish,SAI,demersal
+Scomberesox saurus,Atlantic saury,SAU,NA
+Scomberesocidae,Sauries nei,SAX,NA
+Pagellus acarne,Axillary seabream,SBA,NA
+Stomias boa,Boa dragonfish,SBB,NA
+Sparus aurata,Gilthead seabream,SBG,NA
+Hexanchus griseus,Bluntnose sixgill shark,SBL,elasmobranch
+Scopelogadus beanii,,SBN,NA
+Pagrus spp,Pargo breams nei,SBP,NA
+Oblada melanura,Saddled seabream,SBS,NA
+Diplodus cervinus,Zebra seabream,SBZ,NA
+Scophthalmidae,Turbots nei,SCF,NA
+Scorpaena spp,"Scorpionfishes, rockfishes nei",SCS,NA
+Scyllarus arctus,Lesser slipper lobster,SCY,crustacean
+Deania hystricosa,Rough longnose dogfish,SDH,elasmobranch
+Mustelus asterias,Starry smooth-hound,SDS,elasmobranch
+Deania profundorum,Arrowhead dogfish,SDU,elasmobranch
+Echinorhinus brucus,Bramble shark,SHB,elasmobranch
+Galeus melastomus,Blackmouth catshark,SHO,elasmobranch
+Galeus melastomus,Blackmouth catshark,SHO,elasmobranch
+Squaliformes,"Dogfish sharks, etc. nei",SHX,elasmobranch
+Atherinidae,Silversides(=Sand smelts) nei,SIL,NA
+Katsuwonus pelamis,Skipjack tuna,SKJ,NA
+Elasmobranchii,"Sharks, rays, skates, etc. nei",SKX,elasmobranch
+Molva macrophthalma,Spanish ling,SLI,NA
+Sarpa salpa,Salema,SLM,NA
+Palinurus elephas,Common spiny lobster,SLO,crustacean
+Salmonoidei,Salmonoids nei,SLX,NA
+Isurus oxyrinchus,Shortfin mako,SMA,elasmobranch
+Lutjanus spp,Snappers nei,SNA,NA
+Scorpaena notata,Small red scorpionfish,SNQ,NA
+Macroramphosus scolopax,Longspine snipefish,SNS,NA
+Solenidae,"Razor clams, knife clams nei",SOI,NA
+Solea spp,,SOO,NA
+Somniosus rostratus,Little sleeper shark,SOR,elasmobranch
+Soleidae,Soles nei,SOX,benthic
+Sphyrna lewini,Scalloped hammerhead,SPL,elasmobranch
+Sphyrna spp,Hammerhead sharks nei,SPN,elasmobranch
+Dicentrarchus punctatus,Spotted seabass,SPU,NA
+Salpidae,Salps,SPX,NA
+Sphyrna zygaena,Smooth hammerhead,SPZ,elasmobranch
+Todarodes sagittatus,European flying squid,SQE,NA
+Illex coindetii,Broadtail shortfin squid,SQM,NA
+Squillidae,Squillids nei,SQY,NA
+Diplodus spp,Sargo breams nei,SRG,NA
+Serranus hepatus,Brown comber,SRJ,NA
+Serranus scriba,Painted comber,SRK,NA
+Raja georgiana,Antarctic starry skate,SRR,elasmobranch
+Lithognathus mormyrus,Sand steenbras,SSB,NA
+Ascidiacea,Sea squirts nei,SSX,NA
+Dasyatidae,"Stingrays, butterfly rays nei",STT,elasmobranch
+Lithognathus spp,Steenbrasses nei,STW,NA
+Diplodus sargus,White seabream,SWA,NA
+Phaeophyceae,Brown seaweeds,SWB,NA
+Portunidae,"Swimming crabs, etc. nei",SWM,crustacean
+Algae,Seaweeds nei,SWX,NA
+Scymnodon ringens,Knifetooth dogfish,SYR,elasmobranch
+Scyliorhinidae,"Catsharks, etc. nei",SYX,elasmobranch
+Trichiurus spp,Hairtails nei,TCW,NA
+Todaropsis eblanae,Lesser flying squid,TDQ,NA
+Penaeus kerathurus,Caramote prawn,TGS,NA
+Alopias spp,Thresher sharks nei,THR,elasmobranch
+Galeocerdo cuvier,Tiger shark,TIG,elasmobranch
+Trachyscorpia cristulata,Atlantic thornyhead,TJX,NA
+Torpedinidae,Electric rays nei,TOD,elasmobranch
+Torpedo spp,Torpedo rays,TOE,elasmobranch
+Trachipterus arcticus,Dealfish,TPA,NA
+Atrina fragilis,Brittle pen shell,TQF,NA
+Trachinidae,Weeverfishes nei,TRA,NA
+Trachichthyidae,Slimeheads nei,TRC,NA
+Caranx spp,"Jacks, crevalles nei",TRE,NA
+Balistes carolinensis,Grey triggerfish,TRG,NA
+Balistidae,"Triggerfishes, durgons nei",TRI,NA
+Triakidae,"Houndsharks, smoothhounds nei",TRK,elasmobranch
+Trachipterus spp,Dealfishes,TRP,NA
+Trachipterus trachypterus,Mediterranean dealfish,TRQ,NA
+Pseudocaranx dentex,White trevally,TRZ,NA
+Trachyrincus scabrus,Roughsnout grenadier,TSU,demersal
+Torpedo marmorata,Marbled electric ray,TTR,elasmobranch
+Thunnini,Tunas nei,TUN,NA
+Scombroidei,Tuna-like fishes nei,TUX,NA
+Cataetyx laticeps,,TVY,NA
+Trachyscorpia echinata,Spiny scorpionfish,TZY,NA
+Umbrina spp,Drums nei,UBS,NA
+Umbrina canariensis,Canary drum(=Baardman),UCA,NA
+Undaria pinnatifida,Wakame,UDP,NA
+Paracentrotus lividus,Stony sea urchin,URM,NA
+Labrus mixtus,Cuckoo wrasse,USI,NA
+Uranoscopus scaber,Stargazer,UUC,NA
+Campogramma glaycos,Vadigo,VAD,NA
+Venus verrucosa,Warty venus,VEV,NA
+Palinuridae,Spiny lobsters nei,VLO,crustacean
+Venerupis aurea,Golden carpet shell,VNA,NA
+Venerupis rhomboides,Banded carpet shell,VNR,NA
+Chlamys varia,Variegated scallop,VSC,NA
+Acanthocybium solandri,Wahoo,WAH,NA
+Trachinus spp,Weevers nei,WEX,NA
+Tetrapturus albidus,Atlantic white marlin,WHM,NA
+Polychaeta,Marine worms,WOR,NA
+Polyprion americanus,Wreckfish,WRF,NA
+Labrus merula,Brown wrasse,WRM,NA
+Serranus atricauda,Blacktail comber,WSA,NA
+Trisopterus spp,Trisopterus nei,XOD,NA
+Symphodus cinereus,Grey wrasse,YFC,NA
+Symphodus melops,Corkwing wrasse,YFM,NA
+Thunnus albacares,Yellowfin tuna,YFT,NA
+Symphodus spp,Symphodus wrasses nei,YFX,NA
+Synaptura lusitanica,Portuguese sole,YNU,benthic
+Sphyraena sphyraena,European barracuda,YRS,NA
+Zeidae,Dories nei,ZEX,NA
+Zeugopterus punctatus,Topknot,ZGP,NA
+Coregonus albula,Vendace,FVE,NA
+Anarhichas denticulatus,Northern wolffish,CAB,benthic
+Dentex angolensis,Angolan dentex,DEA,NA
+Notoscopelus spp,Patchwork lampfishes,LAX,NA
+Maurolicus muelleri,Silvery lightfish,MAV,NA
+Theragra chalcogramma,Alaska pollock(=Walleye poll.),ALK,NA
+Lophius americanus,American angler,ANG,benthic
+Antimora rostrata,Blue antimora,ANT,NA
+Plantae aquaticae,Aquatic plants nei,APL,NA
+Ascophyllum nodosum,North Atlantic rockweed,ASN,NA
+Arctogadus glacialis,Artic cod,ATG,NA
+Paralichthys olivaceus,Bastard halibut,BAH,benthic
+Selar crumenophthalmus,Bigeye scad,BIS,NA
+Makaira indica,Black marlin,BLM,NA
+Cetorhinus maximus,Basking shark,BSK,elasmobranch
+Mercenaria mercenaria,Northern quahog(=Hard clam),CLH,NA
+Ruditapes philippinarum,Japanese carpet shell,CLJ,NA
+Clupeidae,"Herrings, sardines nei",CLP,NA
+Corallium rubrum,Sardinia coral,COL,NA
+Eleginus navaga,Navaga(=Wachna cod),COW,NA
+Cardiidae,Cockles nei,COZ,NA
+Clupeoidei,Diadromous clupeoids nei,DCX,NA
+Coryphaena hippurus,Common dolphinfish,DOL,NA
+Dosinia orbignyi,Dosinia clam,DOR,NA
+Etmopterus princeps,Great lanternshark,ETR,elasmobranch
+Pseudopleuronectes americanus,Winter flounder,FLW,benthic
+Phalium saburon,Saburon helmet,FMS,NA
+Fucus serratus,Toothed wrack,FUU,NA
+Fucus vesiculosus,Bladder wrack,FUV,NA
+Porphyra spp,Nori nei,FYS,NA
+Gelidium corneum,Giant gelidium,GEQ,NA
+Macrourus spp,Grenadiers nei,GRV,NA
+Meretrix spp,Hard clams nei,HCX,NA
+Merluccius bilinearis,Silver hake,HKS,NA
+Hydrolagus spp,Ratfishes nei,HYD,NA
+Illex spp,Shortfin squids nei,ILL,NA
+Chondrus crispus,Carragheen (Irish) moss,IMS,NA
+Raja nidarosiensis,Norwegian skate,JAD,elasmobranch
+Crepidula fornicata,American slipper-limpet,KDF,NA
+Circomphalus casinus,Chamber venus,KFA,NA
+Scomberomorus spp,Seerfishes nei,KGX,NA
+Penaeus japonicus,Kuruma prawn,KUP,NA
+Laminaria hyperborea,North European kelp,LAH,NA
+Lepidotrigla dieuzeidei,Spiny gurnard,LEP,NA
+Galatheidae,"Craylets, squat lobsters",LOQ,crustacean
+Panulirus regius,Royal spiny lobster,LOY,crustacean
+Laminaria digitata,Tangle,LQD,NA
+Latris lineata,Striped trumpeter,LRL,NA
+Liza saliens,Leaping mullet,LZS,NA
+Mammalia,Aquatic mammals nei,MAM,NA
+Microchirus variegatus,Thickback sole,MKG,NA
+Tetrapturus audax,Striped marlin,MLS,NA
+Mytilus spp,Mytilus mussels nei,MYV,NA
+Nephropidae,"True lobsters,lobsterettes nei",NEX,crustacean
+Solea senegalensis,Senegalese sole,OAL,NA
+Oedalechilus labeo,Boxlip mullet,ODL,NA
+Paromola cuvieri,Paromola,OLV,NA
+Spectrunculus grandis,,OSG,NA
+Ostreidae,Flat and cupped oysters nei,OST,NA
+Ostrea spp,Flat oysters nei,OYX,NA
+Palaemon longirostris,Delta prawn,PIQ,NA
+Dasyatis violacea,Pelagic stingray,PLS,elasmobranch
+Penaeus brasiliensis,Redspotted shrimp,PNB,crustacean
+Boreogadus saida,Polar cod,POC,NA
+Palinurus mauritanicus,Pink spiny lobster,PSL,crustacean
+Rhinobatos punctifer,,RBF,NA
+Palmaria palmata,Dulse,RHP,NA
+Raja fyllae,Round ray,RJY,elasmobranch
+Sardinella aurita,Round sardinella,SAA,NA
+Placopecten magellanicus,American sea scallop,SCA,NA
+Istiophorus platypterus,Indo-Pacific sailfish,SFA,NA
+Diplodus puntazzo,Sharpsnout seabream,SHR,NA
+Alosa spp,Shads nei,SHZ,NA
+Pecten jacobaeus,Great Mediterranean scallop,SJA,NA
+Palinurus gilchristi,Southern spiny lobster,SLS,crustacean
+Salmonidae,Salmonids nei,SLZ,NA
+Thyrsites atun,Snoek,SNK,NA
+Spicara smaris,Picarel,SPC,NA
+Illex argentinus,Argentine shortfin squid,SQA,NA
+Microcosmus sulcatus,Grooved sea squirt,SSG,NA
+Dasyatis spp,Stingrays nei,STI,elasmobranch
+Dilsea carnosa,Fleshy dilsea,SWP,NA
+Delesseria sanguinea,Red delesseria,SWQ,NA
+Acantholatris monodactylus,St. Paul's fingerfin,TLD,NA
+Microgadus tomcod,Atlantic tomcod,TOM,NA
+Ruditapes spp,Carpet shells nei,TPS,NA
+Thunnus spp,True tunas nei,TUS,NA
+Tellina spp,Tellins nei,TWL,NA
+Fucus spp,,UCU,NA
+Spisula ovalis,Oval surf clam,ULV,NA
+Ulva lactuca,Sea lettuce,UVU,NA
+Polyprion oxygeneios,Hapuku wreckfish,WHA,NA
+Carcharodon carcharias,Great white shark,WSH,elasmobranch
+Limanda ferruginea,Yellowtail flounder,YEL,benthic
+Chionoecetes opilio,Queen crab,CRQ,crustacean
+Haliotis spp,Abalones nei,ABX,NA
+Aphanopus intermedius,Intermediate scabbardfish,APH,NA
+Belone spp,,BES,NA
+Brama spp,,BRA,NA
+Spaniblennius riodourensis,,BSD,NA
+Conger spp,Conger eels nei,CGZ,NA
+Spisula solidissima,Atlantic surf clam,CLB,NA
+Clupeonella engrauliformis,Anchovy sprat,CLE,NA
+Pennahia argentata,Silver croaker,CRV,NA
+Centroberyx affinis,Redfish,CXF,NA
+Pasiphaea multidentata,Pink glass shrimp,FAM,crustacean
+Gaidropsarus ensis,Threadfin rockling,GDE,NA
+Merluccius spp,Hakes nei,HKX,NA
+Achlyopa nigra,Black sole,HNG,NA
+Raja nasuta,Rough skate,JAT,elasmobranch
+Laemonema longipes,Longfin codling,LMG,NA
+Lamniformes,Mackerel sharks,LMZ,elasmobranch
+Nezumia aequalis,Common Atlantic grenadier,NZA,NA
+Alepocephalus rostratus,Risso's smooth-head,PHO,NA
+Rhinochimaera atlantica,Straightnose rabbitfish,RCT,NA
+Raja stellulata,Starry skate,RFT,elasmobranch
+Thunnus maccoyii,Southern bluefin tuna,SBF,NA
+Sebastes viviparus,Norway redfish,SFV,NA
+Symbolophorus barnardi,,SMP,NA
+Loligo pealeii,Longfin squid,SQL,NA
+Martialia hyadesi,Sevenstar flying squid,SQS,NA
+Spisula spp,Surf clams nei,SSD,NA
+Scomberomorus maculatus,Atlantic Spanish mackerel,SSM,pelagic
+Hyas spp,"Toad, lyre crabs nei",MJW,crustacean
+Rhinochimaera spp,Knife-nosed chimaeras nei,RHC,NA
+Aspius aspius,Asp,ASU,NA
+Pelecus cultratus,Sichel,FSC,NA
+Parapristipoma octolineatum,African striped grunt,GRA,NA
+Urophycis chuss,Red hake,HKR,NA
+Trachurus trecae,Cunene horse mackerel,HMZ,NA
+Leuciscus cephalus,Chub,LUH,NA
+Chionoecetes spp,Tanner crabs nei,PCR,crustacean
+Coregonus spp,Whitefishes nei,WHF,NA
+Leuciscus leuciscus,Common dace,FIE,NA
+Grammicolepis brachiusculus,Thorny tinselfish,GMG,NA
+Myoxocephalus scorpius,Shorthorn sculpin,MXV,NA
+Chloroscombrus chrysurus,Atlantic bumper,BUA,NA
+Dentex canariensis,Canary dentex,DEN,NA
+Carcharhinus obscurus,Dusky shark,DUS,elasmobranch
+Eriocheir sinensis,Chinese mitten crab,ERS,crustacean
+Loligo forbesi,Veined squid,SQF,NA
+Salvelinus alpinus,Arctic char,ACH,NA
+Salvelinus spp,Chars nei,CHR,NA
+Centrolabrus exoletus,Rock cook,ENX,NA
+Calanus finmarchicus,,JCM,NA
+Paralithodes camtschaticus,Red king crab,KCD,crustacean
+Modiolus spp,Horse mussels nei,MOD,NA
+Ctenolabrus rupestris,Goldsinny-wrasse,TBR,NA
+Dissostichus mawsoni,Antarctic toothfish,TOA,NA
+Strongylocentrotus spp,Sea urchins nei,URC,NA
+Centropristis striata,Black seabass,BSB,NA
+Enchelyopus cimbrius,Fourbeard rockling,ENC,NA
+Ctenopharyngodon idellus,Grass carp(=White amur),FCG,NA
+Silurus glanis,Wels(=Som) catfish,SOM,NA
+Gymnothorax maderensis,Sharktooth moray,AGD,NA
+Gymnothorax unicolor,Brown moray,AGK,NA
+Anthias anthias,Swallowtail seaperch,AHN,NA
+Acantholabrus palloni,Scale-rayed wrasse,AKL,NA
+Alosa pseudoharengus,Alewife,ALE,NA
+Seriola spp,Amberjacks nei,AMX,NA
+Aristeus antennatus,Blue and red shrimp,ARA,crustacean
+Aristaeomorpha foliacea,Giant red shrimp,ARS,crustacean
+Aristeus varidens,Striped red shrimp,ARV,crustacean
+Abudefduf luridus,Canary damsel,AUU,NA
+Enchelycore anatina,Fangtooth moray,AWM,NA
+Alosa aestivalis,Blueback shad,BBH,NA
+Bodianus spp,,BDY,NA
+Pomadasys spp,,BGX,NA
+Ethmalosa fimbriata,Bonga shad,BOA,NA
+Orcynopsis unicolor,Plain bonito,BOP,NA
+Brotula barbata,Bearded brotula,BRD,NA
+Pomadasys jubelini,Sompat grunt,BUR,NA
+Sphyraena viridensis,Yellowmouth barracuda,BVV,NA
+Callinectes spp,Callinectes swimcrabs nei,CAL,crustacean
+Ariidae,Sea catfishes nei,CAX,NA
+Carcharhinus limbatus,Blacktip shark,CCL,elasmobranch
+Carcharhinus plumbeus,Sandbar shark,CCP,elasmobranch
+Gadus spp,Northern cods nei,CDZ,NA
+Centrophorus moluccensis,Smallfin gulper shark,CEM,elasmobranch
+Genypterus spp,Cusk-eels nei,CEX,NA
+Pseudotolithus spp,West African croakers nei,CKW,NA
+Scomberomorus commerson,Narrow-barred Spanish mackerel,COM,NA
+Centrophorus lusitanicus,Lowfin gulper shark,CPL,elasmobranch
+Callinectes sapidus,Blue crab,CRB,crustacean
+Genypterus blacodes,Pink cusk-eel,CUS,NA
+Carcharhinus spp,Carcharhinus sharks nei,CWZ,elasmobranch
+Centroscymnus cryptacanthus,Shortnose velvet dogfish,CYY,elasmobranch
+Dentex maroccanus,Morocco dentex,DEM,NA
+Diopatra neapolitana,,DIN,NA
+Pteroscion peli,Boe drum,DRS,NA
+Eledone moschata,Musky octopus,EDT,NA
+Centracanthus cirrus,Curled picarel,EHI,NA
+Eriphia verrucosa,Warty crab,EIK,crustacean
+Pharus legumen,Bean solen,FRL,NA
+Rutilus spp,Roaches nei,FRX,NA
+Penaeus monodon,Giant tiger prawn,GIT,NA
+Pseudupeneus prayensis,West African goatfish,GOA,NA
+Mycteroperca spp,Brazilian groupers nei,GPB,NA
+Brachydeuterus auritus,Bigeye grunt,GRB,NA
+Grapsus grapsus,Lightfoot crab,GSQ,crustacean
+Rhinobatos spp,Guitarfishes nei,GUZ,NA
+Schedophilus ovalis,Imperial blackfish,HDV,NA
+Merluccius polli,Benguela hake,HKB,NA
+Merluccius capensis,Shallow-water Cape hake,HKK,NA
+Merluccius senegalensis,Senegalese hake,HKM,NA
+Merluccius australis,Southern hake,HKN,NA
+Merluccius paradoxus,Deep-water Cape hake,HKO,NA
+Merluccius hubbsi,Argentine hake,HKP,NA
+Chaceon macphersoni,Pink geryon,HNQ,NA
+Thais haemastoma,Two-row rock shell,HQM,NA
+Heteropriacanthus cruentatus,Glasseye,HTU,NA
+Ilisha africana,West African ilisha,ILI,NA
+Raja miraletus,Brown ray,JAI,elasmobranch
+Raja bigelowi,Bigelow's ray,JRW,elasmobranch
+Cancer bellianus,Toothed rock crab,KCB,crustacean
+Genypterus capensis,Kingklip,KCP,NA
+Charonia rubicunda,Knobbed triton,KRJ,NA
+Kyphosus spp,Kyphosus sea chubs nei,KYP,NA
+Kyphosus sectatrix,Bermuda sea chub,KYS,NA
+Plesionika edwardsii,Striped soldier shrimp,LKW,crustacean
+Isurus paucus,Longfin mako,LMA,elasmobranch
+Patella ulyssiponensis,Rough limpet,LQY,NA
+Laevicardium crassum,Norwegian egg cockle,LVC,NA
+Acanthurus monroviae,Monrovia doctorfish,MDO,NA
+Muraena spp,,MDZ,NA
+Marphysa sanguinea,,MFZ,NA
+Mycteroperca fusca,Island grouper,MKF,NA
+Mycteroperca rubra,Mottled grouper,MKU,NA
+Metapenaeus monoceros,Speckled shrimp,MPN,crustacean
+Tetrapturus belone,Mediterranean spearfish,MSP,NA
+Naucrates ductor,Pilotfish,NAU,NA
+Scrobicularia plana,Peppery furrow,OBN,NA
+Carcharhinus longimanus,Oceanic whitetip shark,OCS,elasmobranch
+Ommastrephes bartrami,Neon flying squid,OFJ,NA
+Bothus podas,Wide-eyed flounder,OUB,benthic
+Oxynotus centrina,Angular roughshark,OXY,elasmobranch
+Pagellus bellottii,Red pandora,PAR,NA
+Paphia undulata,Undulate venus,PAU,NA
+Morone americana,White perch,PEW,NA
+Penaeus indicus,Indian white prawn,PNI,NA
+Trachinotus ovatus,Pompano,POP,NA
+Micromesistius australis,Southern blue whiting,POS,NA
+Promethichthys prometheus,Roudi escolar,PRP,NA
+Sparisoma cretense,Parrotfish,PRR,NA
+Psettodes bennettii,Spiny turbot,PSB,NA
+Pseudocarcharias kamoharai,Crocodile shark,PSK,elasmobranch
+Pseudotolithus senegalensis,Cassava croaker,PSS,NA
+Palaemonetes varians,Atlantic ditch shrimp,PVR,crustacean
+Polymixia nobilis,Stout beardfish,PXV,NA
+Polybius henslowii,Henslow’s swimming crab,QPH,crustacean
+Procambarus clarkii,Red swamp crawfish,RCW,NA
+Dasyatis centroura,Roughtail stingray,RDC,elasmobranch
+Pagrus auriga,Redbanded seabream,REA,NA
+Gymnura altavela,Spiny butterfly ray,RGL,elasmobranch
+Macrouridae,"Grenadiers, rattails nei",RTX,NA
+Caranx crysos,Blue runner,RUB,NA
+Argyrosomus spp,Meagres nei,RXY,NA
+Salilota australis,Tadpole codling,SAO,NA
+Stenotomus chrysops,Scup,SCP,NA
+Synodus saurus,Atlantic lizardfish,SDR,NA
+Macroramphosidae,Snipefishes nei,SNI,NA
+Oncorhynchus nerka,Sockeye(=Red) salmon,SOC,NA
+Penaeus notialis,Southern pink shrimp,SOP,crustacean
+Psettodes belcheri,Spottail spiny turbot,SOT,NA
+Tetrapturus pfluegeri,Longbill spearfish,SPF,NA
+Sorsogona prionota,Halfspined flathead,SRQ,NA
+Menidia menidia,Atlantic silverside,SSA,NA
+Plesiopenaeus edwardsianus,Scarlet shrimp,SSH,crustacean
+Cynoscion regalis,Squeteague(=Gray weakfish),STG,NA
+Squatina oculata,Smoothback angelshark,SUT,elasmobranch
+Batrachoides spp,Toadfishes nei,TDF,NA
+Polynemidae,"Threadfins, tasselfishes nei",THF,NA
+Thalassoma pavo,Ornate wrasse,TMP,NA
+Dissostichus eleginoides,Patagonian toothfish,TOP,NA
+Cynoglossidae,Tonguefishes,TOX,NA
+Triaenodon obesus,Whitetip reef shark,TRB,elasmobranch
+Uranoscopus spp,Stargazers,URA,NA
+Plesionika spp,Plesionika shrimps nei,XKX,crustacean
+Scyllarides latus,Mediterranean slipper lobster,YLL,crustacean
+Cynoglossus canariensis,Canary tonguesole,YOI,NA
+Cynoglossus spp,Tonguesole nei,YOX,NA
+Seriola lalandi,Yellowtail amberjack,YTC,NA
+Seriola rivoliana,Longfin yellowtail,YTL,NA
+Peprilus triacanthus,Atlantic butterfish,BUT,NA
+Pleuronectes glacialis,Arctic flounder,EOG,NA
+Clupea pallasii,Pacific herring,HEP,NA
+Psammechinus microtuberculatus,Green sea urchin,KIM,NA
+Myctophidae,Lanternfishes nei,LXX,NA
+Oncorhynchus gorbuscha,Pink(=Humpback) salmon,PIN,NA
+Osmerus mordax,Rainbow smelt,SMR,demersal
+Spisula subtruncata,Subtruncate surf clam,ULT,NA
+Apristurus laurussonii,Iceland catshark,APQ,elasmobranch
+Brachypterois serrulata,,BER,NA
+Epigonus spp,Cardinal fishes nei,CDL,NA
+Corbicula manilensis,Manila clam,CMM,NA
+Chaceon quinquedens,Red crab,CRR,crustacean
+Hydrolagus mirabilis,Large-eyed rabbitfish,CYH,NA
+Etelis oculatus,Queen snapper,EEO,NA
+Lithodidae,"King crabs, stone crabs nei",KCX,crustacean
+Mola spp,Sunfish,MOP,NA
+Pseudophycis bachus,Red codling,NEC,NA
+Sardinella maderensis,Madeiran sardinella,SAE,NA
+Menippe mercenaria,Black stone crab,STC,crustacean
+Torpedo nobiliana,Electric ray,TTO,elasmobranch
+NA,NA,NA,NA

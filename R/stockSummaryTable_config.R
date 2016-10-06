@@ -1,15 +1,19 @@
 rm(list = ls())
 ################
+library(dplyr)
+library(jsonlite)
+library(ggrepel)
+library(stringr)
+library(reshape2)
+library(icesSAG)
+library(RColorBrewer)
+library(extrafont)
 # library(DT)
 # library(shiny)
 # library(ReporteRs)
-library(dplyr)
-library(jsonlite)
 # library(XML)
-library(stringr)
 # library(RCurl)
-library(reshape2)
-library(icesSAG)
+options(scipen = 5)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # DATA SOURCE: FAO codes and ICES stock codes #
@@ -145,13 +149,15 @@ keeperSSB <- c("SSB", "B/BMSY", "SSB & Biomass Age 4+", "UW Tv Index", "Stock Si
 relativeSSB <- c("B/BMSY", "Total biomass/BMSY")
 
 summaryTblClean <- summaryTbl %>%
-  filter(Year >= 2013) %>%
+  # filter(Year >= 2013) %>%
   select(Year,
          STOCK.CODE = fishstock,
          F,
          SSB,
          fishingPressureDescription,
-         stockSizeDescription) %>%
+         stockSizeDescription,
+         LANDINGS = landings,
+         CATCHES = catches) %>%
   mutate(STOCK.CODE = tolower(STOCK.CODE),
          fishingPressureDescription = gsub("Fishing Pressure: " , "", fishingPressureDescription),
          fishingPressureDescription = gsub("Fishing pressure: " , "", fishingPressureDescription),
@@ -342,8 +348,6 @@ stockPlotEcoregion <- function(ecoregion) {
 lapply(unique(stockDat$ECOREGION), stockPlotEcoregion)
 
 
-
-
 ##############
 # Pie graphs #
 ##############
@@ -379,77 +383,305 @@ pieDat <- pieDat %>%
   distinct(.keep_all = TRUE) %>%
   bind_rows(pieDat)
 
-
 stockPieEcoregion <- function(ecoregion) {
 
   tempDat <- pieDat[pieDat$ECOREGION == ecoregion,]
 
-  makePie <- function(guild, ecoregion) {
-    for(i in unique(tempDat$VARIABLE)) {
-      colList <- c("GREEN" = "#4daf4a",
-                   "GREY" = "#d3d3d3",
-                   "ORANGE" = "#ff7f00",
-                   "RED" = "#e41a1c")
-      rowDat <- tempDat %>%
-        group_by(ECOREGION, FISHERIES.GUILD, VARIABLE) %>%
-        mutate(fraction = COUNT/ sum(COUNT),
-               ymax = cumsum(fraction),
-               ymin = c(0, head(ymax, n = -1))) %>%
-        arrange(ECOREGION, FISHERIES.GUILD, VARIABLE, fraction) %>%
-        filter(ECOREGION == ecoregion,
-               FISHERIES.GUILD == guild,
-               COUNT != 0) %>%
-        filter_(.dots =  ~ VARIABLE == i) %>%
-        mutate(pos = cumsum(COUNT) - COUNT/2)
+  colList <- c("GREEN" = "#4daf4a",
+               "GREY" = "#d3d3d3",
+               "ORANGE" = "#ff7f00",
+               "RED" = "#e41a1c")
 
-      p1 <- ggplot(data = rowDat) +
-        geom_bar(aes(x = "", y = COUNT, fill = VALUE), stat = "identity") +
-        geom_text(aes(x = "", y = pos, label = COUNT)) +
-        coord_polar(theta = "y") +
-        scale_fill_manual(values = colList) +
-        theme_bw(base_size = 9) +
-        theme(panel.grid=element_blank(),
-              panel.border = element_blank(),
-              panel.background = element_blank(),
-              legend.position="none") +
-        theme(axis.text=element_blank()) +
-        theme(axis.ticks=element_blank()) +
-        annotate("text", x = 0, y = 0, label = "") +
-        labs(title="", x = "", y = "")
+  rowDat <- tempDat %>%
+    ungroup() %>%
+    select(-ECOREGION) %>%
+    group_by(FISHERIES.GUILD, VARIABLE) %>%
+    mutate(fraction = COUNT/ sum(COUNT),
+           ymax = cumsum(fraction),
+           ymin = c(0, head(ymax, n = -1))) %>%
+    # arrange(FISHERIES.GUILD, VARIABLE, fraction) %>%
+    filter(fraction != 0) %>%
+    mutate(pos = cumsum(fraction) - fraction/2) %>%
+    ungroup() %>%
+    mutate(VARIABLE = recode_factor(VARIABLE,
+                                    "FMSY2015" = "Fishing pressure\n MSY",
+                                    "BMSY2016" = "Stock size\n MSY",
+                                    "FPA2015" = "Fishing pressure\n PA",
+                                    "BPA2016" = "Stock size \n PA",
+                                    "SBL" = "Within safe\n biological limits"))
 
-      tempName <- path.expand(paste0("~/git/ices-dk/fisheryO/vignettes/TEMP_", i, "-", guild, ".png" ))
-      ggsave(filename = tempName,
-             plot =  p1,
-             width = 2,
-             height = 2,
-             units ="in",
-             dpi = 600,
-             scale = 2,
-             bg = "transparent")
-    }
-  }
+  rowDat$FISHERIES.GUILD <- factor(rowDat$FISHERIES.GUILD, levels = c("total", "benthic", "crustacean", "elasmobranch", "demersal", "pelagic"))
+  #
 
-  lapply(unique(tempDat$FISHERIES.GUILD), makePie, ecoregion = ecoregion)
+  p1 <- ggplot(data = rowDat) +
+    geom_bar(aes(x = "", y = fraction, fill = VALUE), stat = "identity") +
+    geom_text(aes(x = "", y = pos, label = COUNT), size = 3) +
+    coord_polar(theta = "y") +
+    scale_fill_manual(values = colList) +
+    theme_bw(base_size = 9) +
+    theme(panel.grid=element_blank(),
+          panel.border = element_blank(),
+          panel.background = element_blank(),
+          legend.position="none") +
+    theme(axis.text=element_blank(),
+          axis.ticks=element_blank(),
+          strip.background = element_blank()) +
+    # annotate("text", x = 0, y = 0, label = "") +
+    labs(title="", x = "", y = "") +
+    facet_grid(FISHERIES.GUILD ~ VARIABLE)
 
-  suppressWarnings(
-    rmarkdown::render("~/git/ices-dk/fisheryO/vignettes/stockStatusSummaryTable-static.rmd",
-                      output_file = paste0("~/git/ices-dk/fisheryO/output/table1_", ecoregion, "_static.html"),
-                      rmarkdown::html_document(template = NULL),
-                      envir = new.env())
-  )
 
-  #Now remove the generated
-  file.remove(dir(
-    "~/git/ices-dk/fisheryO/vignettes/",
-    pattern = "^TEMP_(.*\\.png)",
-    full.names = TRUE
-  ))
-  # remove old files you just made
+  figName = "table1_"
+  ggsave(filename = paste0("~/git/ices-dk/fisheryO/output/", figName, ecoregion, ".png"),
+         plot = p1,
+         width = 178,
+         height = 152,
+         units = "mm",
+         dpi = 300)
 }
 
-# stockPieEcoregion(ecoregion = unique(pieDat$ECOREGION)[3])
 lapply(unique(pieDat$ECOREGION), stockPieEcoregion)
 
+##############################
+### Stock Status over time ###
+##############################
+colList <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3",
+             "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999")
+ltyList <- c(1,3:6)
+
+
+stockTrends <- fullSummary %>%
+  left_join(slFull, by = "STOCK.CODE") %>%
+  distinct(.keep_all = TRUE) %>%
+  mutate(F_FMSY = ifelse(!is.na(FMSY),
+                         F / FMSY,
+                         NA),
+         SSB_MSYBtrigger = ifelse(!is.na(MSYBtrigger),
+                                  SSB / MSYBtrigger,
+                                  NA)) %>%
+  select(Year,
+         STOCK.CODE,
+         FISHERIES.GUILD,
+         ECOREGION,
+         F_FMSY,
+         SSB_MSYBtrigger) %>%
+  melt(id.vars = c("Year",  "STOCK.CODE", "FISHERIES.GUILD","ECOREGION"),
+       measure.vars = c("F_FMSY", "SSB_MSYBtrigger"),
+       variable.name = "METRIC",
+       value.name = "stockValue") %>%
+  group_by(ECOREGION, FISHERIES.GUILD, METRIC, Year) %>%
+  mutate(ecoGuildMean = mean(stockValue, na.rm = TRUE))
+
+
+allDat <- stockTrends %>%
+  mutate(ECOGUILD = paste0(ECOREGION, ", ", FISHERIES.GUILD)) %>%
+  ungroup() %>%
+  select(pageGroup = ECOGUILD,
+         lineGroup = STOCK.CODE,
+         Year,
+         plotGroup = METRIC,
+         plotValue = stockValue) %>%
+  filter(!is.na(plotValue))
+#
+oMean <- stockTrends %>%
+  mutate(ECOGUILD = paste0(ECOREGION, ", ", FISHERIES.GUILD)) %>%
+  ungroup() %>%
+  distinct(ECOGUILD, METRIC, Year, .keep_all = TRUE) %>%
+  select(pageGroup = ECOGUILD,
+         Year,
+         plotGroup = METRIC,
+         plotValue = ecoGuildMean) %>%
+  mutate(lineGroup = "MEAN") %>%
+  filter(!is.na(plotValue))
+
+allDat <- bind_rows(allDat, oMean)
+
+# Set up colors
+plotList <- allDat %>%
+  group_by(pageGroup) %>%
+  select(pageGroup, lineGroup) %>%
+  mutate(nLines = n_distinct(lineGroup) - 1,
+         COLOR = NA) %>%
+  distinct(lineGroup, .keep_all = TRUE) %>%
+  arrange(pageGroup)
+#
+singleList <- plotList %>%
+  filter(nLines == 1) %>%
+  mutate(COLOR = colList[1:length(nLines)])
+#
+normList <- plotList %>%
+  filter(nLines <= 9 &
+           nLines > 1 &
+           lineGroup != "MEAN") %>%
+  mutate(COLOR = colList[1:length(nLines)])
+#
+longList <- plotList %>%
+  filter(nLines > 9 &
+           lineGroup != "MEAN") %>%
+  mutate(COLOR = "grey80")
+#
+meanList <- plotList %>%
+  filter(nLines > 1 &
+           lineGroup == "MEAN") %>%
+  mutate(COLOR = "grey40")
+
+colorList <- bind_rows(singleList, normList, longList, meanList)
+allDat <- left_join(colorList, allDat, by = c("pageGroup", "lineGroup"))
+
+allDat <- allDat %>%
+  group_by(pageGroup) %>%
+  mutate(nLines = n_distinct(lineGroup)) %>%
+  filter(nLines > 2 | lineGroup != "MEAN") %>%
+  filter(lineGroup != "MEAN" | Year != 2016 | plotGroup != "F_FMSY")
+
+
+source("~/git/ices-dk/fisheryO/R/stockSummaryTrends.R")
+# create stock summary trend figures
+stockSummaryTrends(df = allDat[allDat$plotGroup == "F_FMSY",],
+                   overallMean = TRUE,
+                   plotDir = "~/git/ices-dk/fisheryO/output/")
+
+
+#################
+### KOBE Plot ###
+#################
+
+
+stockStatusDat <- fullSummary %>%
+  left_join(slFull, by = "STOCK.CODE")
+
+yearF <- stockStatusDat %>%
+  select(Year, STOCK.CODE, F) %>%
+  filter(!is.na(F) &
+           Year <= 2016) %>%
+  group_by(STOCK.CODE) %>%
+  summarize(yearF = max(Year, na.rm = TRUE))
+
+yearB <- stockStatusDat %>%
+  select(Year, STOCK.CODE, SSB) %>%
+  filter(!is.na(SSB) &
+           Year <= 2016) %>%
+  group_by(STOCK.CODE) %>%
+  summarize(yearB = max(Year, na.rm = TRUE))
+
+td <- yearF %>%
+  left_join(yearB, by = c("STOCK.CODE"))
+
+stockStatusDat <- stockStatusDat %>%
+  # filter(Year == 2015) %>%
+  mutate(F_FMSY = ifelse(!is.na(FMSY),
+                         F / FMSY,
+                         NA),
+         SSB_MSYBtrigger = ifelse(!is.na(MSYBtrigger),
+                                  SSB / MSYBtrigger,
+                                  NA),
+         CATCH = ifelse(is.na(CATCHES) & !is.na(LANDINGS),
+                           LANDINGS,
+                           CATCHES)) %>%
+  select(Year,
+         STOCK.CODE,
+         ECOREGION,
+         FISHERIES.GUILD,
+         F_FMSY,
+         SSB_MSYBtrigger,
+         CATCH)
+
+stockStatusF <- stockStatusDat %>%
+  left_join(td, by = "STOCK.CODE") %>%
+  group_by(STOCK.CODE) %>%
+  filter(Year == yearF) %>%
+  # mutate(SSB_MSYBtrigger = NA) %>%
+  select(-Year,
+         -SSB_MSYBtrigger,
+         -yearF, -yearB)
+
+stockStatusB <- stockStatusDat %>%
+  left_join(td, by = "STOCK.CODE") %>%
+  group_by(STOCK.CODE) %>%
+  filter(Year == yearB) %>%
+  # mutate(F_FMSY = NA) %>%
+  select(-Year,
+         -F_FMSY,
+         -CATCH,
+         -yearF, -yearB)
+
+stockStatusFull <- stockStatusF %>%
+  left_join(stockStatusB, c("STOCK.CODE", "ECOREGION", "FISHERIES.GUILD")) %>%
+  mutate(colList = if_else(F_FMSY < 1 & SSB_MSYBtrigger >= 1,
+                  "GREEN" ,
+                  "RED",
+                  "GREY"))
+
+stockStatusFull$colList[is.na(stockStatusFull$F_FMSY) |
+                          is.na(stockStatusFull$SSB_MSYBtrigger)] <- "GREY"
+
+source("~/git/ices-dk/fisheryO/R/kobePlot.R")
+lapply(unique(stockStatusFull$ECOREGION), plot_kobe, guild = "all", fig.width = 174, fig.height = 118)
+lapply(unique(stockStatusFull$ECOREGION), plot_kobe, guild = "benthic")
+lapply(unique(stockStatusFull$ECOREGION), plot_kobe, guild = "demersal")
+lapply(unique(stockStatusFull$ECOREGION), plot_kobe, guild = "pelagic")
+lapply(unique(stockStatusFull$ECOREGION), plot_kobe, guild = "crustacean")
+lapply(unique(stockStatusFull$ECOREGION), plot_kobe, guild = "elasmobranch")
+
+
+######################
+### Catch MSY Plot ###
+######################
+
+catchMSYPlot <- fullSummary %>%
+  left_join(slFull, by = "STOCK.CODE") %>%
+  filter(Year >= 1995) %>%
+  mutate(F_FMSY = ifelse(!is.na(FMSY),
+                         F / FMSY,
+                         NA),
+         CATCH = ifelse(is.na(CATCHES) & !is.na(LANDINGS),
+                        LANDINGS,
+                        CATCHES),
+         colList = if_else(F_FMSY < 1,
+                           "GREEN",
+                           "RED",
+                           "GREY")) %>%
+  group_by(ECOREGION, FISHERIES.GUILD, colList, Year) %>%
+  summarize(totCatch = sum(CATCH, na.rm = TRUE))
+
+catchMSY <- function(ecoregion, plotDir = "~/git/ices-dk/fisheryO/output/") {
+
+  plotName <- paste0(plotDir, "figure09_", ecoregion, ".png")
+  #
+  catchMSYPlotDat <- catchMSYPlot %>%
+    filter(ECOREGION == ecoregion)
+
+  cP <- ggplot(catchMSYPlotDat, aes(x = Year, y = totCatch)) +
+    geom_bar(stat = "identity", aes(fill = colList)) +
+    scale_fill_manual(values = c("GREEN" = "#4daf4a",
+                                 "RED" = "#e41a1c",
+                                 "GREY" = "#d3d3d3"),
+                      name = '',
+                      labels = c("GREEN" = expression(F<F[MSY]),
+                                 "RED" = expression(F>F[MSY]),
+                                 "GREY" = expression(F[MSY]~unk.))) +
+    coord_fixed(ratio = 1) +
+    labs(x = "",
+         y = "Catch (tonnes)") +
+    theme_bw(base_size = 9) +
+    theme(legend.position = "bottom",
+          legend.direction = "horizontal",
+          panel.grid.minor = element_blank(),
+          panel.grid.major = element_blank(),
+          strip.background = element_blank(),
+          legend.key = element_blank()) +
+    facet_wrap(~FISHERIES.GUILD, scales = "free", ncol = 2)
+
+  png(plotName,
+      width = 174,
+      height = 136,
+      units = "mm",
+      res = 300)
+  print(cP)
+  dev.off()
+}
+
+lapply(unique(catchMSYPlot$ECOREGION), catchMSY)
 
 
 dynamicPie <- data.frame(pieDat,
@@ -488,7 +720,7 @@ dyPie <- dynamicPie %>%
                       output_file = paste0("~/git/ices-dk/fisheryO/output/table1_", ecoregion, "-dynamic.html")),
                       # rmarkdown::html_document(template = NULL),
                       envir = new.env())
-  )
+  # )
 
 
 

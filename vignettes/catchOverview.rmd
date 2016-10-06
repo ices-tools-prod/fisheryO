@@ -26,8 +26,9 @@ library(reshape2, quietly = TRUE)
 library(ggplot2, quietly = TRUE)
 library(knitr, quietly = TRUE)
 library(gridExtra, quietly = TRUE)
-library(dygraphs, quietly = TRUE)
-library(xts, quietly = TRUE)
+# library(dygraphs, quietly = TRUE)
+# library(xts, quietly = TRUE)
+library(ggrepel, quietly = TRUE)
 # 
 options(scipen = 5)
 # 
@@ -258,15 +259,16 @@ allDat <- catchDat2010Clean %>%
 
 # area = "ECOREGION"
 # IA = unique(allDat$ECOREGION)[7]
-# type = c("COMMON_NAME", "COUNTRY", "GUILD")[3]
+# type = c("COMMON_NAME", "COUNTRY", "GUILD")[2]
+# text.size = 9
 
 icesAreaPlot <- function(area = "ECOREGION",
                          IA = unique(allDat$ECOREGION)[1],
                          type = c("COMMON_NAME", "COUNTRY", "GUILD")[1],
                          fig.save = FALSE,
                          fig.plot = TRUE,
-                         fig.width = 10,
-                         fig.height = 10,
+                         fig.width = 174,
+                         fig.height = 68,
                          text.size = 9, 
                          ...) {
    
@@ -301,46 +303,85 @@ icesAreaPlot <- function(area = "ECOREGION",
   myColors <- colList[1:length(unique(catchPlot[[type]]))]
   names(myColors) <- levels(catchPlot[[type]])
   myColors["OTHER"] <- "grey40"
-   
-  if(type == "COUNTRY"){
-    countryColors <- myColors
+  
+  plotFun <- function(xColors) {
     pl <- ggplot(catchPlot, aes(x = YEAR, y = typeTotal)) +
       geom_area(aes_string(fill = type, color = type), alpha = .8, position = "stack") +
-      scale_fill_manual(values = countryColors) +
-      scale_color_manual(values = countryColors) +
-      labs(title = gsub("27.", "", IA),
-           x = "",
-           y = "Landings (tonnes)",
-           fill = "Country",
-           color = "Country") +
-      theme_bw(base_size = text.size)
+      geom_label_repel(data = cumPlot,
+                       aes_string(y = "td",
+                                  label = type,
+                                  fill = type),
+                       alpha = 0.8,
+                       label.size = 0.15,
+                       segment.size = .15,
+                       nudge_x = 5,
+                       color = "grey20",
+                       segment.color = "grey20",
+                       force = 3,
+                       size = 2) +
+      scale_fill_manual(values = xColors) +
+      scale_color_manual(values = xColors) +
+      scale_y_continuous(labels = scales::comma) + 
+      scale_x_continuous(breaks = seq(min(catchPlot$YEAR),
+                                      max(catchPlot$YEAR), by = 10)) +
+      geom_segment(aes(x = -Inf, xend = 2014, y = -Inf, yend = -Inf), color = "grey50")+
+      geom_segment(aes(y = -Inf, yend = Inf, x = -Inf, xend = -Inf), color = "grey50")+
+      expand_limits(x = c(min(catchPlot$YEAR), 2035)) + # So that we have enough room along x-axis for labels.
+      labs(x = "",
+           y = "Catches (tonnes)") +
+      theme_bw(base_size = text.size) +
+      theme(legend.position = 'none',
+            panel.grid.minor = element_blank(),
+            panel.grid.major = element_blank(),
+            panel.border = element_blank(),
+            axis.line = element_blank())
+    return(pl)
+  }
+  
+  if(type == "COUNTRY"){
+    countryColors <- myColors
+    
+    cumPlot <-  catchPlot %>% 
+      filter(YEAR == 2014) %>%
+      ungroup() %>%
+      mutate(cs = cumsum(as.numeric(typeTotal)),
+             mp = lag(cs, order_by = COUNTRY),
+             mp = ifelse(is.na(mp), 1, mp)) %>%
+      ungroup() %>%
+      mutate(td = rowMeans(.[,c("cs", "mp")]))
+    
+    pl <- plotFun(xColors = countryColors)
+     
   }
   if(type == "COMMON_NAME"){
     commonColors <- myColors
-    pl <- ggplot(catchPlot, aes(x = YEAR, y = typeTotal)) +
-      geom_area(aes_string(fill = type, color = type), alpha = .8, position = "stack") +
-      scale_fill_manual(values = commonColors) +
-      scale_color_manual(values = commonColors) +
-      labs(title = gsub("27.", "", IA),
-           x = "",
-           y = "Landings (tonnes)",
-           fill = "Species",
-           color = "Species") +
-      theme_bw(base_size = text.size)
+    
+    cumPlot <-  catchPlot %>% 
+      filter(YEAR == 2014) %>%
+      ungroup() %>%
+      mutate(cs = cumsum(as.numeric(typeTotal)),
+             mp = lag(cs, order_by = COMMON_NAME),
+             mp = ifelse(is.na(mp), 1, mp)) %>%
+      ungroup() %>%
+      mutate(td = rowMeans(.[,c("cs", "mp")]))
+    
+    pl <- plotFun(xColors = commonColors)
+    
   }
   if(type == "GUILD"){
     guildColors <- myColors
-    pl <- ggplot(catchPlot, aes(x = YEAR, y = typeTotal)) +
-      geom_area(aes_string(fill = type, color = type), alpha = .8, position = "stack") +
-      scale_fill_manual(values = guildColors) +
-      scale_color_manual(values = guildColors) +
-      labs(title = gsub("27.", "", IA),
-           x = "",
-           y = "Landings (tonnes)",
-           fill = "Fishery guild",
-           color = "Fishery guild") +
-      theme_bw(base_size = text.size)
-  }
+    
+    cumPlot <-  catchPlot %>% 
+      filter(YEAR == 2014) %>%
+      ungroup() %>%
+      mutate(cs = cumsum(as.numeric(typeTotal)),
+             mp = lag(cs, order_by = GUILD),
+             mp = ifelse(is.na(mp), 1, mp)) %>%
+      ungroup() %>%
+      mutate(td = rowMeans(.[,c("cs", "mp")]))
+    
+    pl <- plotFun(xColors = guildColors)
+    }
   
   # 
   if(fig.save == TRUE) {
@@ -354,8 +395,8 @@ icesAreaPlot <- function(area = "ECOREGION",
            plot = pl, 
            width = fig.width,
            height = fig.height,
-           units = "cm",
-           dpi = 600)
+           units = "mm",
+           dpi = 300)
     
   }
   if(fig.plot == TRUE) {

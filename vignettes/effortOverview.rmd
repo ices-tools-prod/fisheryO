@@ -23,11 +23,13 @@ library(tidyr, quietly = TRUE)
 library(reshape2, quietly = TRUE)
 library(ggplot2, quietly = TRUE)
 library(knitr, quietly = TRUE)
-library(gridExtra, quietly = TRUE)
-library(dygraphs, quietly = TRUE)
-library(xts, quietly = TRUE)
+# library(gridExtra, quietly = TRUE)
+# library(dygraphs, quietly = TRUE)
+# library(xts, quietly = TRUE)
 library(readxl, quietly = TRUE)
-library(grid, quietly = TRUE)
+# library(grid, quietly = TRUE)
+library(stringr)
+library(ggrepel)
 
 options(scipen = 5)
  
@@ -96,7 +98,7 @@ areaDat <- read.csv("~/git/ices-dk/fisheryO/inst/extdata/areaList.csv",
 areaID <- areaDat %>%
   filter(areaType %in% c("STECFarea"),
          FO2016 == TRUE) %>%
-  mutate(ANNEX = as.character(lapply(strsplit(value, "_"), head, n = 1)),
+  mutate(ANNEX_ID = as.character(lapply(strsplit(value, "_"), head, n = 1)),
          RegCodeArea = as.character(lapply(strsplit(value, "_"), tail, n = 1))) %>%
   select(-ICESarea)
 
@@ -125,17 +127,17 @@ STECF reports landings and effort based on 11 effort management regimes. One cav
 # 
 effortDatClean <- effortDat %>%
     Filter(f = function(x)!all(is.na(x))) %>%
-    rename(ANNEX = annex,
+    rename(ANNEX_ID = annex,
            RegCodeArea = reg_area_cod,
            RegCodeGear = reg_gear_cod) %>%
-    melt(id.vars = c("ANNEX", "RegCodeArea", "RegCodeGear", "Specon_calc", "country", "vessel_length"), 
+    melt(id.vars = c("ANNEX_ID", "RegCodeArea", "RegCodeGear", "Specon_calc", "country", "vessel_length"), 
          variable.name = "YEAR",
          value.name = "VALUE") %>%
     mutate(YEAR = as.numeric(levels(YEAR))[YEAR]) %>%
     full_join(gearNames, c("RegCodeGear" = "GEAR",
-                           "ANNEX" = "ANNEX")) %>% # merge with ISO country names
+                           "ANNEX_ID" = "ANNEX_ID")) %>% # merge with gear names
     full_join(countryNames, c("country" = "VALUE")) %>% # merge with ISO country names
-    full_join(areaID, c("ANNEX" = "ANNEX",
+    full_join(areaID, c("ANNEX_ID" = "ANNEX_ID",
                         "RegCodeArea" = "RegCodeArea")) %>% # Merge to add ecoregions (only areas defined in catchAreaID!)
     filter(RegCodeArea %in% areaID$RegCodeArea) %>%
     select(YEAR, 
@@ -152,15 +154,16 @@ effortDatClean <- effortDat %>%
 
 
 ```{r stecfAreaPlotEffort, include = TRUE}
+# allDat <- effortDatClean 
 # IA = unique(allDat$ECOREGION)[1]
-# type = c("GEAR", "COUNTRY")[2]
+# type = c("GEAR", "COUNTRY")[1]
 
 stecfEffortAreaPlot <- function(IA = unique(allDat$ECOREGION)[1], 
                                 type = c("GEAR", "COUNTRY")[1],
                                 fig.save = FALSE,
                                 fig.plot = TRUE,
-                                fig.width = 10,
-                                fig.height = 10,
+                                fig.width = 174,
+                                fig.height = 136,
                                 text.size = 9, 
                                 ...) {
   
@@ -182,7 +185,8 @@ stecfEffortAreaPlot <- function(IA = unique(allDat$ECOREGION)[1],
     select(-ANNEX.y,
            ANNEX = ANNEX.x) %>%
     dplyr::mutate(GEAR = replace(GEAR, RANK > 10, "OTHER"),
-                  COUNTRY = replace(COUNTRY, RANK > 10, "OTHER")) %>%
+                  COUNTRY = replace(COUNTRY, RANK > 10, "OTHER"),
+                  ANNEX = str_wrap(ANNEX, width = 26)) %>%
     group_by_(.dots = dots) %>%
     dplyr::summarize(typeTotal = sum(VALUE, na.rm = TRUE))
   
@@ -197,84 +201,88 @@ stecfEffortAreaPlot <- function(IA = unique(allDat$ECOREGION)[1],
   catchPlot <- rbind(catchPlot[!catchPlot[[type]] == "OTHER",],
                      catchPlot[catchPlot[[type]] == "OTHER",])
   
-  
   catchPlot$ANNEX <- as.factor(catchPlot$ANNEX)
-  # 
-  colList <- c("#DB9D85", "#C7A76C", "#ABB065", "#86B875", "#5CBD92",
-               "#39BEB1", "#4CB9CC", "#7DB0DD", "#ACA4E2", "#CD99D8")
-  # 
-  multiplot <- function(..., plotlist = NULL, file, cols = 2, layout = NULL) {
-    # Make a list from the ... arguments and plotlist
-    plots <- c(list(...), plotlist)
-    
-    numPlots = length(plots)
-    # If layout is NULL, then use 'cols' to determine layout
-    if (is.null(layout)) {
-      # Make the panel
-      # ncol: Number of columns of plots
-      # nrow: Number of rows needed, calculated from # of cols
-      layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
-                       ncol = cols, nrow = ceiling(numPlots/cols))
-    }
-    if (numPlots==1) {
-      print(plots[[1]])
-    } else {
-      # Set up the page
-      grid.newpage()
-      pushViewport(viewport(layout = grid.layout(nrow(layout), 
-                                                 ncol(layout))))
-      
-      # Make each plot, in the correct location
-      for (i in 1:numPlots) {
-        # Get the i,j matrix positions of the regions that contain this subplot
-        matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
-        print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
-                                        layout.pos.col = matchidx$col))
-      }
-    }
-  }
-  # 
-  out <- by(data = catchPlot, INDICES = catchPlot$ANNEX, FUN = function(m)) {
-    # 
-    m <- droplevels(m)
-    m[[type]] <- factor(m[[type]], levels = unique(m[[type]]))
-    mColors <- colList[1:length(unique(m[[type]]))]
-    names(mColors) <- levels(m[[type]])
-    mColors["OTHER"] <- "grey40"
-    # 
-    
-    m <- ggplot(m, aes(x = YEAR, y = typeTotal)) + 
+  
+  plotFun <- function() {
+    pl <- ggplot(catchPlot, aes(x = YEAR, y = typeTotal)) +
       geom_area(aes_string(fill = type, color = type), alpha = .8, position = "stack") +
-      scale_fill_manual(values = mColors) +
-      scale_color_manual(values = mColors) +
-      scale_x_continuous(breaks = round(seq(min(catchPlot$YEAR), 
-                                            max(catchPlot$YEAR), by = 2))) +
-      labs(title = m$ANNEX,
-           x = "",
-           y = catchLabel,
-           fill = ifelse(type == "GEAR", "Gear", "Country"),
-           color = ifelse(type == "GEAR", "Gear", "Country")) +
-      theme(legend.key.size = unit(0.25, "lines")) + 
-      # theme() + 
-      theme_bw(base_size = text.size)
-    # theme_get()
+      geom_label_repel(data = cumPlot,
+                       aes_string(y = "td",
+                                  label = type,
+                                  fill = type),
+                       alpha = 0.8,
+                       label.size = 0.15,
+                       segment.size = .15,
+                       nudge_x = 3,
+                       color = "grey20",
+                       segment.color = "grey20",
+                       force = 3,
+                       size = 2) +
+      # scale_fill_manual(values = xColors) +
+      # scale_color_manual(values = xColors) +
+      scale_y_continuous(labels = scales::comma) + 
+      scale_x_continuous(breaks = seq(min(catchPlot$YEAR),
+                                      max(catchPlot$YEAR), by = 2)) +
+      geom_segment(aes(x = -Inf, xend = 2013, y = -Inf, yend = -Inf), color = "grey50")+
+      geom_segment(aes(y = -Inf, yend = Inf, x = -Inf, xend = -Inf), color = "grey50")+
+      expand_limits(x = c(min(catchPlot$YEAR), 2018)) + # So that we have enough room along x-axis for labels.
+      labs(x = "",
+           y = catchLabel) +
+      theme_bw(base_size = text.size) +
+      theme(legend.position = 'none',
+            panel.grid.minor = element_blank(),
+            panel.grid.major = element_blank(),
+            # panel.border = element_blank(),
+            strip.background = element_blank(),
+            panel.border = element_rect(colour = "grey50"),
+            axis.line = element_blank()) +
+      facet_wrap(~ANNEX, scales = "free_y", ncol = 2)
+    return(pl)
   }
+
+   if(type == "COUNTRY"){
+  
+   cumPlot <-  catchPlot %>% 
+      filter(YEAR == 2013) %>%
+      group_by(ANNEX) %>%
+      mutate(cs = cumsum(as.numeric(typeTotal)),
+             mp = lag(cs, order_by = COUNTRY),
+             mp = ifelse(is.na(mp), 1, mp)) %>%
+      ungroup() %>%
+      mutate(td = rowMeans(.[,c("cs", "mp")]))
+ 
+    pl <- plotFun()
+   }
+  
+  if(type == "GEAR"){
+    
+    cumPlot <-  catchPlot %>% 
+      filter(YEAR == 2013) %>%
+      group_by(ANNEX) %>%
+      mutate(cs = cumsum(as.numeric(typeTotal)),
+             mp = lag(cs, order_by = GEAR),
+             mp = ifelse(is.na(mp), 1, mp)) %>%
+      ungroup() %>%
+      mutate(td = rowMeans(.[,c("cs", "mp")]))
+    
+    pl <- plotFun()
+  }
+
   
   
   if(fig.save == TRUE) {
-    
     figName <- ifelse(type == "COUNTRY", "figure2_", "figure6_")
-    
-    png(filename = paste0("~/git/ices-dk/fisheryO/output/", figName, IA, ".png"),
-        width = fig.width,
-        height = fig.height,
-        units = "cm",
-        res = 600)
-    multiplot(plotlist = out, cols = 2)
-    dev.off()
+ 
+    ggsave(filename = paste0("~/git/ices-dk/fisheryO/output/", figName, IA, ".png"),
+           plot = pl, 
+           width = fig.width,
+           height = fig.height,
+           units = "mm",
+           dpi = 300)
+   
   }
   if(fig.plot == TRUE) {
-    multiplot(plotlist = out, cols = 2)
+    pl
   }
 }
 ```
@@ -283,7 +291,7 @@ stecfEffortAreaPlot <- function(IA = unique(allDat$ECOREGION)[1],
   
 ```{r plotStecfAreaEffort, echo=FALSE, results='hide', fig.keep='all'}
 allDat <- effortDatClean 
-lapply(unique(allDat$ECOREGION), stecfEffortAreaPlot, type = "COUNTRY", fig.save = TRUE, fig.plot = FALSE, fig.width = 15, fig.height = 10, text.size = 7) 
+lapply(unique(allDat$ECOREGION), stecfEffortAreaPlot, type = "COUNTRY", fig.save = TRUE, fig.plot = FALSE) 
 lapply(unique(allDat$ECOREGION), stecfEffortAreaPlot, type = "GEAR", fig.save = TRUE, fig.plot = FALSE) 
 
 ```
@@ -294,19 +302,19 @@ lapply(unique(allDat$ECOREGION), stecfEffortAreaPlot, type = "GEAR", fig.save = 
 
 stecfCatchDatClean <- stecfCatchDat %>%
   Filter(f = function(x)!all(is.na(x))) %>%
-  rename(ANNEX = annex,
+  rename(ANNEX_ID = annex,
          RegCodeArea = reg_area,
          RegCodeGear = reg_gear) %>%
-  melt(id.vars = c("ANNEX", "RegCodeArea", "country", "RegCodeGear", "specon", "species"), 
+  melt(id.vars = c("ANNEX_ID", "RegCodeArea", "country", "RegCodeGear", "specon", "species"), 
        variable.name = "YEAR",
        value.name = "VALUE") %>%
   mutate(METRIC = as.character(gsub(".*\\s", "", YEAR)),
          YEAR = as.numeric(gsub("\\s.+$", "", YEAR))) %>%
   full_join(gearNames, c("RegCodeGear" = "GEAR",
-                         "ANNEX" = "ANNEX")) %>% # merge with ISO country names
+                         "ANNEX_ID" = "ANNEX_ID")) %>% # merge with gear names
   # left_join(spList, c("species" = "X3A_CODE")) %>% # merge with FAO species names
   # full_join(countryNames, c("country" = "VALUE")) %>% # merge with ISO country names
-  full_join(areaID, c("ANNEX" = "ANNEX",
+  full_join(areaID, c("ANNEX_ID" = "ANNEX_ID",
                       "RegCodeArea" = "RegCodeArea")) %>% # Merge to add ecoregions (only areas defined in catchAreaID!)
   filter(RegCodeArea %in% areaID$RegCodeArea,
          METRIC == "L") %>%
@@ -329,8 +337,8 @@ stecfCatchDatClean <- stecfCatchDat %>%
 stecfCatchAreaPlot <- function(IA = unique(allDat$ECOREGION)[1],
                                fig.save = FALSE, 
                                fig.plot = TRUE,
-                               fig.width = 10,
-                               fig.height = 10,
+                               fig.width = 174,
+                               fig.height = 120,
                                text.size = 9, 
                                ...) {
   
@@ -346,82 +354,84 @@ stecfCatchAreaPlot <- function(IA = unique(allDat$ECOREGION)[1],
     dplyr::mutate(RANK = min_rank(desc(typeTotal))) %>%
     inner_join(iaDat, c("GEAR" = "GEAR",
                         "ANNEX" = "ANNEX")) %>%
-    dplyr::mutate(GEAR = replace(GEAR, RANK > 10, "OTHER")) %>%
+    ungroup() %>%
+    dplyr::mutate(GEAR = replace(GEAR, RANK > 10, "OTHER"),
+                  ANNEX = str_wrap(ANNEX, width = 26)) %>%
     group_by_(.dots = dots) %>%
     dplyr::summarize(typeTotal = sum(VALUE, na.rm = TRUE))
+  
+  if(nchar(max(catchPlot$typeTotal, na.rm = TRUE)) >= 6) {
+    catchPlot$typeTotal <- catchPlot$typeTotal / 1000
+    catchLabel <- "Catch (1000 tonnes)"
+  } else {
+    catchLabel <- "Catch (tonnes)"
+  }
   # 
   catchPlot <- rbind(catchPlot[!catchPlot$GEAR == "OTHER",],
                      catchPlot[catchPlot$GEAR == "OTHER",])
   catchPlot$ANNEX <- as.factor(catchPlot$ANNEX)
-  # 
-  colList <- c("#DB9D85", "#C7A76C", "#ABB065", "#86B875", "#5CBD92",
-               "#39BEB1", "#4CB9CC", "#7DB0DD", "#ACA4E2", "#CD99D8")
-  # 
-  
-  multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
-    # Make a list from the ... arguments and plotlist
-    plots <- c(list(...), plotlist)
-    numPlots = length(plots)
-    # If layout is NULL, then use 'cols' to determine layout
-    if (is.null(layout)) {
-      # Make the panel
-      # ncol: Number of columns of plots
-      # nrow: Number of rows needed, calculated from # of cols
-      layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
-                       ncol = cols, nrow = ceiling(numPlots/cols))
-    }
-    if (numPlots==1) {
-      print(plots[[1]])
-    } else {
-      # Set up the page
-      grid.newpage()
-      pushViewport(viewport(layout = grid.layout(nrow(layout), 
-                                                 ncol(layout))))
-      # Make each plot, in the correct location
-      for (i in 1:numPlots) {
-        # Get the i,j matrix positions of the regions that contain this subplot
-        matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
-        print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
-                                        layout.pos.col = matchidx$col))
-      }
-    }
+
+  plotFun <- function() {
+    pl <- ggplot(catchPlot, aes(x = YEAR, y = typeTotal)) +
+      geom_area(aes_string(fill = type, color = type), alpha = .8, position = "stack") +
+      geom_label_repel(data = cumPlot,
+                       aes_string(y = "td",
+                                  label = type,
+                                  fill = type),
+                       alpha = 0.8,
+                       label.size = 0.15,
+                       segment.size = .15,
+                       nudge_x = 3,
+                       color = "grey20",
+                       segment.color = "grey20",
+                       force = 3,
+                       size = 2) +
+      scale_y_continuous(labels = scales::comma) + 
+      scale_x_continuous(breaks = seq(min(catchPlot$YEAR),
+                                      max(catchPlot$YEAR), by = 2)) +
+      geom_segment(aes(x = -Inf, xend = 2013, y = -Inf, yend = -Inf), color = "grey50")+
+      geom_segment(aes(y = -Inf, yend = Inf, x = -Inf, xend = -Inf), color = "grey50")+
+      expand_limits(x = c(min(catchPlot$YEAR), 2018)) + # So that we have enough room along x-axis for labels.
+      labs(x = "",
+           y = catchLabel) +
+      theme_bw(base_size = text.size) +
+      theme(legend.position = 'none',
+            panel.grid.minor = element_blank(),
+            panel.grid.major = element_blank(),
+            # panel.border = element_blank(),
+            strip.background = element_blank(),
+            panel.border = element_rect(colour = "grey50"),
+            axis.line = element_blank()) +
+      facet_wrap(~ANNEX, scales = "free_y", ncol = 2)
+    return(pl)
   }
-  # 
-  out <- by(data = catchPlot, INDICES = catchPlot$ANNEX, FUN = function(m) {
-    # 
-    m <- droplevels(m)
-    m$GEAR <- factor(m$GEAR, levels = unique(m$GEAR))
-    mColors <- colList[1:length(unique(m$GEAR))]
-    names(mColors) <- levels(m$GEAR)
-    mColors["OTHER"] <- "grey40"
-    # 
-    m <- ggplot(m, aes(x = YEAR, y = typeTotal)) + 
-                geom_area(aes(fill = GEAR, color = GEAR), alpha = .8, position = "stack") +
-                scale_fill_manual(values = mColors) +
-                scale_color_manual(values = mColors) +
-                scale_x_continuous(breaks = round(seq(min(catchPlot$YEAR), 
-                                                      max(catchPlot$YEAR), by = 2))) +
-                labs(title = m$ANNEX,
-                     x = "",
-                     y = "Landings (tonnes)",
-                     fill = "Gear",
-                     color = "Gear") +
-                theme_bw(base_size = text.size)
-  })
   
+  cumPlot <-  catchPlot %>% 
+    filter(YEAR == 2013) %>%
+    group_by(ANNEX) %>%
+    mutate(cs = cumsum(as.numeric(typeTotal)),
+           mp = lag(cs, order_by = GEAR),
+           mp = ifelse(is.na(mp), 1, mp)) %>%
+    ungroup() %>%
+    mutate(td = rowMeans(.[,c("cs", "mp")]))
+  
+  pl <- plotFun()
+  
+  
+    
   if(fig.save == TRUE) {
-    
-    png(filename = paste0("~/git/ices-dk/fisheryO/output/figure5_", IA, ".png"),
-        width = fig.width,
-        height = fig.height,
-        units = "cm",
-        dpi = 600)
-    
-    multiplot(plotlist = out, cols = 2)
-    dev.off()
+    figName <- "figure5_"
+ 
+    ggsave(filename = paste0("~/git/ices-dk/fisheryO/output/", figName, IA, ".png"),
+           plot = pl, 
+           width = fig.width,
+           height = fig.height,
+           units = "mm",
+           dpi = 300)
+   
   }
   if(fig.plot == TRUE) {
-    multiplot(plotlist = out, cols = 2)
+    pl
   }
 }
 ```

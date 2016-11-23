@@ -22,18 +22,19 @@ FT <- stockPlot %>%
             body.cell.props = base_cell_prop, 
             body.par.props = base_par_prop, 
             body.text.props = base_text_prop) %>%
-  addHeaderRow(value = c("", "F reference points", "SSB reference points"), colspan = c(6, 3, 3)) %>%
+  addHeaderRow(value = c("", "F reference points", "SSB reference points", "MSFD GES"), colspan = c(6, 3, 3, 3)) %>%
   addHeaderRow(value = c("Stock code", "Stock name", "Fishery guild", 
                          "Advice type", "Data category", "Safe biological limits",
-                         "2013", "2014", "2015", "2014", "2015", "2016")) %>%
+                         "2013", "2014", "2015", "2014", "2015", "2016",
+                         "D3C1", "D3C2", "GES<sub>Stock</sub>")) %>%
   setZebraStyle(odd = "#F9F9F9", even = "#FFFFFF" ) %>%
   setFlexTableBorders(inner.vertical = borderProperties(width = 0), 
                       inner.horizontal = borderProperties( width = 1 , color = "#DDDDDD"),
                       outer.vertical = borderProperties( width = 0 ),
                       outer.horizontal = borderProperties( width = 1, color = "grey30")) %>%
-  setFlexTableWidths(widths = c(0.5, 3, 1, 0.7, rep(0.5, 8)))
+  setFlexTableWidths(widths = c(0.5, 3, 1, 0.7, rep(0.5, 11)))
 
-FT[, 5:12] <- chprop(base_par_prop, text.align = "center")
+FT[, 5:15] <- chprop(base_par_prop, text.align = "center")
 
 FT
 ```

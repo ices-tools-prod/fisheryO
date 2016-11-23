@@ -21,12 +21,14 @@ colContainer <- htmltools::withTags(table(
       th(rowspan = 2, 'Data category'),
       th(rowspan = 2, 'Within Safe Biological Limits'),
       th(colspan = 3, 'F reference point'),
-      th(colspan = 3, 'SSB reference point')
+      th(colspan = 3, 'SSB reference point'),
+      th(colspan = 3, 'MSFD GES')
     ),
     tr(
       lapply(c(seq(2013, 2015),
-               seq(2014, 2016)), th)
-      )
+               seq(2014, 2016),
+               'D3C1', 'D3C2', 'GES <sub>stock</sub>'), th)
+    )
   )
 ))
 ```
@@ -45,9 +47,9 @@ fullTable <- DT::datatable(stockPlot,
                          # buttons = c('copy', 'csv', 'excel', 'pdf', 'print'), # need to work on formatting
                          pageWidth = '100%',
                          autoWidth = TRUE,
-                         columnDefs = list(list(className = 'dt-center', targets = 4:11),
-                                           list(orderable = FALSE, targets = 5:11),
-                                           list(searchable = FALSE, targets = 5:11),
+                         columnDefs = list(list(className = 'dt-center', targets = 4:14),
+                                           list(orderable = FALSE, targets = 5:14),
+                                           list(searchable = FALSE, targets = 5:14),
                                            list(width = '25%', targets = 'Stock name')
                                            )
                          )

@@ -296,8 +296,34 @@ icesAreaPlot <- function(area = "ECOREGION",
   catchPlot <- rbind(catchPlot[!catchPlot[[type]] == "OTHER",],
                      catchPlot[catchPlot[[type]] == "OTHER",])
    
-  colList <- c("#DB9D85", "#C7A76C", "#ABB065", "#86B875", "#5CBD92",
-               "#39BEB1", "#4CB9CC", "#7DB0DD", "#ACA4E2", "#CD99D8")
+  colList = list(colList1 = c("#002D60", # ICES Blue: 
+                              "#3D6899", # Dust Blue: 
+                              "#00FEFF", # Bright Blue: 
+                              "#FF6B40", # Pale Orange: 
+                              "#CC2314"), # Carmine Red: 
+                 # COMPOUND 2
+                 colList2 = c("#80AEA0", # ICES Green: 
+                              "#3D9970", # Olive Green:
+                              "#00FF21", # Bright Green: 
+                              "#FF40D3", # Fuchsia: 
+                              "#B114CC"), # Purple: 
+                 # COMPOUND 3
+                 colList3 = c("#35C9B6", # Ocean Green: 
+                              "#3D998D", # Ph. Green: 
+                              "#00FF4E", # Bright Green 2:
+                              "#FF4098", # Pink: 
+                              "#CC14C5"), # Fuchsia 2: 
+                 # COMPOUND 4: 
+                 colList4 = c("#26FFFF", # Sky Blue: 
+                              "#3D9999", # Dust Blue: 
+                              "#00FF6C", # Bright Green 3: 
+                              "#FF406C", # Dark pink:
+                              "#CC149b")) # Fuchsia 3
+  
+  colList <- unlist(colList[c(sample(x = 1:4, 2, replace = FALSE))])
+  
+  # colList <- c("#DB9D85", "#C7A76C", "#ABB065", "#86B875", "#5CBD92",
+  #              "#39BEB1", "#4CB9CC", "#7DB0DD", "#ACA4E2", "#CD99D8")
    
   catchPlot[[type]] <- factor(catchPlot[[type]], levels = unique(catchPlot[[type]]))
   myColors <- colList[1:length(unique(catchPlot[[type]]))]

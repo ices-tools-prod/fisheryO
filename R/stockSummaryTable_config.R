@@ -133,6 +133,7 @@ slOthers <- sl %>%
 
 slFull <- slBinomial %>%
   bind_rows(slANG, slSpp, slCYO, slOthers) %>%
+  mutate(STOCK.NAME = gsub(pattern = "\u2013", "-", STOCK.NAME)) %>% # remove en dashes in favor of hyphens
   select(STOCK.CODE,
          STOCK.NAME,
          FISHERIES.GUILD,
@@ -140,7 +141,7 @@ slFull <- slBinomial %>%
          ADVICE.TYPE,
          CAT)
 
-summaryTbl <- getSummaryTable(2016)
+summaryTbl <- icesSAG::getSummaryTable(2016)
 
 keeperF <- c("F", "F/FMSY", "F in winter rings", "Harvest rate", "Harvest rate/FMSY", "Fishing Pressure")
 relativeF <- c("F/FMSY", "Harvest rate/FMSY")
@@ -179,7 +180,7 @@ summaryTblClean <- summaryTbl %>%
   filter(stockSizeDescription %in% keeperSSB |
            fishingPressureDescription %in% keeperF)
 
-refPts <- getFishStockReferencePoints(2016)
+refPts <- icesSAG::getFishStockReferencePoints(2016)
 refPts[refPts == ""] <- NA
 
 refPtsClean <- refPts %>%
@@ -291,7 +292,10 @@ stockDat <- slFull %>%
                            BPA2015),
          SSB_2016 = ifelse(ADVICE.TYPE == "MSY",
                            BMSY2016,
-                           BPA2016)
+                           BPA2016),
+         D3C1 = F_2015,
+         D3C2 = SSB_2016,
+         GES = NA
   ) %>%
   select(STOCK.CODE,
          STOCK.NAME,
@@ -301,13 +305,24 @@ stockDat <- slFull %>%
          CAT,
          SBL,
          F_2013, F_2014, F_2015,
-         SSB_2014, SSB_2015, SSB_2016)
+         SSB_2014, SSB_2015, SSB_2016,
+         D3C1, D3C2, GES)
+
+
+stockDat$GES[is.na(stockDat$D3C1) |
+               is.na(stockDat$D3C2)] <- NA
+stockDat$GES[stockDat$D3C1 == "RED" |
+               stockDat$D3C2 == "RED"] <- "RED"
+stockDat$GES[stockDat$D3C1 == "GREEN" &
+               stockDat$D3C2 == "GREEN"] <- "GREEN"
 
 stockDat[c("SBL", "F_2013", "F_2014", "F_2015",
-           "SSB_2014", "SSB_2015", "SSB_2016")][is.na(stockDat[c("SBL", "F_2013", "F_2014", "F_2015",
-                                                                 "SSB_2014", "SSB_2015", "SSB_2016")])] <- "GREY"
+           "SSB_2014", "SSB_2015", "SSB_2016",
+           "D3C1", "D3C2", "GES")][is.na(stockDat[c("SBL", "F_2013", "F_2014", "F_2015",
+                                                    "SSB_2014", "SSB_2015", "SSB_2016",
+                                                    "D3C1", "D3C2", "GES")])] <- "GREY"
 
-
+# stockGES <- stockDat
 
 stockDat[stockDat == "GREEN"] <- "<i class=\"glyphicon glyphicon-ok-sign\" style=\"color:green; font-size:2.2em\"></i>"
 stockDat[stockDat == "RED"] <- "<i class=\"glyphicon glyphicon-remove-sign\" style=\"color:red; font-size:2.2em\"></i>"
@@ -316,29 +331,30 @@ stockDat[stockDat == "ORANGE"] <- "<i class=\"glyphicon glyphicon-record\" style
 
 stockDat <- data.frame(lapply(stockDat, factor))
 
-
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # Prepare subsets for R Markdown rendering #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
+# ecoregion <- unique(stockDat$ECOREGION)
+# fileName <-  "referencePointOverview-static.html"
 # Render dynamic and static stock summary tables
-stockPlotEcoregion <- function(ecoregion) {
+stockPlotEcoregion <- function(ecoregion,
+                               fileName = NULL) {
   stockPlot <- stockDat %>%
-    filter(ECOREGION == ecoregion) %>%
+    filter(ECOREGION %in% ecoregion) %>%
     select(-ECOREGION) %>%
     distinct() %>%
     arrange(STOCK.CODE)
 
   suppressWarnings(
   rmarkdown::render("~/git/ices-dk/fisheryO/vignettes/stockSummaryTable-static.rmd",
-                    output_file = paste0("~/git/ices-dk/fisheryO/output/annexA_", ecoregion, "-static.html"),
+                    output_file = paste0("~/git/ices-dk/fisheryO/output/", fileName, "-static.html"),
                     # rmarkdown::html_document(template = NULL),
                     envir = new.env())
   )
 
   suppressWarnings(
     rmarkdown::render("~/git/ices-dk/fisheryO/vignettes/stockSummaryTable-dynamic.rmd",
-                    output_file = paste0("~/git/ices-dk/fisheryO/output/annexA_", ecoregion, "-dynamic.html"),
+                    output_file = paste0("~/git/ices-dk/fisheryO/output/", fileName, "-dynamic.html"),
                     rmarkdown::html_document(template = NULL),
                     envir = new.env())
   )
@@ -387,10 +403,10 @@ stockPieEcoregion <- function(ecoregion) {
 
   tempDat <- pieDat[pieDat$ECOREGION == ecoregion,]
 
-  colList <- c("GREEN" = "#4daf4a",
+  colList <- c("GREEN" = "#00B26D",
                "GREY" = "#d3d3d3",
                "ORANGE" = "#ff7f00",
-               "RED" = "#e41a1c")
+               "RED" = "#d93b1c")
 
   rowDat <- tempDat %>%
     ungroup() %>%
@@ -440,7 +456,151 @@ stockPieEcoregion <- function(ecoregion) {
          dpi = 300)
 }
 
-lapply(unique(pieDat$ECOREGION), stockPieEcoregion)
+lapply(unique(pieDat$ECOREGION)[6], stockPieEcoregion)
+
+######################
+### GES Pie Charts ###
+######################
+
+# gesPieDat <- slFull %>%
+#   left_join(stockDF, by = "STOCK.CODE") %>%
+#   select(ECOREGION,
+#          D3C1 = FMSY2015,
+#          D3C2 = BMSY2016) %>%
+#   mutate(GES = NA)
+
+gesPieDat <- stockStatusFull %>%
+  mutate(D3C1 = if_else(SSB_MSYBtrigger >= 1,
+                        "GREEN",
+                        "RED",
+                        "GREY"),
+         D3C2 = if_else(F_FMSY < 1,
+                        "GREEN",
+                        "RED",
+                        "GREY")) %>%
+  ungroup() %>%
+  select(ECOREGION, CATCH, D3C1, D3C2)
+
+pieDatC1 <- gesPieDat %>%
+  group_by(ECOREGION, D3C1) %>%
+  mutate(VARIABLE = "D3C1",
+         catch = sum(CATCH, na.rm = TRUE),
+         count = n(),
+         colList = D3C1) %>%
+  ungroup() %>%
+  select(-CATCH,
+         -D3C1,
+         -D3C2) %>%
+  # ungroup() %>%
+  distinct(.keep_all = TRUE)
+
+pieDatC2 <- gesPieDat %>%
+  group_by(ECOREGION, D3C2) %>%
+  mutate(VARIABLE = "D3C2",
+         catch = sum(CATCH, na.rm = TRUE),
+         count = n(),
+         colList = D3C2) %>%
+  ungroup() %>%
+  select(-CATCH,
+         -D3C1,
+         -D3C2) %>%
+  # ungroup() %>%
+  distinct(.keep_all = TRUE)
+
+gesPieDat <- pieDatC1 %>%
+  bind_rows(pieDatC2) %>%
+  melt(id.vars = c("ECOREGION", "VARIABLE", "colList"),
+       variable.name = "METRIC",
+       value.name = "VALUE")
+
+# %>%
+#
+# # gesPieDat <- gesPieDat %>%
+#   melt(id.vars = c("ECOREGION", "colList"),#, "D3C1", "D3C2"),
+#        variable.name = "VARIABLE",
+#        value.name = "VALUE") %>%
+#   mutate(VALUE = ifelse(is.na(VALUE),
+#                         "GREY",
+#                         VALUE)) %>%
+#   group_by(ECOREGION, VARIABLE, VALUE) %>%
+#   summarize(COUNT = n())
+
+# gesPieDat
+gesPieDat <- gesPieDat %>%
+  # ungroup() %>%
+  tidyr::expand(ECOREGION, VARIABLE, colList, METRIC) %>%
+  left_join(gesPieDat, by = c("ECOREGION", "VARIABLE", "METRIC", "colList")) %>%
+  arrange(ECOREGION, VARIABLE, METRIC, colList) %>%
+  distinct(.keep_all = TRUE)
+gesPieDat$VALUE[is.na(gesPieDat$VALUE)] <- 0
+
+# gesPieDat <- gesPieDat %>%
+#   group_by(ECOREGION, VARIABLE, VALUE) %>%
+#   mutate(FISHERIES.GUILD = "total",
+#          COUNT = sum(COUNT)) %>%
+#   distinct(.keep_all = TRUE) %>%
+#   bind_rows(pieDat)
+
+ecoregion <- "Greater North Sea"
+gesPieEcoregion <- function(ecoregion) {
+
+  tempDat <- gesPieDat[gesPieDat$ECOREGION == ecoregion,]
+
+  colList <- c("GREEN" = "#00B26D",
+               "GREY" = "#d3d3d3",
+               # "ORANGE" = "#ff7f00",
+               "RED" = "#d93b1c")
+
+  rowDat <- tempDat %>%
+    ungroup() %>%
+    select(-ECOREGION) %>%
+    group_by(VARIABLE, METRIC) %>%
+    mutate(fraction = VALUE/ sum(VALUE),
+           ymax = cumsum(fraction),
+           ymin = c(0, head(ymax, n = -1))) %>%
+    # arrange(FISHERIES.GUILD, VARIABLE, fraction) %>%
+    filter(fraction != 0) %>%
+    mutate(pos = cumsum(fraction) - fraction/2) %>%
+    ungroup() %>%
+    mutate(METRIC = recode_factor(METRIC,
+                                    # "D3C1" = "Fishing pressure\n MSY",
+                                    # "D3C2" = "Stock size\n MSY",
+                                    "count" = "Number of stocks",
+                                    "catch" = "Proportion of catch\n (tonnes)"))
+  sumDat <- rowDat %>%
+    group_by(VARIABLE, METRIC) %>%
+    summarize(sum = sum(VALUE))
+
+  p1 <- ggplot(data = rowDat) +
+    geom_bar(aes(x = "", y = fraction, fill = colList), stat = "identity") +
+    # geom_text(aes(x = "", y = pos, label = scales::comma(VALUE)), size = 3) +
+    geom_text_repel(aes(x = "", y = pos, label = scales::comma(VALUE)), size = 3,
+                    segment.color = NA) +
+    geom_text(data = sumDat, aes(x = 0, y = 0, label = paste0("total = ", scales::comma(sum))), size = 2.5) +
+    coord_polar(theta = "y") +
+    scale_fill_manual(values = colList) +
+    theme_bw(base_size = 9) +
+    theme(panel.grid = element_blank(),
+          panel.border = element_blank(),
+          panel.background = element_blank(),
+          legend.position="none") +
+    theme(axis.text=element_blank(),
+          axis.ticks=element_blank(),
+          strip.background = element_blank()) +
+    # annotate("text", x = 0, y = 0, label = "") +
+    labs(title="", x = "", y = "") +
+    facet_grid(METRIC ~ VARIABLE)
+
+  figName = "table2_"
+  ggsave(filename = paste0("~/git/ices-dk/fisheryO/output/", figName, ecoregion, ".png"),
+         plot = p1,
+         width = 89,
+         height = 100.5,
+         units = "mm",
+         dpi = 300)
+}
+suppressWarnings(lapply(unique(gesPieDat$ECOREGION), gesPieEcoregion))
+
 
 ##############################
 ### Stock Status over time ###
@@ -697,7 +857,7 @@ dynamicPie$FPA[dynamicPie$VARIABLE == "FPA2015"] <- dynamicPie$COUNT[dynamicPie$
 dynamicPie$BPA[dynamicPie$VARIABLE == "BPA2016"] <- dynamicPie$COUNT[dynamicPie$VARIABLE == "BPA2016"]
 dynamicPie$SBL[dynamicPie$VARIABLE == "SBL"] <- dynamicPie$COUNT[dynamicPie$VARIABLE == "SBL"]
 
-ecoregion = "Greater North Sea"
+# ecoregion = "Greater North Sea"
 
 # stockSummaryEcoregion <- function(ecoregion) {
 dyPie <- dynamicPie %>%
@@ -728,59 +888,59 @@ dyPie <- dynamicPie %>%
 rmarkdown::render("~/git/ices-dk/FisheryO/vignettes/stockStatusSummaryTable-dynamic.Rmd",
           output_file = "~/git/ices-dk/FisheryO/output/annexA_fullDynamic.html",
           rmarkdown::html_document(template = NULL))
-
-
-renderFisheryOverview <- function(ecoregionID) {
-  # in a single for loop
-  #  1. define subgroup
-  #  2. render output
-  #
-  ecoPath <- gsub(" ", "_", ecoregionID)
-  ifelse(!dir.exists(file.path(plotDir, ecoPath)), dir.create(file.path(plotDir, ecoPath)), FALSE)
-  #
-  icesID <- areaID$value[areaID$Ecoregion == ecoregionID &
-                           areaID$areaType == "ICESarea"]
-  stecfID <- areaID$value[areaID$Ecoregion == ecoregionID &
-                            areaID$areaType == "STECFarea"]
-  #
-  catchDatECO <- catchDat %>%
-    Filter(f = function(x)!all(is.na(x))) %>%
-    filter(Area %in% icesID) %>%
-    melt(id.vars = c("Species", "Area", "Units", "Country"),
-         variable.name = "YEAR",
-         value.name = "VALUE") %>%
-    inner_join(spList, c("Species" = "X3A_CODE")) %>%
-    full_join(fisheryGuild, c("Species" = "newCode")) %>%
-    mutate(YEAR = as.numeric(gsub("X", "", YEAR)))
-  #
-  effortDatECO <-
-    effortDat %>%
-    Filter(f = function(x)!all(is.na(x))) %>%
-    filter(reg_area_cod %in% stecfID) %>%
-    melt(id.vars = c("annex", "reg_area_cod", "reg_gear_cod", "Specon_calc", "country", "vessel_length"),
-         variable.name = "YEAR",
-         value.name = "VALUE") %>%
-    mutate(YEAR = as.numeric(levels(YEAR))[YEAR])
-  #
-  stecfCatchDatECO <-
-    stecfCatchDat %>%
-    filter(reg_area %in% stecfID) %>%
-    melt(id.vars = c("annex", "reg_area", "country", "reg_gear", "specon", "species"),
-         variable.name = "YEAR",
-         value.name = "VALUE") %>%
-    mutate(METRIC = as.character(gsub(".*\\s", "", YEAR)),
-           YEAR = as.numeric(gsub("\\s.+$", "", YEAR))) %>%
-    filter(METRIC == "L")
-  #
-  guildListECO <- guildList %>%
-    filter(ECOREGION == ecoregionID)
-
-  #
-  rmarkdown::render(paste0(dataDir, "fisheriesAdvice_template.rmd"),
-                    output_dir = file.path(plotDir, ecoPath),
-                    output_file = paste0('FisheriesAdvice_', ecoregionID, '.html'),
-                    params = list(set_title = as.character(ecoregionID)),
-                    envir = new.env())
-}
+#
+#
+# renderFisheryOverview <- function(ecoregionID) {
+#   # in a single for loop
+#   #  1. define subgroup
+#   #  2. render output
+#   #
+#   ecoPath <- gsub(" ", "_", ecoregionID)
+#   ifelse(!dir.exists(file.path(plotDir, ecoPath)), dir.create(file.path(plotDir, ecoPath)), FALSE)
+#   #
+#   icesID <- areaID$value[areaID$Ecoregion == ecoregionID &
+#                            areaID$areaType == "ICESarea"]
+#   stecfID <- areaID$value[areaID$Ecoregion == ecoregionID &
+#                             areaID$areaType == "STECFarea"]
+#   #
+#   catchDatECO <- catchDat %>%
+#     Filter(f = function(x)!all(is.na(x))) %>%
+#     filter(Area %in% icesID) %>%
+#     melt(id.vars = c("Species", "Area", "Units", "Country"),
+#          variable.name = "YEAR",
+#          value.name = "VALUE") %>%
+#     inner_join(spList, c("Species" = "X3A_CODE")) %>%
+#     full_join(fisheryGuild, c("Species" = "newCode")) %>%
+#     mutate(YEAR = as.numeric(gsub("X", "", YEAR)))
+#   #
+#   effortDatECO <-
+#     effortDat %>%
+#     Filter(f = function(x)!all(is.na(x))) %>%
+#     filter(reg_area_cod %in% stecfID) %>%
+#     melt(id.vars = c("annex", "reg_area_cod", "reg_gear_cod", "Specon_calc", "country", "vessel_length"),
+#          variable.name = "YEAR",
+#          value.name = "VALUE") %>%
+#     mutate(YEAR = as.numeric(levels(YEAR))[YEAR])
+#   #
+#   stecfCatchDatECO <-
+#     stecfCatchDat %>%
+#     filter(reg_area %in% stecfID) %>%
+#     melt(id.vars = c("annex", "reg_area", "country", "reg_gear", "specon", "species"),
+#          variable.name = "YEAR",
+#          value.name = "VALUE") %>%
+#     mutate(METRIC = as.character(gsub(".*\\s", "", YEAR)),
+#            YEAR = as.numeric(gsub("\\s.+$", "", YEAR))) %>%
+#     filter(METRIC == "L")
+#   #
+#   guildListECO <- guildList %>%
+#     filter(ECOREGION == ecoregionID)
+#
+#   #
+#   rmarkdown::render(paste0(dataDir, "fisheriesAdvice_template.rmd"),
+#                     output_dir = file.path(plotDir, ecoPath),
+#                     output_file = paste0('FisheriesAdvice_', ecoregionID, '.html'),
+#                     params = list(set_title = as.character(ecoregionID)),
+#                     envir = new.env())
+# }
 
 

@@ -1,3 +1,5 @@
+ecoregion <- unique(stock_status_full$EcoRegion)[10]
+guild <- unique(stock_status_full$FisheriesGuild)[3]
 
 
 plot_kobe <- function(ecoregion, guild = c("all", "benthic", "demersal", "pelagic", "crustacean", "elasmobranch")[1], plotDir = "~/git/ices-dk/fisheryO/output/", plotTitle = NULL,
@@ -5,6 +7,8 @@ plot_kobe <- function(ecoregion, guild = c("all", "benthic", "demersal", "pelagi
   library(ggrepel)
   library(gridExtra)
   library(grid)
+  library(ggiraph)
+
 
   plotName <- paste0(plotDir, "figure10_", ecoregion, "-", guild, ".png")
   #
@@ -15,11 +19,19 @@ plot_kobe <- function(ecoregion, guild = c("all", "benthic", "demersal", "pelagi
     labTitle <- "All stocks"
   }
 
-  kobeDat <- stockStatusFull[stockStatusFull$ECOREGION == ecoregion &
-                               stockStatusFull$FISHERIES.GUILD %in% guild &
-                            !is.na(stockStatusFull$F_FMSY) &
-                            !is.na(stockStatusFull$SSB_MSYBtrigger),]
-  kobeDat <- kobeDat[!duplicated(kobeDat),]
+  kobeDat <- stock_status_full %>%
+    filter(EcoRegion == ecoregion,
+           FisheriesGuild == guild,
+           !is.na(F_FMSY),
+           !is.na(SSB_MSYBtrigger))
+  # %>%
+  #   distinct(.keep_all = TRUE)
+
+  # kobeDat <- stockStatusFull[stockStatusFull$ECOREGION == ecoregion &
+  #                              stockStatusFull$FISHERIES.GUILD %in% guild &
+  #                           !is.na(stockStatusFull$F_FMSY) &
+  #                           !is.na(stockStatusFull$SSB_MSYBtrigger),]
+  # kobeDat <- kobeDat[!duplicated(kobeDat),]
 
   if(nrow(kobeDat) != 0) {
 
@@ -28,15 +40,15 @@ plot_kobe <- function(ecoregion, guild = c("all", "benthic", "demersal", "pelagi
       geom_hline(yintercept = 1, color = "grey60", linetype = "dashed") +
       geom_vline(xintercept = 1, color = "grey60", linetype = "dashed") +
       geom_point(aes(color = colList,
-                     size = CATCH),
+                     size = catches),
                  alpha = 0.7) +
-      geom_text_repel(aes(label = STOCK.CODE),
+      geom_text_repel(aes(label = StockCode),
                       # box.padding = unit(.5, 'lines'),
                       # label.padding = unit(.5, 'lines'),
                       segment.size = .25,
                       force = 5,
                       size = 2) +
-      scale_size("CATCH", range = c(1, 20)) +
+      scale_size("catches", range = c(1, 20)) +
       scale_color_manual(values = c("GREEN" = "#4daf4a",
                                     "RED" = "#e41a1c",
                                     "GREY" = "#d3d3d3")) +
@@ -51,17 +63,40 @@ plot_kobe <- function(ecoregion, guild = c("all", "benthic", "demersal", "pelagi
             panel.grid.major = element_blank())
 
 
-    catchBar <- stockStatusFull[stockStatusFull$ECOREGION == ecoregion &
-                                 stockStatusFull$FISHERIES.GUILD %in% guild , ]
-    catchBar <- catchBar[!duplicated(catchBar),]
-    catchBar$STOCK.CODE <- factor(catchBar$STOCK.CODE, levels = catchBar$STOCK.CODE[order(catchBar$CATCH)])
-    catchBar$CATCH[is.na(catchBar$CATCH)] <- 0
+    catchBar <- stock_status_full %>%
+      ungroup() %>%
+      filter(EcoRegion == ecoregion,
+             FisheriesGuild == guild) %>%
+      arrange(!is.na(catches), catches, !is.na(landings), landings) %>%
+      mutate(StockCode = factor(StockCode, StockCode))
 
-    bar_plot <- ggplot(catchBar, aes(x = STOCK.CODE, y = CATCH)) +
-      geom_bar(stat = "identity", aes(fill = colList)) +
-      scale_fill_manual(values = c("GREEN" = "#4daf4a",
-                                   "RED" = "#e41a1c",
-                                   "GREY" = "#d3d3d3")) +
+    #   ungroup()
+    #
+    # nameorder <- catchBar %>%
+    #   arrange(-catches) %>%
+    #   select(StockCode)
+    #
+    # catchBar <- mutate(catchBar, StockCode = factor(StockCode, levels = nameorder[[1]]))
+
+    # %>%
+    #   distinct(.keep_all = TRUE)
+    # #
+    # catchBar <- stockStatusFull[stockStatusFull$ECOREGION == ecoregion &
+    #                              stockStatusFull$FISHERIES.GUILD %in% guild , ]
+    # catchBar <- catchBar[!duplicated(catchBar),]
+    # catchBar$STOCK.CODE <- factor(catchBar$STOCK.CODE, levels = catchBar$STOCK.CODE[order(catchBar$CATCH)])
+    # catchBar$CATCH[is.na(catchBar$CATCH)] <- 0
+
+    # bar_plot <-
+      ggplot(catchBar, aes(x = StockCode, y = catches)) +
+      geom_segment(aes(x = StockCode, y = catches, xend = StockCode, yend = 0, color = colList)) +
+      geom_point(stat = "identity", aes(y = catches, color = colList), size = 3, alpha = 0.5) +
+      geom_point(stat = "identity", aes(y = landings, color = colList), shape = 2, size = 3) +
+      # geom_text(aes(label = catches, x = StockCode, y = catches + 40), vjust=0, size=3) +
+      # geom_bar(stat = "identity", aes(fill = colList)) +
+      scale_color_manual(values = c("GREEN" = "#4daf4a",
+                                    "RED" = "#e41a1c",
+                                    "GREY" = "#d3d3d3")) +
       labs(x = "Stock",
            y = "Catch (tonnes)") +
       coord_equal() +

@@ -5,6 +5,7 @@ library(jsonlite)
 library(ggrepel)
 library(stringr)
 # library(reshape2)
+# devtools::install_github("ices-tools-prod/icesSAG")
 library(icesSAG)
 library(RColorBrewer)
 library(extrafont)
@@ -12,93 +13,43 @@ library(icesVocab)
 # library(DT)
 # library(shiny)
 library(ReporteRs)
+library(lubridate)
+# library(dplyr)
+library(ggiraph)
+
+# Function to help with consistent colors
+gg_color_hue <- function(n) {
+  hues = seq(15, 375, length = n + 1)
+  hcl(h = hues, l = 65, c = 100)[1 : n]
+}
+
 # library(XML)
 # library(RCurl)
 options(scipen = 5)
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-# DATA SOURCE: FAO codes and ICES stock codes #
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-# (NOTE: current ICES stock codes do not necessarily match with FAO 3-character
-# codes, in the future this look-up table should not be necessary - SL)
-# speciesID <- read.csv("~/git/ices-dk/fisheryO/inst/extdata/ICESspeciesID_v1.csv",
-#                       stringsAsFactors = FALSE)
-# #
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+# DATA SOURCE: ICES Stock Database #
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+stock_list_raw <- jsonlite::fromJSON("http://sd.ices.dk/services/odata3/StockListDWs3?$filter=ActiveYear%20eq%202016",
+                                     simplifyDataFrame = TRUE)$value
 
-# findAphia("cod", full = TRUE)
-# tt <- getCodeList("ICES_StockCode")
-# tt <- getCodeList("IC_Species")
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-# DATA SOURCE: Fishery guilds by ICES stock code #
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-# (NOTE: These guilds should become a part of the RECO database - SL)
-# fisheryGuild <- read.csv("~/git/ices-dk/fisheryO/inst/extdata/fisheryGuild.csv",
-#                          stringsAsFactors = FALSE)
-#
-# speciesGuild <- fisheryGuild %>%
-#   mutate(speciesID = toupper(gsub( "-.*$", "", Stock.code)),
-#          Stock.code = tolower(Stock.code)) %>%
-#   full_join(speciesID, c("speciesID" = "oldCode")) %>%
-#   select(STOCK.CODE = Stock.code,
-#          FISHERIES.GUILD = Fisheries.Guild,
-#          SPECIES.ID = speciesID,
-#          SPECIES.NAME = speciesName,
-#          -newCode)
-
-
-# Get stock list
-# url <- "http://sd.ices.dk/services/odata3/StockListDWs3?$filter=ActiveYear%20eq%202016"
-# url <- "http://admin.ices.dk/StockListServices/odata/StockListDWsOData?$filter=ActiveYear%20eq%202016"
-# url <- "~/git/ices-dk/fisheryO/inst/extdata/StockListDWsOData.json"
-
-rawsl <- jsonlite::fromJSON("http://sd.ices.dk/services/odata3/StockListDWs3?$filter=ActiveYear%20eq%202016",
-                            simplifyDataFrame = TRUE)$value
-
-#
-# ecoregions <- unique(unlist(strsplit(rawsl$EcoRegion, ", ")))
-# ecoregions <- ecoregions[!is.na(ecoregions)]
-#
-# len <- max(str_count(rawsl$EcoRegion, pattern = ", "), na.rm = TRUE)
-
-
-# sl <- rawsl %>%
-#   select(StockCode, Description, SpeciesScientificName,
-#          EcoRegion, DataCategory, YearOfLastAssessment,
-#          AdviceCategory, FisheriesGuild)
-
-  # separate(EcoRegion, paste0("X", 1:len), sep = ", ", extra = "merge")
-#
-# # Combine Norwegian and Barents Sea Ecoregions
-# rawsl$NorwegianSeaandBarentsSeaEcoregion[!is.na(rawsl$NorwegianSeaEcoregion) |
-#                                            !is.na(rawsl$BarentsSeaEcoregion)] <- "x"
-# # Reorganize from a wide data frame to a long data frame with species guild information
-# ecoregions <- colnames(rawsl)[grepl("^.+(Ecoregion)$", colnames(rawsl))]
-#
-# dots <- lapply(c("StockCode", "Description", "DataCategory", "AdviceType", ecoregions),
-#                as.symbol)
-
-sl <- rawsl %>%
-  # select_(.dots = dots) %>%
-  select(StockCode, Description, SpeciesScientificName,
-         EcoRegion, DataCategory, YearOfLastAssessment,
-         AdviceCategory, FisheriesGuild) %>%
-  filter(!StockCode %in% c("cod-ingr", "cod-wgr", "sal-nea", "san-scow")) %>%
-  # melt(id.vars = c("StockCode", "Description", "DataCategory", "AdviceType")) %>%
-  # filter(!is.na(value),
-  #        !variable %in% c("NorwegianSeaEcoregion", "BarentsSeaEcoregion")) %>%
-  # select(STOCK.CODE = StockCode,
-  #        STOCK.NAME = Description,
-  #        CAT = DataCategory,
-  #        ADVICE.TYPE = AdviceType,
-  #        ECOREGION = variable,
-  #        -value) %>%
+# Clean up the stock database data and remove a few non-conformers
+stock_list <- stock_list_raw %>%
+  select(StockCode = StockKeyLabel,
+         Description = StockKeyDescription,
+         SpeciesScientificName,
+         EcoRegion,
+         DataCategory,
+         YearOfLastAssessment,
+         AdviceCategory,
+         FisheriesGuild) %>%
+  filter(!StockCode %in% c("cod-ingr", "cod-wgr", "sal-nea", "san-scow", "sal-na")) %>%
   mutate(DataCategory = floor(as.numeric(DataCategory)),
          StockCode = tolower(StockCode),
          FisheriesGuild = tolower(FisheriesGuild),
-         FisheriesGuild = ifelse(StockCode %in% c("arg-5b6a", "tsu-nea", "smr-5614"),
-                                 "demersal",
-                                 FisheriesGuild),
+         # FisheriesGuild = ifelse(StockCode %in% c("arg-5b6a", "tsu-nea", "smr-5614"),
+         #                         "demersal",
+         #                         FisheriesGuild),
          Description = gsub(pattern = "\u2013", "-", Description), # remove en dashes in favor of hyphens
          AdviceCategory = ifelse(AdviceCategory == "MSY/PA",
                               "MSY", AdviceCategory),
@@ -106,26 +57,16 @@ sl <- rawsl %>%
          SpeciesScientificName = recode(SpeciesScientificName,
                                         "Mustelus asterias" = "Mustelus"),
          SpeciesScientificName = recode(SpeciesScientificName,
-                                        "Centrophorus squamosus, Centroscymnus coelolepis" = "Centroscymnus coelolepis")
-
-  #        ECOREGION = as.character(ECOREGION),
-  #        ECOREGION = recode(ECOREGION, "AzoresEcoregion" = "Azores"),
-  #        ECOREGION = recode(ECOREGION, "BayofBiscayandtheIberianCoastEcoregion" = "Bay of Biscay and the Iberian Coast"),
-  #        ECOREGION = recode(ECOREGION, "BalticSeaEcoregion" = "Baltic Sea"),
-  #        ECOREGION = recode(ECOREGION, "CelticSeasEcoregion" = "Celtic Seas"),
-  #        ECOREGION = recode(ECOREGION, "FaroesEcoregion" = "Faroes"),
-  #        ECOREGION = recode(ECOREGION, "GreenlandSeaEcoregion" = "Greenland Sea"),
-  #        ECOREGION = recode(ECOREGION, "IcelandSeaEcoregion" = "Iceland Sea"),
-  #        ECOREGION = recode(ECOREGION, "GreaterNorthSeaEcoregion" = "Greater North Sea"),
-  #        ECOREGION = recode(ECOREGION, "OceanicNortheastAtlanticEcoregion" = "Oceanic north-east Atlantic"),
-  #        ECOREGION = recode(ECOREGION, "NorwegianSeaandBarentsSeaEcoregion" = "Norwegian Sea and Barents Sea")) %>%
-  # left_join(speciesGuild, c("STOCK.CODE" = "STOCK.CODE"))
-         )
+                                        "Centrophorus squamosus, Centroscymnus coelolepis" = "Centroscymnus coelolepis"),
+         EcoRegion = strsplit(EcoRegion, ", ")
+         ) %>%
+  unnest(EcoRegion)
 
 # Format the species names appropriately
-slFull <- bind_rows(
+# slFull
+stock_list_frmt <- bind_rows(
   # Normal binomial names
-  sl %>%
+  stock_list %>%
     filter(!grepl(" spp", Description),
            SpeciesID != "ANG",
            grepl("[[:space:]]", SpeciesScientificName)) %>%
@@ -133,217 +74,200 @@ slFull <- bind_rows(
                                          pattern = SpeciesScientificName,
                                          replacement = paste0("<em>", SpeciesScientificName, "</em>"))),
   # Anglerfish (w/ two species)
-  sl %>%
+  stock_list %>%
     filter(SpeciesID == "ANG") %>%
     mutate(Description = str_replace_all(string = Description,
                                          pattern = "Lophius piscatorius and L. budegassa",
                                          replacement = "<em>Lophius piscatorius</em> and <em>L. budegassa</em>")),
   # Groups of species (.spp)
-  sl %>%
+  stock_list %>%
     filter(grepl(" spp.*$", Description)) %>%
     mutate(Description = str_replace_all(string = Description,
                                          pattern = SpeciesScientificName,
                                          replacement = paste0("<em>", SpeciesScientificName, "</em>"))),
   # A bit different notation (embedded in 2 sets of parentheses)
-  sl %>%
+  stock_list %>%
     filter(StockCode == "raj-mar") %>%
     mutate(Description = str_replace_all(string = Description,
                                          pattern = "Raja clavata",
                                          replacement = "<em>Raja clavata</em>")),
   # The "others" with no species name
-  sl %>%
+  stock_list %>%
     filter(SpeciesID != "ANG") %>%
     filter(!grepl(" spp", Description)) %>%
     filter(StockCode != "raj-mar") %>%
     filter(!grepl("[[:space:]]", SpeciesScientificName))
 )
 
-# slBinomial <- sl %>%
-#   filter(!grepl(" spp", Description),
-#          SpeciesID != "ANG",
-#          grepl("[[:space:]]", SpeciesScientificName)) %>%
-#   mutate(Description = str_replace_all(string = Description,
-#                                       pattern = SpeciesScientificName,
-#                                       replacement = paste0("<em>", SpeciesScientificName, "</em>")))
-# slANG <- sl %>%
-#   filter(SpeciesID == "ANG") %>%
-#   mutate(Description = str_replace_all(string = Description,
-#                                       pattern = "Lophius piscatorius and L. budegassa",
-#                                       replacement = "<em>Lophius piscatorius</em> and <em>L. budegassa</em>"))
-# slSpp <- sl %>%
-#   filter(grepl(" spp.*$", Description)) %>%
-#   mutate(Description = str_replace_all(string = Description,
-#                                       pattern = SpeciesScientificName,
-#                                       replacement = paste0("<em>", SpeciesScientificName, "</em>")))
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+# DATA SOURCE: ICES Stock Assessment Graphs Database #
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+# msyStocks <- slFull$StockCode[slFull$AdviceCategory == "MSY"]
+# paStocks <- slFull$StockCode[slFull$AdviceCategory == "PA"]
+# mpStocks <- slFull$StockCode[slFull$AdviceCategory == "MP"]
 
-# slRAJ <- sl %>%
-#   filter(StockCode == "raj-mar") %>%
-#   mutate(Description = str_replace_all(string = Description,
-#                                        pattern = "Raja clavata",
-#                                        replacement = "<em>Raja clavata</em>"))
-
-# slCYO <-  sl %>%
-#   filter(SpeciesID == "CYO") %>%
-#   mutate(STOCK.NAME = str_replace_all(STOCK.NAME,
-#                                       pattern = "Centrophorus squamosus",
-#                                       replacement = paste0("<em>Centrophorus squamosus</em>")),
-#          STOCK.NAME = str_replace_all(STOCK.NAME,
-#                                       pattern = SPECIES.NAME,
-#                                       replacement = paste0("<em>", SPECIES.NAME, "</em>")))
-
-# slRNG <- sl %>%
-#   filter(SPECIES.ID == "RNG") %>%
-#   filter(!grepl("[[:space:]]", SPECIES.NAME))
+# sl_2014 <- unique(slFull$StockCode[slFull$YearOfLastAssessment == 2014])
+# sl_2015 <- unique(slFull$StockCode[slFull$YearOfLastAssessment == 2015])
+# sl_2016 <- unique(slFull$StockCode[slFull$YearOfLastAssessment == 2016])
 #
-# slCheck <- sl %>%
-#   select(-ECOREGION) %>%
-#   distinct %>%
-#   mutate(TT = str_match_all(STOCK.NAME,
-#                              pattern = SPECIES.NAME))
+# sumCols <- c("Year", "fishstock", "F", "SSB", "fishingPressureDescription",
+#              "stockSizeDescription", "landings", "catches", "discards")
 #
-# td <- slCheck[!lapply(slCheck$TT, length) >0,]
-# td$TT <- NULL
-# write.csv(x = td, file = "~/git/ices-dk/fisheryO/inst/extdata/stockListCheck.csv", row.names = FALSE)
-# #
-# slOthers <- sl %>%
-#   filter(SpeciesID != "ANG") %>%
-#   filter(!grepl(" spp", Description)) %>%
-#   filter(StockCode != "raj-mar") %>%
-#   # grepl("[[:space:]]", SpeciesScientificName)) %>%
-#   filter(!grepl("[[:space:]]", SpeciesScientificName))
-# #rng
+# summaryTbl_2014 <- getSAG(stock = sl_2014, combine = TRUE, year = 2014, data = "summary")
+# summaryTbl_2015 <- getSAG(stock = sl_2015, combine = TRUE, year = 2015, data = "summary")
+# summaryTbl_2016 <- getSAG(stock = sl_2016, combine = TRUE, year = 2016, data = "summary")
 #
-# slFull <- slBinomial %>%
-#   bind_rows(slANG, slSpp, slRAJ, slOthers)
-  # select(STOCK.CODE,
-  #        STOCK.NAME,
-  #        FISHERIES.GUILD,
-  #        ECOREGION,
-  #        ADVICE.TYPE,
-#          CAT)
+# summaryTbl_2014 <- summaryTbl_2014[colnames(summaryTbl_2014) %in% sumCols]
+# summaryTbl_2015 <- summaryTbl_2015[colnames(summaryTbl_2015) %in% sumCols]
+# summaryTbl_2016 <- summaryTbl_2016[colnames(summaryTbl_2016) %in% sumCols]
+#
+# summaryTbl <- rbind(summaryTbl_2014, summaryTbl_2015, summaryTbl_2016)
 
-msyStocks <- slFull$StockCode[slFull$AdviceCategory == "MSY"]
-paStocks <- slFull$StockCode[slFull$AdviceCategory == "PA"]
-mpStocks <- slFull$StockCode[slFull$AdviceCategory == "MP"]
+sag_years <- unique(stock_list$YearOfLastAssessment)
+sag_keys <- do.call("rbind", lapply(sag_years, function(x) findKey(stock = NULL,
+                                                                   year = x,
+                                                                   full = TRUE)[, c("AssessmentYear", "AssessmentKey", "FishStockName")]))
+sag_keys$FishStockName <- tolower(sag_keys$FishStockName)
 
-sl_2014 <- slFull$StockCode[slFull$YearOfLastAssessment == 2014]
-sl_2015 <- slFull$StockCode[slFull$YearOfLastAssessment == 2015]
-sl_2016 <- slFull$StockCode[slFull$YearOfLastAssessment == 2016]
+found_stocks <- stock_list %>%
+  select(-EcoRegion) %>%
+  distinct(.keep_all = TRUE) %>%
+  left_join(sag_keys, by = c("StockCode" = "FishStockName",
+                             "YearOfLastAssessment" = "AssessmentYear"))
 
-sumCols <- c("Year", "fishstock", "F", "SSB", "fishingPressureDescription",
-             "stockSizeDescription", "landings", "catches")
-
-summaryTbl_2014 <- getSAG(stock = sl_2014, combine = TRUE, year = 2014, data = "summary")
-summaryTbl_2015 <- getSAG(stock = sl_2015, combine = TRUE, year = 2015, data = "summary")
-summaryTbl_2016 <- getSAG(stock = sl_2016, combine = TRUE, year = 2016, data = "summary")
-
-summaryTbl_2014 <- summaryTbl_2014[colnames(summaryTbl_2014) %in% sumCols]
-summaryTbl_2015 <- summaryTbl_2015[colnames(summaryTbl_2015) %in% sumCols]
-summaryTbl_2016 <- summaryTbl_2016[colnames(summaryTbl_2016) %in% sumCols]
-
-summaryTbl <- rbind(summaryTbl_2014, summaryTbl_2015, summaryTbl_2016)
-
-
-keeperF <- c("F", "F/FMSY", "F in winter rings", "Harvest rate", "Harvest rate/FMSY", "Fishing Pressure", "weighted F")
-relativeF <- c("F/FMSY", "Harvest rate/FMSY")
-
-keeperSSB <- c("SSB", "B/BMSY", "SSB & Biomass Age 4+", "UW Tv Index", "Stock Size", "Total biomass/BMSY")
-relativeSSB <- c("B/BMSY", "Total biomass/BMSY")
-
-summaryTblClean <- summaryTbl %>%
+# summaryTbl
+sag_summary <- bind_rows(
+  found_stocks %>%
+    filter(!is.na(AssessmentKey)) %>%
+    mutate(SummaryTable = purrr::map(AssessmentKey, getSummaryTable)) %>%
+    unnest(SummaryTable),
+  found_stocks %>%
+    filter(is.na(AssessmentKey))
+) %>%
   select(Year,
-         StockCode = fishstock,
+         StockCode,
          F,
          SSB,
          fishingPressureDescription,
          stockSizeDescription,
          landings,
-         catches) %>%
+         catches,
+         discards)
+
+# List of the F types that we want to include in the analysis and those that should be considered "relative"
+keeper_F <- c("F", "F/FMSY", "F in winter rings", "Harvest rate", "Harvest rate/FMSY", "Fishing Pressure", "weighted F")
+relative_F <- c("F/FMSY", "Harvest rate/FMSY")
+
+# List of the SSB types that we want to include in the analysis and those that should be considered "relative"
+keeper_SSB <- c("SSB", "B/BMSY", "SSB & Biomass Age 4+", "UW Tv Index", "Stock Size", "Total biomass/BMSY")
+relative_SSB <- c("B/BMSY", "Total biomass/BMSY")
+
+# Clean up the stock summary data
+# summaryTblClean
+sag_summary_clean <- sag_summary %>%
+  # select(Year,
+  #        StockCode = fishstock,
+  #        F,
+  #        SSB,
+  #        fishingPressureDescription,
+  #        stockSizeDescription,
+  #        landings,
+  #        catches,
+  #        discards) %>%
   mutate(StockCode = tolower(StockCode),
          # SSB is not in SAG for meg-4a6a 2015. Added from:
          # http://ices.dk/sites/pub/Publication%20Reports/Expert%20Group%20Report/acom/2015/WGCSE/05.03_Megrim%20IV_VI_2015.pdf#page=22
          SSB = ifelse(Year == 2015 & StockCode == "meg-4a6a",
                       1.91,
                       SSB),
+         # Clean up fishing pressure descriptions
          fishingPressureDescription = gsub("Fishing Pressure: " , "", fishingPressureDescription),
          fishingPressureDescription = gsub("Fishing pressure: " , "", fishingPressureDescription),
          fishingPressureDescription = gsub("msy" , "MSY", fishingPressureDescription),
          fishingPressureDescription = gsub("Harvest Rate", "Harvest rate", fishingPressureDescription),
          fishingPressureDescription = gsub("F &amp; HR", "Harvest rate", fishingPressureDescription),
-
+         # Clean up SSB descriptions
          stockSizeDescription = gsub("Stock Size: ", "", stockSizeDescription),
          stockSizeDescription = gsub("Stock size: ", "", stockSizeDescription),
          stockSizeDescription = gsub("msy", "MSY", stockSizeDescription),
-
          stockSizeDescription = ifelse(is.na(stockSizeDescription), "Relative",
                                        stockSizeDescription),
+         # Clean up reference points descriptions
          FmsyDescription = "FMSY",
-         FmsyDescription = ifelse(fishingPressureDescription %in% relativeF,
+         FmsyDescription = ifelse(fishingPressureDescription %in% relative_F,
                                   "F/FMSY",
                                   fishingPressureDescription),
          BmsyDescription = "MSYBtrigger",
-         BmsyDescription = ifelse(stockSizeDescription %in% relativeSSB,
+         BmsyDescription = ifelse(stockSizeDescription %in% relative_SSB,
                                   "SSB/BMSY",
-                                  stockSizeDescription)) %>%
-  filter(stockSizeDescription %in% keeperSSB |
-           fishingPressureDescription %in% keeperF) %>%
-  distinct(.keep_all = TRUE)
+                                  stockSizeDescription)) # %>%
+  # Remove the stocks that don't have F and SSB types that we want for the analysis
+  # filter(stockSizeDescription %in% keeperSSB |
+  #          fishingPressureDescription %in% keeperF) %>%
+  # distinct(.keep_all = TRUE)
+
+
+# refPtsClean
+sag_ref_pts <- bind_rows(
+  found_stocks %>%
+    filter(!is.na(AssessmentKey)) %>%
+    mutate(RefTable = purrr::map(AssessmentKey, getFishStockReferencePoints)) %>%
+    unnest(RefTable),
+  found_stocks %>%
+    filter(is.na(AssessmentKey))
+) %>%
+  select(StockCode,
+         Flim = FLim,
+         Fpa,
+         Bpa,
+         Blim,
+         FMSY,
+         MSYBtrigger)
 
 #
-# tt <- summaryTblClean[!is.na(summaryTblClean$F) &
-#                         summaryTblClean$StockCode %in% msyStocks,]
-# unique(summaryTblClean$stockSizeDescription[!is.na(summaryTblClean$SSB) &
-#                                               summaryTblClean$StockCode %in% msyStocks])
+# # Get reference points from Stock Assessment Graphs
+# refCols <- c("FishStockName", "FLim", "Fpa", "Bpa", "Blim", "FMSY", "MSYBtrigger")
 #
-
-# refPts <- getSAG(stock = NULL, combine = TRUE, year = 2016, data = "refpts")
-refCols <- c("FishStockName", "FLim", "Fpa", "Bpa", "Blim", "FMSY", "MSYBtrigger")
-
-refPts_2014 <- getSAG(stock = sl_2014, combine = TRUE, year = 2014, data = "refpts")
-refPts_2015 <- getSAG(stock = sl_2015, combine = TRUE, year = 2015, data = "refpts")
-refPts_2016 <- getSAG(stock = sl_2016, combine = TRUE, year = 2016, data = "refpts")
-
-colnames(refPts_2014) <- gsub(" /", "", colnames(refPts_2014))
-refPts_2015 <- refPts_2015[,!names(refPts_2015) %in% grep(" /", colnames(refPts_2015), value = TRUE)]
-refPts_2016 <- refPts_2016[,!names(refPts_2016) %in% grep(" /", colnames(refPts_2016), value = TRUE)]
-
-refPts_2014 <- refPts_2014[colnames(refPts_2014) %in% refCols]
-refPts_2015 <- refPts_2015[colnames(refPts_2015) %in% refCols]
-refPts_2016 <- refPts_2016[colnames(refPts_2016) %in% refCols]
-
-refPts <- rbind(refPts_2014, refPts_2015, refPts_2016)
-
-refPts[refPts == ""] <- NA
-
-refPtsClean <- refPts %>%
-  rename(Flim = FLim,
-         StockCode = FishStockName) %>%
-  mutate(StockCode = tolower(StockCode)) %>%
-  distinct(.keep_all = TRUE)
-
-
-# unique(refPtsClean$StockCode[!refPtsClean$StockCode %in% summaryTblClean$StockCode])
+# refPts_2014 <- getSAG(stock = sl_2014, combine = TRUE, year = 2014, data = "refpts")
+# refPts_2015 <- getSAG(stock = sl_2015, combine = TRUE, year = 2015, data = "refpts")
+# refPts_2016 <- getSAG(stock = sl_2016, combine = TRUE, year = 2016, data = "refpts")
 #
-# length(unique(summaryTblClean))
+# colnames(refPts_2014) <- gsub(" /", "", colnames(refPts_2014))
+# refPts_2015 <- refPts_2015[,!names(refPts_2015) %in% grep(" /", colnames(refPts_2015), value = TRUE)]
+# refPts_2016 <- refPts_2016[,!names(refPts_2016) %in% grep(" /", colnames(refPts_2016), value = TRUE)]
 #
-# unique(summaryTblClean$StockCode[summaryTblClean$StockCode %in% refPtsClean$StockCode])
+# refPts_2014 <- refPts_2014[colnames(refPts_2014) %in% refCols]
+# refPts_2015 <- refPts_2015[colnames(refPts_2015) %in% refCols]
+# refPts_2016 <- refPts_2016[colnames(refPts_2016) %in% refCols]
+#
+# refPts <- rbind(refPts_2014, refPts_2015, refPts_2016)
+# refPts[refPts == ""] <- NA
+#
+# refPtsClean <- refPts %>%
+#   rename(Flim = FLim,
+#          StockCode = FishStockName) %>%
+#   mutate(StockCode = tolower(StockCode)) %>%
+#   distinct(.keep_all = TRUE)
 
-fullSummary <- summaryTblClean %>%
-  left_join(refPtsClean, by = c("StockCode" = "StockCode")) %>%
-  left_join(slFull, by = c("StockCode" = "StockCode")) %>%
-  mutate(MSYBtrigger = ifelse(stockSizeDescription %in% relativeSSB,
+# Merge together the stock data, reference points, and summary table
+# fullSummary
+sag_complete_summary <- stock_list_frmt %>%   #slFull
+  left_join(sag_ref_pts , by = "StockCode") %>% # refPtsClean
+  left_join(sag_summary_clean, by = "StockCode") %>% # summaryTblClean
+  nest(EcoRegion) %>%
+  mutate(MSYBtrigger = ifelse(stockSizeDescription %in% relative_SSB,
                               0.5,
                               MSYBtrigger),
-         MSYBtrigger = ifelse(!stockSizeDescription %in% keeperSSB,
+         MSYBtrigger = ifelse(!stockSizeDescription %in% keeper_SSB,
                              NA,
                              MSYBtrigger),
          MSYBtrigger = ifelse(MSYBtrigger == 0,
                               NA,
                               MSYBtrigger),
-         FMSY = ifelse(fishingPressureDescription %in% relativeF,
+         FMSY = ifelse(fishingPressureDescription %in% relative_F,
                        1,
                        FMSY),
-         FMSY = ifelse(!fishingPressureDescription %in% keeperF,
+         FMSY = ifelse(!fishingPressureDescription %in% keeper_F,
                        NA,
                        FMSY),
          FMSY = ifelse(FMSY == 0,
@@ -351,13 +275,17 @@ fullSummary <- summaryTblClean %>%
                        FMSY)
          )
 
-numCols <- c("Year", "F", "SSB", "landings", "catches", "Flim",
-             "Blim", "FMSY", "MSYBtrigger", "Fpa", "Bpa", "YearOfLastAssessment")
+# numCols <- c("Year", "F", "SSB", "landings", "catches", "Flim",
+#              "Blim", "FMSY", "MSYBtrigger", "Fpa", "Bpa", "YearOfLastAssessment")
+#
+# fullSummary[colnames(fullSummary) %in% numCols] <- lapply(fullSummary[colnames(fullSummary) %in% numCols],
+#                                                           as.numeric)
 
-fullSummary[colnames(fullSummary) %in% numCols] <- lapply(fullSummary[colnames(fullSummary) %in% numCols],
-                                                          as.numeric)
-
-fmsySummary <- fullSummary %>%
+# Recreate check-mark tables
+# fmsySummary
+summary_fmsy <- sag_complete_summary %>% #fullSummary
+  # select(-EcoRegion) %>%
+  # distinct(.keep_all = TRUE) %>%
   group_by(StockCode) %>%
   filter(Year >= YearOfLastAssessment - 3,
          Year <= YearOfLastAssessment - 1) %>%
@@ -366,7 +294,9 @@ fmsySummary <- fullSummary %>%
   select(Year, FMSY, StockCode) %>%
   spread(Year, FMSY)
 
-bmsySummary <- fullSummary %>%
+summary_bmsy <- sag_complete_summary %>%
+  # select(-EcoRegion) %>%
+  # distinct(.keep_all = TRUE) %>%
   group_by(StockCode) %>%
   filter(Year >= YearOfLastAssessment - 2,
          Year <= YearOfLastAssessment) %>%
@@ -375,7 +305,9 @@ bmsySummary <- fullSummary %>%
   select(Year, BMSY, StockCode) %>%
   spread(Year, BMSY)
 
-fpaSummary <- fullSummary %>%
+summary_fpa <- sag_complete_summary %>%
+  # select(-EcoRegion) %>%
+  # distinct(.keep_all = TRUE) %>%
   group_by(StockCode) %>%
   filter(Year >= YearOfLastAssessment - 3,
          Year <= YearOfLastAssessment - 1) %>%
@@ -398,7 +330,9 @@ fpaSummary <- fullSummary %>%
   select(Year, FPA, StockCode) %>%
   spread(Year, FPA)
 
-bpaSummary <- fullSummary %>%
+summary_bpa <- sag_complete_summary %>%
+  # select(-EcoRegion) %>%
+  # distinct(.keep_all = TRUE) %>%
   group_by(StockCode) %>%
   filter(Year >= YearOfLastAssessment - 2,
          Year <= YearOfLastAssessment) %>%
@@ -421,29 +355,31 @@ bpaSummary <- fullSummary %>%
   select(Year, BPA, StockCode) %>%
   spread(Year, BPA)
 
-sblSummary <- fullSummary %>%
+summary_sbl <- sag_complete_summary %>%
+  # select(-EcoRegion) %>%
+  # distinct(.keep_all = TRUE) %>%
   select(StockCode,
          YearOfLastAssessment) %>%
   distinct(.keep_all = TRUE) %>%
-  left_join(bpaSummary, by = "StockCode") %>%
-  left_join(fpaSummary, by = "StockCode")
+  left_join(summary_bpa, by = "StockCode") %>%
+  left_join(summary_fpa, by = "StockCode")
 
-sblSummary <- bind_rows(
-  sblSummary %>%
+summary_sbl <- bind_rows(
+  summary_sbl %>%
     filter(YearOfLastAssessment == 2014) %>%
     mutate(SBL = ifelse(FPA2013 == "GREEN"  &  BPA2014 == "GREEN",
                         "GREEN",
                         ifelse(FPA2013 == "RED"  &  BPA2014 == "RED",
                                "RED",
                                NA))),
-  sblSummary %>%
+  summary_sbl %>%
   filter(YearOfLastAssessment == 2015) %>%
     mutate(SBL = ifelse(FPA2014 == "GREEN"  &  BPA2015 == "GREEN",
                         "GREEN",
                         ifelse(FPA2014 == "RED"  &  BPA2015 == "RED",
                                "RED",
                                NA))),
-  sblSummary %>%
+  summary_sbl %>%
     filter(YearOfLastAssessment == 2016) %>%
     mutate(SBL = ifelse(FPA2015 == "GREEN"  &  BPA2016 == "GREEN",
                         "GREEN",
@@ -452,16 +388,17 @@ sblSummary <- bind_rows(
                                NA)))
   )[, c("StockCode", "SBL")]
 
+#stockDF
+summary_table <- summary_fmsy %>%
+  full_join(summary_bmsy, by = "StockCode") %>%
+  full_join(summary_fpa, by = "StockCode") %>%
+  full_join(summary_bpa, by = "StockCode") %>%
+  full_join(summary_sbl, by = "StockCode")
 
-
-stockDF <- fmsySummary %>%
-  left_join(bmsySummary, by = "StockCode") %>%
-  left_join(fpaSummary, by = "StockCode") %>%
-  left_join(bpaSummary, by = "StockCode") %>%
-  left_join(sblSummary, by = "StockCode")
-
-stockDat <- slFull %>%
-  left_join(stockDF, by = "StockCode") %>%
+# stockDat
+summary_table_frmt <- stock_list_frmt %>%  #slFull
+  left_join(summary_table, by = "StockCode") %>%
+  # nest(EcoRegion) %>%
   mutate(F_2013 = ifelse(AdviceCategory %in% c("MSY", "MP"),
                          FMSY2013,
                          FPA2013),
@@ -484,8 +421,8 @@ stockDat <- slFull %>%
          D3C2 = NA,
          GES = NA)
 
-stockDat <- bind_rows(
-  stockDat %>%
+summary_table_frmt <- bind_rows(
+  summary_table_frmt %>%
     filter(YearOfLastAssessment == 2014) %>%
     mutate(D3C1 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
                          FMSY2013,
@@ -493,7 +430,7 @@ stockDat <- bind_rows(
            D3C2 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
                          BMSY2014,
                          BPA2014)),
-  stockDat %>%
+  summary_table_frmt %>%
     filter(YearOfLastAssessment == 2015) %>%
     mutate(D3C1 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
                          FMSY2014,
@@ -501,7 +438,7 @@ stockDat <- bind_rows(
            D3C2 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
                          BMSY2015,
                          BPA2015)),
-  stockDat %>%
+  summary_table_frmt %>%
     filter(YearOfLastAssessment == 2016) %>%
     mutate(D3C1 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
                          FMSY2015,
@@ -509,38 +446,38 @@ stockDat <- bind_rows(
            D3C2 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
                          BMSY2016,
                          BPA2016))
-)
+) %>%
+  # unnest(EcoRegion) %>%
+  select(StockCode,
+         Description,
+         FisheriesGuild,
+         EcoRegion,
+         AdviceCategory,
+         DataCategory,
+         SBL,
+         F_2013, F_2014, F_2015,
+         SSB_2014, SSB_2015, SSB_2016,
+         D3C1, D3C2, GES)
 
-stockDat <- select(stockDat, StockCode,
-                   Description,
-                   FisheriesGuild,
-                   EcoRegion,
-                   AdviceCategory,
-                   DataCategory,
-                   SBL,
-                   F_2013, F_2014, F_2015,
-                   SSB_2014, SSB_2015, SSB_2016,
-                   D3C1, D3C2, GES)
+summary_table_frmt$GES[is.na(summary_table_frmt$D3C1) |
+               is.na(summary_table_frmt$D3C2)] <- NA
+summary_table_frmt$GES[summary_table_frmt$D3C1 == "RED" |
+                         summary_table_frmt$D3C2 == "RED"] <- "RED"
+summary_table_frmt$GES[summary_table_frmt$D3C1 == "GREEN" &
+                         summary_table_frmt$D3C2 == "GREEN"] <- "GREEN"
 
-stockDat$GES[is.na(stockDat$D3C1) |
-               is.na(stockDat$D3C2)] <- NA
-stockDat$GES[stockDat$D3C1 == "RED" |
-               stockDat$D3C2 == "RED"] <- "RED"
-stockDat$GES[stockDat$D3C1 == "GREEN" &
-               stockDat$D3C2 == "GREEN"] <- "GREEN"
-
-stockDat[c("SBL", "F_2013", "F_2014", "F_2015",
+summary_table_frmt[c("SBL", "F_2013", "F_2014", "F_2015",
            "SSB_2014", "SSB_2015", "SSB_2016",
-           "D3C1", "D3C2", "GES")][is.na(stockDat[c("SBL", "F_2013", "F_2014", "F_2015",
+           "D3C1", "D3C2", "GES")][is.na(summary_table_frmt[c("SBL", "F_2013", "F_2014", "F_2015",
                                                     "SSB_2014", "SSB_2015", "SSB_2016",
                                                     "D3C1", "D3C2", "GES")])] <- "GREY"
 
-stockDat[stockDat == "GREEN"] <- "<i class=\"glyphicon glyphicon-ok-sign\" style=\"color:green; font-size:2.2em\"></i>"
-stockDat[stockDat == "RED"] <- "<i class=\"glyphicon glyphicon-remove-sign\" style=\"color:red; font-size:2.2em\"></i>"
-stockDat[stockDat == "GREY"] <- "<i class=\"glyphicon glyphicon-question-sign\" style=\"color:grey; font-size:2.2em\"></i>"
-stockDat[stockDat == "ORANGE"] <- "<i class=\"glyphicon glyphicon-record\" style=\"color:#FAB700; font-size:2.2em\"></i>"
+summary_table_frmt[summary_table_frmt == "GREEN"] <- "<i class=\"glyphicon glyphicon-ok-sign\" style=\"color:green; font-size:2.2em\"></i>"
+summary_table_frmt[summary_table_frmt == "RED"] <- "<i class=\"glyphicon glyphicon-remove-sign\" style=\"color:red; font-size:2.2em\"></i>"
+summary_table_frmt[summary_table_frmt == "GREY"] <- "<i class=\"glyphicon glyphicon-question-sign\" style=\"color:grey; font-size:2.2em\"></i>"
+summary_table_frmt[summary_table_frmt == "ORANGE"] <- "<i class=\"glyphicon glyphicon-record\" style=\"color:#FAB700; font-size:2.2em\"></i>"
 
-stockDat <- data.frame(lapply(stockDat, factor))
+summary_table_frmt <- data.frame(lapply(summary_table_frmt, factor))
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # Prepare subsets for R Markdown rendering #
@@ -548,16 +485,19 @@ stockDat <- data.frame(lapply(stockDat, factor))
 # ecoregion <- unique(stockDat$ECOREGION)
 # fileName <-  "referencePointOverview-static.html"
 # Render dynamic and static stock summary tables
-
+ecoregion = unique(summary_table_frmt$EcoRegion)[10]
 
 stockPlotEcoregion <- function(ecoregion,
                                fileName = NULL) {
-
-  stockPlot <- stockDat %>%
+  stockPlot <- summary_table_frmt %>%
     filter(grepl(pattern = ecoregion, EcoRegion)) %>%
     select(-EcoRegion) %>%
     distinct() %>%
     arrange(StockCode)
+
+  if(is.null(fileName)) {
+    fileName <- gsub("\\s", "_", ecoregion)
+  }
 
   suppressWarnings(
   rmarkdown::render("~/git/ices-dk/fisheryO/vignettes/stockSummaryTable-static.Rmd",
@@ -569,26 +509,26 @@ stockPlotEcoregion <- function(ecoregion,
   suppressWarnings(
     rmarkdown::render("~/git/ices-dk/fisheryO/vignettes/stockSummaryTable-dynamic.rmd",
                     output_file = paste0("~/git/ices-dk/fisheryO/output/", fileName, "-dynamic.html"),
-                    # rmarkdown::html_document(template = NULL),
+                    rmarkdown::html_document(template = NULL),
                     envir = new.env())
   )
 
 }
 
-# lapply(unique(stockDat$ECOREGION), stockPlotEcoregion)
+eco_list <- unique(unlist(strsplit(as.character(stockDat$EcoRegion), ", ")))
+lapply(eco_list[c(10, 7)], function(x) stockPlotEcoregion(x, fileName =  paste0("annexA-", gsub("\\s", "_", x))))
 
 ##############
 # Pie graphs #
 ##############
 
-pieDat <- slFull %>%
+# pieDat
+pie_table <- stock_list_frmt %>% # slFull %>%
   select(StockCode,
          EcoRegion,
          FisheriesGuild,
          YearOfLastAssessment) %>%
-  left_join(stockDF, by = "StockCode") %>%
-  mutate(EcoRegion = strsplit(as.character(EcoRegion), ", ")) %>%
-  unnest(EcoRegion) %>%
+  left_join(summary_table, by = "StockCode") %>% #stockDF
   mutate(FMSY = ifelse(YearOfLastAssessment == 2014,
                        FMSY2013,
                        ifelse(YearOfLastAssessment == 2015,
@@ -619,7 +559,8 @@ pieDat <- slFull %>%
                                     NA))),
          SBL = SBL)
 
-pieCount <- pieDat %>%
+# pieCount
+pie_table_count <- pie_table %>% #pieDat %>%
   select(EcoRegion,
          FisheriesGuild,
          FMSY,
@@ -635,20 +576,29 @@ pieCount <- pieDat %>%
   summarize(COUNT = n())
 
 # Make sure that all possible combinations are provided
-pieCount <- pieCount %>%
-  tidyr::expand(VALUE = c("GREY", "GREEN", "RED", "ORANGE")) %>%
-  left_join(pieCount, by = c("EcoRegion", "FisheriesGuild", "VARIABLE", "VALUE")) %>%
-  arrange(EcoRegion, FisheriesGuild, VARIABLE, VALUE)
-pieCount$COUNT[is.na(pieCount$COUNT)] <- 0
+pie_table_count <- bind_rows(
+  pie_table_count %>%
+    tidyr::expand(VALUE = c("GREY", "GREEN", "RED", "ORANGE")) %>%
+    left_join(pie_table_count, by = c("EcoRegion", "FisheriesGuild", "VARIABLE", "VALUE")) %>%
+    arrange(EcoRegion, FisheriesGuild, VARIABLE, VALUE) %>%
+    mutate(COUNT = ifelse(is.na(COUNT),
+                          0,
+                          as.numeric(COUNT))),
+  pie_table_count %>%
+    group_by(EcoRegion, VARIABLE, VALUE) %>%
+    mutate(FisheriesGuild = "total",
+           COUNT = sum(COUNT)) %>%
+    distinct(.keep_all = TRUE)
+)
+#
+#
+# pieCount <- pieCount %>%
+#   group_by(EcoRegion, VARIABLE, VALUE) %>%
+#   mutate(FisheriesGuild = "total",
+#          COUNT = sum(COUNT)) %>%
+#   distinct(.keep_all = TRUE) %>%
+#   bind_rows(pieCount)
 
-pieCount <- pieCount %>%
-  group_by(EcoRegion, VARIABLE, VALUE) %>%
-  mutate(FisheriesGuild = "total",
-         COUNT = sum(COUNT)) %>%
-  distinct(.keep_all = TRUE) %>%
-  bind_rows(pieCount)
-
-ecoregion = "Greater North Sea"
 stockPieEcoregion <- function(ecoregion) {
 
   colList <- c("GREEN" = "#00B26D",
@@ -656,30 +606,32 @@ stockPieEcoregion <- function(ecoregion) {
                "ORANGE" = "#ff7f00",
                "RED" = "#d93b1c")
 
-  rowDat <- pieCount %>%
+  rowDat <- pie_table_count %>%
     filter(grepl(pattern = ecoregion, EcoRegion)) %>%
     ungroup() %>%
     select(-EcoRegion) %>%
     group_by(FisheriesGuild, VARIABLE) %>%
-    mutate(fraction = COUNT/ sum(COUNT),
-           ymax = cumsum(fraction),
-           ymin = c(0, head(ymax, n = -1))) %>%
+    mutate(fraction = COUNT/ sum(COUNT)) %>%
     filter(fraction != 0) %>%
-    mutate(pos = cumsum(fraction) - fraction/2) %>%
     ungroup() %>%
     mutate(VARIABLE = recode_factor(VARIABLE,
                                     "FMSY" = "Fishing pressure\n MSY",
                                     "BMSY" = "Stock size\n MSY",
                                     "FPA" = "Fishing pressure\n PA",
                                     "BPA" = "Stock size \n PA",
-                                    "SBL" = "Within safe\n biological limits"))
+                                    "SBL" = "Within safe\n biological limits"),
+           FisheriesGuild = factor(FisheriesGuild,
+                                      levels = c("total", "benthic", "crustacean", "elasmobranch", "demersal", "pelagic"))
+           )
 
-  rowDat$FisheriesGuild <- factor(rowDat$FisheriesGuild, levels = c("total", "benthic", "crustacean", "elasmobranch", "demersal", "pelagic"))
+  # rowDat$FisheriesGuild <- factor(rowDat$FisheriesGuild,
+  #                                 levels = c("total", "benthic", "crustacean", "elasmobranch", "demersal", "pelagic"))
 
-  p1 <- ggplot(data = rowDat) +
-    geom_bar(aes(x = "", y = fraction, fill = VALUE), stat = "identity") +
-    geom_text(aes(x = "", y = pos, label = COUNT), size = 3) +
-    coord_polar(theta = "y") +
+  p1 <- ggplot(data = rowDat, aes(x = "", y = fraction, fill = VALUE)) +
+    geom_bar(stat = "identity", width = 1) +
+    geom_text(aes(label = COUNT),
+              position = position_stack(vjust = 0.5),
+              size = 3) +
     scale_fill_manual(values = colList) +
     theme_bw(base_size = 9) +
     theme(panel.grid = element_blank(),
@@ -689,7 +641,9 @@ stockPieEcoregion <- function(ecoregion) {
     theme(axis.text=element_blank(),
           axis.ticks=element_blank(),
           strip.background = element_blank()) +
-    labs(title = "", x = "", y = "") +
+    labs(title = "", x = "", y = "",
+         caption = "Data from ") +
+    coord_polar(theta = "y", direction = 1) +
     facet_grid(FisheriesGuild ~ VARIABLE)
 
   figName = "table1_"
@@ -701,25 +655,45 @@ stockPieEcoregion <- function(ecoregion) {
          dpi = 300)
 }
 
-lapply(unique(pieDat$ECOREGION)[6], stockPieEcoregion)
+# lapply(unique(pieDat$ECOREGION)[6], stockPieEcoregion)
 
 ######################
 ### GES Pie Charts ###
 ######################
 
-gesCatchDat <- fullSummary %>%
-    group_by(StockCode) %>%
-    filter(Year == YearOfLastAssessment - 1) %>%
-    mutate(CATCH = ifelse(is.na(catches) & !is.na(landings),
-                          landings,
-                          catches),
-           EcoRegion = strsplit(as.character(EcoRegion), ", ")) %>%
-  unnest(EcoRegion) %>%
+# Split and count by variable and color
+# gesPieCount
+ges_table_count <- pie_table %>% #pieDat %>%
   select(EcoRegion,
-         StockCode,
-         CATCH) %>%
-  left_join(pieDat, by = c("StockCode", "EcoRegion")) %>%
+         D3C2 = FMSY,
+         D3C1 = BMSY) %>%
+  gather(VARIABLE, COLOR, -EcoRegion) %>%
+  mutate(COLOR = ifelse(is.na(COLOR),
+                        "GREY",
+                        COLOR)) %>%
+  group_by(EcoRegion, VARIABLE, COLOR) %>%
+  summarize(VALUE = n(),
+            METRIC = "count")
+
+# Take last year of catch data. If catch is not available, use landings. Remove stocks without quantified catch or landings
+# gesCatchStock
+ges_catch_stock <-  sag_complete_summary %>% # fullSummary
+  group_by(StockCode) %>%
+  filter(Year == YearOfLastAssessment - 1) %>%
   ungroup() %>%
+  mutate(CATCH = ifelse(is.na(catches) & !is.na(landings),
+                        landings,
+                        catches)) %>%
+  filter(!is.na(CATCH)) %>%
+  select(StockCode,
+         CATCH) %>%
+  distinct(.keep_all = TRUE)
+
+# Split and sum catch by variable and color
+# gesPieCatch
+ges_table_catch <- ges_catch_stock %>%
+ # <- gesCatchStock %>%
+  left_join(pie_table, by = "StockCode") %>%
   select(EcoRegion,
          CATCH,
          D3C2 = FMSY,
@@ -727,49 +701,52 @@ gesCatchDat <- fullSummary %>%
   gather(VARIABLE, COLOR, -EcoRegion, -CATCH) %>%
   mutate(COLOR = ifelse(is.na(COLOR),
                         "GREY",
-                        COLOR)) %>%
-  group_by(EcoRegion, VARIABLE, COLOR) %>%
-  summarize(COUNT = n(),
-            TOTAL = sum(CATCH, na.rm = TRUE)) %>%
-  mutate(TOTAL = ifelse(is.na(TOTAL),
+                        COLOR),
+         CATCH = ifelse(is.na(CATCH),
                         0,
-                        TOTAL)) %>%
-  gather(METRIC, VALUE, -EcoRegion, -VARIABLE, -COLOR)
+                        CATCH)) %>%
+  group_by(EcoRegion, VARIABLE, COLOR) %>%
+  summarize(VALUE = sum(CATCH),
+            METRIC = "total_sum")
+
+ges_table <- rbind(ges_table_count, ges_table_catch)
 
 
-ecoregion <- "Greater North Sea"
 gesPieEcoregion <- function(ecoregion) {
 
   colList <- c("GREEN" = "#00B26D",
                "GREY" = "#d3d3d3",
-               # "ORANGE" = "#ff7f00",
                "RED" = "#d93b1c")
 
-  rowDat <- gesCatchDat %>%
+  rowDat <- ges_table %>%
     filter(grepl(pattern = ecoregion, EcoRegion)) %>%
     ungroup() %>%
     select(-EcoRegion) %>%
     group_by(VARIABLE, METRIC) %>%
-    mutate(fraction = VALUE/ sum(VALUE),
-           ymax = cumsum(fraction),
-           ymin = c(0, head(ymax, n = -1))) %>%
+    mutate(VALUE = ifelse(METRIC == "total_sum",
+                          round(VALUE / 1000),
+                          round(VALUE)),
+           fraction = VALUE/ sum(VALUE)) %>%
     filter(fraction != 0) %>%
-    mutate(pos = cumsum(fraction) - fraction/2) %>%
     ungroup() %>%
     mutate(METRIC = recode_factor(METRIC,
-                                  "COUNT" = "Number of stocks",
-                                  "TOTAL" = "Proportion of catch\n (tonnes)"))
+                                  "count" = "Number of stocks",
+                                  "total_sum" = "Proportion of catch\n (thousand tonnes)"))
   sumDat <- rowDat %>%
     group_by(VARIABLE, METRIC) %>%
-    summarize(sum = sum(VALUE))
+    summarize(sum = sum(VALUE),
+              COLOR = NA)
 
-  p1 <- ggplot(data = rowDat) +
-    geom_bar(aes(x = "", y = fraction, fill = COLOR), stat = "identity") +
-    geom_text(aes(x = "", y = pos, label = scales::comma(VALUE)), size = 3) + #########
-    # geom_text_repel(aes(x = "", y = pos, label = scales::comma(VALUE)), size = 3,  point.padding = unit(0.5, "lines"),
-    #                 segment.color = "black") +
-    geom_text(data = sumDat, aes(x = 0, y = 0, label = paste0("total = ", scales::comma(sum))), size = 2.5) +
-    coord_polar(theta = "y") +
+  p1 <- ggplot(data = rowDat, aes(x = "", y = fraction, fill = COLOR)) +
+    geom_bar(stat = "identity", width = 1) +
+    geom_text(aes(label = scales::comma(VALUE)),
+            position = position_stack(vjust = 0.5),
+            size = 3) +
+    geom_text(data = sumDat,
+              aes(x = 0, y = 0,
+                  label = paste0("total = ",
+                                 scales::comma(sum))),
+              size = 2.5) +
     scale_fill_manual(values = colList) +
     theme_bw(base_size = 9) +
     theme(panel.grid = element_blank(),
@@ -779,8 +756,9 @@ gesPieEcoregion <- function(ecoregion) {
     theme(axis.text=element_blank(),
           axis.ticks=element_blank(),
           strip.background = element_blank()) +
-    # annotate("text", x = 0, y = 0, label = "") +
-    labs(title="", x = "", y = "") +
+    labs(title = "", x = "", y = "",
+         caption = "Data from") +
+    coord_polar(theta = "y") +
     facet_grid(METRIC ~ VARIABLE)
 
   figName = "table2_"
@@ -797,14 +775,12 @@ suppressWarnings(lapply(unique(gesPieDat$ECOREGION), gesPieEcoregion))
 ##############################
 ### Stock Status over time ###
 ##############################
-colList <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3",
-             "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999")
-ltyList <- c(1,3:6)
-
-
-stockTrends <- fullSummary %>%
-  left_join(slFull, by = "STOCK.CODE") %>%
-  distinct(.keep_all = TRUE) %>%
+# colList <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3",
+#              "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999")
+# ltyList <- c(1,3:6)
+# stockTrends
+stock_trends <- sag_complete_summary %>% #fullSummary
+  unnest(data) %>%
   mutate(F_FMSY = ifelse(!is.na(FMSY),
                          F / FMSY,
                          NA),
@@ -812,87 +788,219 @@ stockTrends <- fullSummary %>%
                                   SSB / MSYBtrigger,
                                   NA)) %>%
   select(Year,
-         STOCK.CODE,
-         FISHERIES.GUILD,
-         ECOREGION,
+         StockCode,
+         FisheriesGuild,
+         EcoRegion,
          F_FMSY,
          SSB_MSYBtrigger) %>%
-  melt(id.vars = c("Year",  "STOCK.CODE", "FISHERIES.GUILD","ECOREGION"),
-       measure.vars = c("F_FMSY", "SSB_MSYBtrigger"),
-       variable.name = "METRIC",
-       value.name = "stockValue") %>%
-  group_by(ECOREGION, FISHERIES.GUILD, METRIC, Year) %>%
+  gather(METRIC, stockValue, -Year, -StockCode, -FisheriesGuild, -EcoRegion) %>%
+  group_by(EcoRegion, FisheriesGuild, METRIC, Year) %>%
   mutate(ecoGuildMean = mean(stockValue, na.rm = TRUE))
 
+stock_trends_frmt <- bind_rows(
+  stock_trends %>%
+    mutate(EcoGuild = paste0(EcoRegion, " - ", FisheriesGuild, " stocks")) %>%
+    ungroup() %>%
+    select(pageGroup = EcoGuild,
+           lineGroup = StockCode,
+           Year,
+           plotGroup = METRIC,
+           plotValue = stockValue) %>%
+    filter(!is.na(plotValue)),
 
-allDat <- stockTrends %>%
-  mutate(ECOGUILD = paste0(ECOREGION, ", ", FISHERIES.GUILD)) %>%
-  ungroup() %>%
-  select(pageGroup = ECOGUILD,
-         lineGroup = STOCK.CODE,
-         Year,
-         plotGroup = METRIC,
-         plotValue = stockValue) %>%
-  filter(!is.na(plotValue))
+  stock_trends %>%
+    mutate(EcoGuild = paste0(EcoRegion, " - ", FisheriesGuild, " stocks")) %>%
+    ungroup() %>%
+    distinct(EcoGuild, METRIC, Year, .keep_all = TRUE) %>%
+    select(pageGroup = EcoGuild,
+           Year,
+           plotGroup = METRIC,
+           plotValue = ecoGuildMean) %>%
+    mutate(lineGroup = "MEAN") %>%
+    filter(!is.na(plotValue))
+)
+# #
+# # Set up colors
+# plotList <- allDat %>%
+#   group_by(pageGroup) %>%
+#   select(pageGroup, lineGroup) %>%
+#   mutate(nLines = n_distinct(lineGroup) - 1,
+#          COLOR = NA) %>%
+#   distinct(lineGroup, .keep_all = TRUE) %>%
+#   arrange(pageGroup)
+# #
+# colorList <- bind_rows(
+#   plotList %>%
+#     filter(nLines == 1) %>%
+#     mutate(COLOR = colList[1:length(nLines)]),
+#   #
+#   plotList %>%
+#     filter(nLines <= 9 &
+#              nLines > 1 &
+#              lineGroup != "MEAN") %>%
+#     mutate(COLOR = colList[1:length(nLines)]),
+#   #
+#   plotList %>%
+#     filter(nLines > 9 &
+#              lineGroup != "MEAN") %>%
+#     mutate(COLOR = "grey80"),
+#   #
+#   plotList %>%
+#     filter(nLines > 1 &
+#              lineGroup == "MEAN") %>%
+#     mutate(COLOR = "grey40")
+# )
+
+
+# allDat <- allDat %>%
+#   left_join(colorList, by = c("pageGroup", "lineGroup")) %>%
+#   group_by(pageGroup) %>%
+#   mutate(nLines = n_distinct(lineGroup)) %>%
+#   filter(nLines > 2 | lineGroup != "MEAN") %>%
+#   filter(lineGroup != "MEAN" | Year != 2016 | plotGroup != "F_FMSY")
+
+
+
+# allDat <- stockTrends
+EcoGuild <- unique(stock_trends_frmt$pageGroup)[6]
+stock_trends_function <- function(EcoGuild,
+                                  fileName = NULL,
+                                  dynamic = TRUE) {
+
+  clicks <- sag_complete_summary %>%
+    mutate(onclick = sprintf("window.open(\"%s%i/%i/%s.pdf\")",
+                             "http://ices.dk/sites/pub/Publication%20Reports/Advice/",
+                             YearOfLastAssessment,
+                             YearOfLastAssessment,
+                             StockCode)) %>%
+    select(StockCode,
+           Description,
+           onclick) %>%
+    distinct(.keep_all = TRUE)
+
+    p1_dat <- stock_trends_frmt %>%
+    left_join(clicks, by = c("lineGroup" = "StockCode")) %>%
+    filter(grepl(EcoGuild, pageGroup)) %>%
+    mutate(
+      # tooltip_point = ifelse(plotGroup == "F_FMSY",
+      #                             sprintf("<b>%s</b>
+      #                                     <br>F/F<sub>MSY</sub>: %s</br>",
+      #                                     Description,
+      #                                     round(plotValue, 2)),
+      #                             sprintf("<b>%s</b>
+      #                                     <br>SSB/MSY B<sub>trigger</sub>: %s</br>",
+      #                                     Description,
+      #                                     round(plotValue, 2))),
+           tooltip_line =   sprintf("<b>%s</b>",
+                                    ifelse(lineGroup == "MEAN",
+                                           "mean",
+                                           Description)),
+           plotGroup = factor(plotGroup,
+                              labels = c("F/F[MSY]", "SSB/MSY~B[trigger]"))) %>%
+    select(-Description)
+
+  adj_names = sort(setdiff(unique(p1_dat$lineGroup), "MEAN"))
+  values = gg_color_hue(length(adj_names))
+  names(values) = adj_names
+  values = c(values, c(MEAN = "black"))
+
+  # p1_dat$plotGroup <- factor(p1_dat$plotGroup,
+  #                            labels = c("F/F[MSY]", "SSB/MSY~B[trigger]"))
+
+  if(is.null(fileName)) {
+    fileName <- gsub("\\s", "_", EcoGuild)
+    fileName <- gsub("_-_", "-", fileName)
+  }
+
+  plot_title <- gsub(".*\\s-\\s", "\\1", EcoGuild)
+
+  p1_plot <- ggplot(p1_dat, aes(x = Year, y = plotValue,
+                                color = lineGroup,
+                                fill = lineGroup,
+                                onclick = onclick,
+                                data_id = lineGroup,
+                                tooltip = tooltip_line)) +
+    geom_hline(yintercept = 1, col = "grey60") +
+    theme_bw(base_size = 9) +
+    scale_color_manual(values = values) +
+    scale_fill_manual(values = values) +
+    guides(fill = FALSE) +
+    theme(legend.position = "bottom",
+          strip.text = element_text(size = 9, angle = 0, hjust = 0),
+          strip.background = element_blank(),
+          strip.placement = "outside",
+          panel.grid.major = element_blank(),
+          legend.key = element_rect(colour = NA)) +
+    labs(title = plot_title, x = "Year", y = "", color = "Stock code",
+         caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
+                           lubridate::year(Sys.time()),
+                           lubridate::month(Sys.time(), label = TRUE, abbr = FALSE))) +
+    facet_wrap(~ plotGroup, labeller = label_parsed, strip.position = "left")
+
+  if(dynamic) {
+  p1_plot <- p1_plot + geom_line_interactive(alpha = 0.6)
+  suppressWarnings(
+    rmarkdown::render("~/git/ices-dk/fisheryO/vignettes/stockStatusTrends-dynamic.rmd",
+                      output_file = paste0("~/git/ices-dk/fisheryO/output/figure08_", fileName, "-dynamic.html"),
+                      rmarkdown::html_document(template = NULL),
+                      envir = new.env())
+  )
+  }
+  if(!dynamic) {
+    p1_plot <- p1_plot + geom_line(alpha = 0.6)
+
+        ggsave(filename = paste0("~/git/ices-dk/fisheryO/output/figure08_", fileName, "-static.png"),
+           plot = p1_plot,
+           width = 170,
+           height = 100.5,
+           units = "mm",
+           dpi = 300)
+  }
+}
+
+EcoGuild <- unique(allDat$pageGroup)[8]
+stock_trends_function(unique(allDat$pageGroup)[8],
+                      fileName = "TESTER", dynamic = TRUE)
 #
-oMean <- stockTrends %>%
-  mutate(ECOGUILD = paste0(ECOREGION, ", ", FISHERIES.GUILD)) %>%
-  ungroup() %>%
-  distinct(ECOGUILD, METRIC, Year, .keep_all = TRUE) %>%
-  select(pageGroup = ECOGUILD,
-         Year,
-         plotGroup = METRIC,
-         plotValue = ecoGuildMean) %>%
-  mutate(lineGroup = "MEAN") %>%
-  filter(!is.na(plotValue))
-
-allDat <- bind_rows(allDat, oMean)
-
-# Set up colors
-plotList <- allDat %>%
-  group_by(pageGroup) %>%
-  select(pageGroup, lineGroup) %>%
-  mutate(nLines = n_distinct(lineGroup) - 1,
-         COLOR = NA) %>%
-  distinct(lineGroup, .keep_all = TRUE) %>%
-  arrange(pageGroup)
+# eco_list <- unique(unlist(strsplit(as.character(p1$EcoRegion), ", ")))
+# lapply(eco_list[c(10, 7)], function(x) stockPlotEcoregion(x, fileName =  paste0("annexA-", gsub("\\s", "_", x))))
 #
-singleList <- plotList %>%
-  filter(nLines == 1) %>%
-  mutate(COLOR = colList[1:length(nLines)])
+# p1_plot <- ggplot(p1_dat, aes(x = Year, y = plotValue,
+#                               color = lineGroup,
+#                               fill = lineGroup,
+#                               onclick = onclick,
+#                               data_id = lineGroup,
+#                               tooltip = tooltip_line)) +
+#   geom_hline(yintercept = 1, col = "grey60") +
+#   theme_bw(base_size = 9) +
+#   scale_color_manual(values = values) +
+#   scale_fill_manual(values = values) +
+#   guides(fill = FALSE) +
+#   theme(legend.position = "bottom",
+#         strip.text = element_text(size = 9, angle = 0, hjust = 0),
+#         caption.text = element_text(size = 7, angle = 0, hjust = 0),
+#         strip.background = element_blank(),
+#         legend.key = element_rect(colour = NA)) +
+#   labs(title = "Demersal", x = "", y = "Year", color = "Stock code",
+#        caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
+#                          lubridate::year(Sys.time()),
+#                          lubridate::month(Sys.time(), label = TRUE, abbr = FALSE))) +
+#   facet_grid(~ plotGroup, labeller = label_parsed)
 #
-normList <- plotList %>%
-  filter(nLines <= 9 &
-           nLines > 1 &
-           lineGroup != "MEAN") %>%
-  mutate(COLOR = colList[1:length(nLines)])
 #
-longList <- plotList %>%
-  filter(nLines > 9 &
-           lineGroup != "MEAN") %>%
-  mutate(COLOR = "grey80")
+# p1_plot <- p1_plot + geom_line_interactive(alpha = 0.6)
 #
-meanList <- plotList %>%
-  filter(nLines > 1 &
-           lineGroup == "MEAN") %>%
-  mutate(COLOR = "grey40")
+# ggiraph(code = print(p1_plot),
+#         hover_css = "cursor:pointer;stroke:black;stroke-width:3pt;")
+#
 
-colorList <- bind_rows(singleList, normList, longList, meanList)
-allDat <- left_join(colorList, allDat, by = c("pageGroup", "lineGroup"))
-
-allDat <- allDat %>%
-  group_by(pageGroup) %>%
-  mutate(nLines = n_distinct(lineGroup)) %>%
-  filter(nLines > 2 | lineGroup != "MEAN") %>%
-  filter(lineGroup != "MEAN" | Year != 2016 | plotGroup != "F_FMSY")
-
-
-source("~/git/ices-dk/fisheryO/R/stockSummaryTrends.R")
-# create stock summary trend figures
-stockSummaryTrends(df = allDat[allDat$plotGroup == "F_FMSY",],
-                   overallMean = TRUE,
-                   plotDir = "~/git/ices-dk/fisheryO/output/")
-
+#
+# source("~/git/ices-dk/fisheryO/R/stockSummaryTrends.R")
+# # create stock summary trend figures
+# stockSummaryTrends(df = allDat[allDat$plotGroup == "F_FMSY",],
+#                    overallMean = TRUE,
+#                    plotDir = "~/git/ices-dk/fisheryO/output/")
+#
 
 #################
 ### KOBE Plot ###
@@ -918,58 +1026,182 @@ stockSummaryTrends(df = allDat[allDat$plotGroup == "F_FMSY",],
 # td <- yearF %>%
 #   left_join(yearB, by = c("StockCode"))
 
-stockStatusDat <- fullSummary %>%
-
-  mutate(EcoRegion = strsplit(as.character(EcoRegion), ", ")) %>%
-  unnest(EcoRegion) %>%
-  distinct(.keep_all = TRUE) %>%
-  # filter(Year == 2015) %>%
-  mutate(F_FMSY = ifelse(!is.na(FMSY),
-                         F / FMSY,
-                         NA),
-         SSB_MSYBtrigger = ifelse(!is.na(MSYBtrigger),
-                                  SSB / MSYBtrigger,
-                                  NA),
-         CATCH = ifelse(is.na(catches) & !is.na(landings),
-                           landings,
-                        catches)) %>%
-  select(Year,
-         YearOfLastAssessment,
-         StockCode,
-         EcoRegion,
-         FisheriesGuild,
-         F_FMSY,
-         SSB_MSYBtrigger,
-         CATCH)
-
-stockStatusF <- stockStatusDat %>%
-  # left_join(td, by = "STOCK.CODE") %>%
+stock_catch <- sag_complete_summary %>%
+  unnest(data) %>%
   group_by(StockCode) %>%
   filter(Year == YearOfLastAssessment - 1) %>%
-  # mutate(SSB_MSYBtrigger = NA) %>%
-  select(-Year,
-         -SSB_MSYBtrigger,
-         -YearOfLastAssessment)
+  mutate(F_FMSY =  ifelse(!is.na(FMSY),
+                          F / FMSY,
+                          NA)) %>%
+  select(StockCode,
+         FisheriesGuild,
+         EcoRegion,
+         F_FMSY,
+         catches,
+         landings,
+         discards)
 
-stockStatusB <- stockStatusDat %>%
-  # left_join(td, by = "STOCK.CODE") %>%
-  group_by(StockCode) %>%
-  filter(Year == YearOfLastAssessment) %>%
-  # mutate(F_FMSY = NA) %>%
-  select(-Year,
-         -F_FMSY,
-         -CATCH,
-         -YearOfLastAssessment)
+# Calculate any possible remaining values
+stock_catch_full <-
+  bind_rows(
+    stock_catch %>% # all present and accounted for
+      filter(!is.na(catches),
+             !is.na(landings),
+             !is.na(discards)), # 43
+    stock_catch %>%  # Missing discards, but catches == landings
+      filter(is.na(discards),
+             catches == landings) %>%
+    mutate(discards = 0), #36
+    stock_catch %>% # Missing catches, but have landings and discards
+      filter(is.na(catches),
+             !is.na(landings),
+             !is.na(discards)) %>%
+      mutate(catches = landings + discards), #75
+    stock_catch %>% # missing catches, but have landings
+      filter(is.na(catches),
+             !is.na(landings),
+             is.na(discards)) %>%
+      mutate(catches = NA,
+             discards = NA),
+    stock_catch %>% # missing everything
+      filter(is.na(catches),
+             is.na(landings),
+             is.na(discards)) %>%
+      mutate(catches = NA,
+             discards = NA,
+             landings = NA),
+    stock_catch %>% # missing landings and discards
+      filter(!is.na(catches),
+             is.na(landings),
+             is.na(discards)) %>%
+      mutate(landings = NA,
+             discards = NA),
+    stock_catch %>% # landings and catches
+      filter(is.na(catches),
+             is.na(landings),
+             !is.na(discards)) %>%
+      mutate(catches = NA,
+             landings = NA),
+    stock_catch %>% # Missing discards, but have landings and catches
+      filter(!is.na(catches),
+             !is.na(landings),
+             is.na(discards),
+             landings != catches) %>%
+      mutate(discards = catches - landings)
+    )
 
-stockStatusFull <- stockStatusF %>%
-  left_join(stockStatusB, c("StockCode", "EcoRegion", "FisheriesGuild")) %>%
+
+
+stock_status_full <-
+  full_join(
+    # sag_complete_summary %>%
+    #   unnest(data) %>%
+    #   group_by(StockCode) %>%
+    #   filter(Year == YearOfLastAssessment - 1) %>%
+    #   mutate(F_FMSY =  ifelse(!is.na(FMSY),
+    #                           F / FMSY,
+    #                           NA)) %>%
+    #   select(StockCode,
+    #          FisheriesGuild,
+    #          EcoRegion,
+    #          F_FMSY,
+    #          catches,
+    #          landings),
+
+    sag_complete_summary %>%
+      unnest(data) %>%
+      group_by(StockCode) %>%
+      filter(Year == YearOfLastAssessment) %>%
+      mutate(SSB_MSYBtrigger = ifelse(!is.na(MSYBtrigger),
+                                      SSB / MSYBtrigger,
+                                      NA)) %>%
+      select(StockCode,
+             FisheriesGuild,
+             EcoRegion,
+             SSB_MSYBtrigger),
+    stock_catch_full,
+    by = c("StockCode",
+           "FisheriesGuild",
+           "EcoRegion")
+  ) %>%
   mutate(colList = if_else(F_FMSY < 1 & SSB_MSYBtrigger >= 1,
-                  "GREEN" ,
-                  "RED",
-                  "GREY"))
+                           "GREEN" ,
+                           "RED",
+                           "GREY"))
 
-stockStatusFull$colList[is.na(stockStatusFull$F_FMSY) |
-                          is.na(stockStatusFull$SSB_MSYBtrigger)] <- "GREY"
+# %>%
+#
+#   sag_complete_summary %>% # fullSummary
+#   unnest(data) %>%
+#   group_by(StockCode) %>%
+#   filter(Year == YearOfLastAssessment - 1) %>%
+#   ungroup() %>%
+#   select(stockCode)
+#   mutate(CATCH = ifelse(is.na(catches) & !is.na(landings),
+#                         landings,
+#                         catches)) %>%
+#   filter(!is.na(CATCH)) %>%
+#   select(StockCode,
+#          CATCH) %>%
+#
+#
+#   full_join(ges_catch_stock, by = "StockCode") %>%
+#   mutate(colList = if_else(F_FMSY < 1 & SSB_MSYBtrigger >= 1,
+#                            "GREEN" ,
+#                            "RED",
+#                            "GREY"))
+
+# #
+# #   mutate(EcoRegion = strsplit(as.character(EcoRegion), ", ")) %>%
+# #   unnest(EcoRegion) %>%
+# #   distinct(.keep_all = TRUE) %>%
+#   # filter(Year == 2015) %>%
+#   mutate(F_FMSY = ifelse(!is.na(FMSY),
+#                          F / FMSY,
+#                          NA),
+#          SSB_MSYBtrigger = ifelse(!is.na(MSYBtrigger),
+#                                   SSB / MSYBtrigger,
+#                                   NA),
+#          CATCH = ifelse(is.na(catches) & !is.na(landings),
+#                            landings,
+#                         catches)) %>%
+#   select(Year,
+#          YearOfLastAssessment,
+#          StockCode,
+#          EcoRegion,
+#          FisheriesGuild,
+#          F_FMSY,
+#          SSB_MSYBtrigger,
+#          CATCH)
+#
+# stockStatusF <- stockStatusDat %>%
+#   # left_join(td, by = "STOCK.CODE") %>%
+#   group_by(StockCode) %>%
+#   filter(Year == YearOfLastAssessment - 1) %>%
+#   # mutate(SSB_MSYBtrigger = NA) %>%
+#   select(-Year,
+#          -SSB_MSYBtrigger,
+#          -YearOfLastAssessment)
+#
+# stockStatusB <- stockStatusDat %>%
+#   # left_join(td, by = "STOCK.CODE") %>%
+#   group_by(StockCode) %>%
+#   filter(Year == YearOfLastAssessment) %>%
+#   # mutate(F_FMSY = NA) %>%
+#   select(-Year,
+#          -F_FMSY,
+#          -CATCH,
+#          -YearOfLastAssessment)
+
+# stockStatusFull <- stockStatusF %>%
+#   left_join(stockStatusB, c("StockCode", "EcoRegion", "FisheriesGuild")) %>%
+#   mutate(colList = if_else(F_FMSY < 1 & SSB_MSYBtrigger >= 1,
+#                   "GREEN" ,
+#                   "RED",
+#                   "GREY"))
+
+# stockStatusFull$colList[is.na(stockStatusFull$F_FMSY) |
+#                           is.na(stockStatusFull$SSB_MSYBtrigger)] <- "GREY"
 
 source("~/git/ices-dk/fisheryO/R/kobePlot.R")
 lapply(unique(stockStatusFull$ECOREGION), plot_kobe, guild = "all", fig.width = 174, fig.height = 118)

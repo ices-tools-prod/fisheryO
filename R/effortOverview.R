@@ -28,7 +28,6 @@ stecfCatchDatRaw <- readRDS("~/git/ices-dk/fisheryO/inst/extdata/landings_data.R
 # spURL <- "ftp://ftp.fao.org/FI/STAT/DATA/ASFIS_sp.zip"
 # tmpFileSp <- tempfile(fileext = ".zip")
 # download.file(spURL, destfile = tmpFileSp, mode = "wb", quiet = TRUE)
-
 spList <- read.delim("~/git/ices-dk/fisheryO/inst/extdata/ASFIS_sp_Feb_2016.txt",
                      fill = TRUE,
                      stringsAsFactors = FALSE, header = TRUE)
@@ -40,28 +39,6 @@ spList <- spList %>%
   bind_rows(data.frame(X3A_CODE = "OTH",
                        Scientific_name = "OTHER",
                        English_name = "OTHER"))
-
-
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-# DATA SOURCE:STECF effort and ICES catch databases #
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-#(NOTE: this file was created manually - with stock list database this should not be necessary - SL)
-# areaDat <- read.csv("~/git/ices-dk/fisheryO/inst/extdata/areaList.csv",
-#                     stringsAsFactors = FALSE)
-#
-# areaID <- areaDat %>%
-#   filter(areaType %in% c("STECFarea"),
-#          FO2016 == TRUE) %>%
-#   mutate(ANNEX_ID = as.character(lapply(strsplit(value, "_"), head, n = 1)),
-#          RegCodeArea = as.character(lapply(strsplit(value, "_"), tail, n = 1))) %>%
-#   select(-ICESarea)
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-# DATA SOURCE:STECF effort and ICES catch databases #
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-# gearNames <- read.csv("~/git/ices-dk/fisheryO/inst/extdata/gearNames.csv",
-#                       stringsAsFactors = FALSE)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # CODE TO CREATE FILE: fisheryO/R/FisheriesAdvice/countryNames.R #
@@ -77,9 +54,7 @@ countryNames <- countryNames %>%
 # Data cleaning and aggregating #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 #
-
 effortDat <- effortDatRaw %>%
-  # Filter(f = function(x)!all(is.na(x))) %>%
   full_join(countryNames, c("country" = "VALUE")) %>% # merge with ISO country names
   mutate(YEAR = as.numeric(year),
          EFFORT = as.numeric(nominal_effort)) %>%
@@ -101,10 +76,6 @@ stecfCatchDat <- stecfCatchDatRaw %>%
          GEAR = regulated.gear,
          COMMON_NAME = English_name,
          LANDINGS)
-# %>%
-#   group_by(YEAR, COUNTRY, ANNEX, AREA, GEAR) %>%
-#   summarize(LANDINGS = sum(LANDINGS, na.rm = TRUE))
-# str(effortDat)
 
 ELSE <- TRUE
 gear_dat <- full_join(
@@ -112,7 +83,6 @@ gear_dat <- full_join(
     select(ANNEX, AREA, GEAR),
   stecfCatchDat %>%
     select(ANNEX, AREA, GEAR),
-
   by = c("ANNEX", "AREA", "GEAR")
   ) %>%
   distinct(.keep_all = TRUE)
@@ -184,7 +154,6 @@ stecfCatchDatClean <- gear_dat_clean %>%
          AREA,
          GEAR = gear_class,
          COUNTRY,
-         # COMMON_NAME,
          LANDINGS) %>%
   group_by(YEAR, ANNEX, ECOREGION, AREA, GEAR, COUNTRY) %>%
   summarize(LANDINGS = sum(LANDINGS, na.rm = TRUE))
@@ -196,14 +165,14 @@ stecfCatchDatClean <- gear_dat_clean %>%
 #   filter(!is.na(YEAR)) %>%
 #   spread(YEAR, total)
 
-allDat <- effortDatClean
-allDat <- stecfCatchDatClean
-IA = unique(allDat$ECOREGION)[1]
-type = c("GEAR", "COUNTRY", "COMMON_NAME")[1]
-line_count = 9
-fig_name = "Figure2"
-text.size = 9
-plot_type = c("line", "area")[1]
+# allDat <- effortDatClean
+# allDat <- stecfCatchDatClean
+# IA = unique(allDat$ECOREGION)[1]
+# type = c("GEAR", "COUNTRY", "COMMON_NAME")[1]
+# line_count = 9
+# fig_name = "Figure2"
+# text.size = 9
+# plot_type = c("line", "area")[1]
 
 
 stecfEffortAreaPlot <- function(IA = unique(allDat$ECOREGION)[1],
@@ -218,21 +187,16 @@ stecfEffortAreaPlot <- function(IA = unique(allDat$ECOREGION)[1],
                                 text.size = 9,
                                 ...) {
 
-
   if(line_count >= 10) warning("Color scales are hard to see beyond this point... try plotting fewer categories.")
   if(line_count == 14) stop("Color palette only has 14 colors... sorry.")
-
 
   iaDat <- allDat[allDat$ECOREGION == IA,]
 
   value_type <- grep("EFFORT|LANDINGS", colnames(iaDat), value = TRUE)
-
-
   iaDat <- rename_(iaDat, .dots = setNames(c(type, value_type),
                                            c("type_var", "VALUE")))
 
   catchPlot <- iaDat %>%
-    # group_by_(.dots = dots[1:2]) %>%
     group_by(ANNEX, type_var) %>%
     dplyr::summarize(typeTotal = sum(VALUE, na.rm = TRUE)) %>% # Overall catch to order plot
     arrange(ANNEX, -typeTotal) %>%
@@ -241,11 +205,8 @@ stecfEffortAreaPlot <- function(IA = unique(allDat$ECOREGION)[1],
     dplyr::mutate(RANK = min_rank(desc(typeTotal))) %>%
     inner_join(iaDat, c("ANNEX", "type_var")) %>%
     ungroup() %>%
-    # select(-ANNEX.y,
-    #        ANNEX = ANNEX.x) %>%
     dplyr::mutate(type_var = replace(type_var, RANK > line_count, "other"),
                   ANNEX = str_wrap(ANNEX, width = 26)) %>%
-    # group_by_(.dots = dots) %>%
     group_by(ANNEX, type_var, YEAR) %>%
     dplyr::summarize(typeTotal = sum(VALUE, na.rm = TRUE)) %>%
     filter(!is.na(YEAR))
@@ -272,26 +233,11 @@ stecfEffortAreaPlot <- function(IA = unique(allDat$ECOREGION)[1],
   catchPlot <- rbind(catchPlot[!catchPlot$type_var == "other",],
                      catchPlot[catchPlot$type_var == "other",])
 
-#   colList <- c("#1F77B4",
-#                "#FF7F0E",
-#                "#2CA02C",
-#                "#D62728",
-#                "#9467BD",
-#                "#8C564B",
-#                "#E377C2",
-#                "#BCBD22",
-#                "#17BECF",
-#                "#7F7F7F") #GREY
   my_caption <- sprintf("STECF 16-20, Accessed %s/%s. doi:10.2788/502445",
           lubridate::year(Sys.time()),
           lubridate::month(Sys.time(), label = TRUE, abbr = FALSE))
 
   colList <- tableau_color_pal('tableau20')(line_count + 1)
-
-  # colList <- unlist(colList[c(sample(x = 1:4, 2, replace = FALSE))])
-
-  # colList <- c("#DB9D85", "#C7A76C", "#ABB065", "#86B875", "#5CBD92",
-  #              "#39BEB1", "#4CB9CC", "#7DB0DD", "#ACA4E2", "#CD99D8")
 
   catch_order <- catchPlot %>%
     group_by(type_var) %>%
@@ -303,32 +249,15 @@ stecfEffortAreaPlot <- function(IA = unique(allDat$ECOREGION)[1],
   catchPlot$type_var <- factor(catchPlot$type_var,
                                levels = catch_order$type_var[order(catch_order$total)])
 
-
-  # catchPlot[[type]] <- factor(catchPlot[[type]], levels = unique(catchPlot[[type]]))
   myColors <- colList[1:length(unique(catchPlot$type_var))]
   names(myColors) <- levels(catchPlot$type_var)
   myColors["other"] <- "#7F7F7F"
 
   catchPlot$ANNEX <- as.factor(catchPlot$ANNEX)
 
-  # plotFun <- function(xColors) {
     pl <- ggplot(catchPlot, aes(x = YEAR, y = typeTotal)) +
-      # geom_area(aes_string(fill = type, color = type), alpha = .8, position = "stack") +
-      # geom_line(aes_string(color = type),
-      #           alpha = .9, position = "identity") +
-      # geom_label_repel(data = catchPlot %>% filter(YEAR == 2015),
-      #                  aes_string(label = type,
-      #                      fill = type),
-      #                  nudge_x = 3,
-      #                  label.size = 0.2,
-      #                  segment.size = 0.25,
-      #                  size = 2,
-      #                  color = 'white',
-      #                  force = 2,
-      #                  segment.color = 'grey60') +
       scale_fill_manual(values = myColors) +
       scale_color_manual(values = myColors) +
-      # scale_y_continuous(labels = scales::comma) +
       scale_x_continuous(breaks = seq(min(catchPlot$YEAR, na.rm = TRUE),
                                       max(catchPlot$YEAR, na.rm = TRUE), by = 2)) +
       geom_segment(aes(x = -Inf, xend = 2015, y = -Inf, yend = -Inf), color = "grey50")+
@@ -343,13 +272,7 @@ stecfEffortAreaPlot <- function(IA = unique(allDat$ECOREGION)[1],
             panel.border = element_blank(),
             strip.background = element_blank(),
             plot.caption = element_text(size = 6),
-            # panel.border = element_rect(colour = "grey50"),
             axis.line = element_blank())
-    # facet_wrap(~ANNEX, scales = "free_y", ncol = 2)
-    # return(pl)
-  # }
-
-
 
   if(plot_type == "area"){
     cumPlot <- catchPlot %>%
@@ -372,7 +295,6 @@ stecfEffortAreaPlot <- function(IA = unique(allDat$ECOREGION)[1],
       aes(y = td,
           fill = type_var,
           label = type_var),
-      # direction = "y",
       nudge_x = 3,
       label.size = 0.2,
       segment.size = 0.25,
@@ -399,8 +321,6 @@ stecfEffortAreaPlot <- function(IA = unique(allDat$ECOREGION)[1],
 
 
   if(fig.save == TRUE) {
-    # figName <- ifelse(type == "COUNTRY", "figure2_", "figure6_")
-
     ggsave(filename = paste0("~/git/ices-dk/fisheryO/output/", fig_name, "_", IA, ".png"),
            plot = pl,
            width = fig.width,
@@ -415,7 +335,7 @@ stecfEffortAreaPlot <- function(IA = unique(allDat$ECOREGION)[1],
 }
 
 
-allDat <- effortDatEco
+# allDat <- effortDatEco
 
 lapply(grep("Greater|Celtic|Baltic",
             unique(allDat$ECOREGION), value = TRUE),

@@ -1,0 +1,18 @@
+---
+title: ""
+author: ""
+date: ""
+output:
+  html_document:
+    css: kobe.css
+---
+
+```{r table, echo=FALSE, message=FALSE, warning=FALSE, height=10, width=10}
+library(ggiraph)
+library(gridExtra)
+
+return(ggiraph(code = grid.arrange(kobe_plot, bar_plot, 
+                                         ncol = 2,
+                                         respect = FALSE), zoom_max = 5))
+
+```

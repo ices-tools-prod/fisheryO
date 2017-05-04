@@ -6,3 +6,4 @@
 packrat/lib*/
 output/**
 Electronic_appendices/**
+*.html

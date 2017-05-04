@@ -20,8 +20,7 @@ options(scipen = 5)
 effortDatRaw <- readRDS("~/git/ices-dk/fisheryO/inst/extdata/effort_data.RDS")
 #
 stecfCatchDatRaw <- readRDS("~/git/ices-dk/fisheryO/inst/extdata/landings_data.RDS")
-
-
+#
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # DATA SOURCE: FAO species names and labels #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
@@ -39,21 +38,25 @@ spList <- spList %>%
   bind_rows(data.frame(X3A_CODE = "OTH",
                        Scientific_name = "OTHER",
                        English_name = "OTHER"))
-
+#
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # CODE TO CREATE FILE: fisheryO/R/FisheriesAdvice/countryNames.R #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 countryNames <- read.csv("~/git/ices-dk/fisheryO/inst/extdata/countryNames.csv",
                          stringsAsFactors = FALSE)
 
-
 countryNames <- countryNames %>%
   filter(VARIABLE %in% c("stNames"))
-
+#
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # Data cleaning and aggregating #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 #
+# effortDat %>%
+#   filter(COUNTRY == "DEU",
+#            GEAR == "U8M",
+#            year == 2013)
+
 effortDat <- effortDatRaw %>%
   full_join(countryNames, c("country" = "VALUE")) %>% # merge with ISO country names
   mutate(YEAR = as.numeric(year),
@@ -68,14 +71,18 @@ effortDat <- effortDatRaw %>%
 stecfCatchDat <- stecfCatchDatRaw %>%
   left_join(spList, c("species" = "X3A_CODE")) %>% # merge with FAO species names
   left_join(countryNames, c("country" = "VALUE")) %>% # merge with ISO country names
-  mutate(LANDINGS = as.numeric(sum_landings)) %>%
-  select(YEAR = year,
-         COUNTRY,
-         ANNEX = annex,
-         AREA = regulated.area,
-         GEAR = regulated.gear,
-         COMMON_NAME = English_name,
-         LANDINGS)
+  mutate(LANDINGS = as.numeric(sum_landings),
+         LANDINGS = ifelse(COUNTRY == "Germany" &
+                             year == 2013 &
+                             vessel.length == "U8M",
+                           NA, LANDINGS)) %>%
+           select(YEAR = year,
+                  COUNTRY,
+                  ANNEX = annex,
+                  AREA = regulated.area,
+                  GEAR = regulated.gear,
+                  COMMON_NAME = English_name,
+                  LANDINGS)
 
 ELSE <- TRUE
 gear_dat <- full_join(
@@ -110,7 +117,7 @@ gear_dat_clean <- bind_rows(
            gear_class = case_when(
              grepl("BEAM|BT1|BT2", .$GEAR) ~ "Beam trawl",
              grepl("DREDGE", .$GEAR) ~ "Dredge",
-             grepl("GN1|GT1|LL1", .$GEAR) ~ "Static/Gill net/LL",
+             grepl("GN1|GT1|LL1|TRAMMEL", .$GEAR) ~ "Static/Gill net/LL",
              grepl("TR1|TR2|TR3|OTTER|DEM_SEINE", .$GEAR) ~ "Otter trawl/seine",
              grepl("PEL_SEINE|PEL_TRAWL", .$GEAR) ~ "Pelagic trawl/seine",
              grepl("POTS", .$GEAR) ~ "Pots",
@@ -125,7 +132,7 @@ gear_dat_clean <- bind_rows(
            gear_class = case_when(
              grepl("BEAM|BT1|BT2", .$GEAR) ~ "Beam trawl",
              grepl("DREDGE", .$GEAR) ~ "Dredge",
-             grepl("GN1|GT1|LL1", .$GEAR) ~ "Static/Gill net/LL",
+             grepl("GN1|GT1|LL1|TRAMMEL", .$GEAR) ~ "Static/Gill net/LL",
              grepl("TR1|TR2|TR3|OTTER|DEM_SEINE", .$GEAR) ~ "Otter trawl/seine",
              grepl("PEL_SEINE|PEL_TRAWL", .$GEAR) ~ "Pelagic trawl/seine",
              grepl("POTS", .$GEAR) ~ "Pots",
@@ -157,6 +164,9 @@ stecfCatchDatClean <- gear_dat_clean %>%
          LANDINGS) %>%
   group_by(YEAR, ANNEX, ECOREGION, AREA, GEAR, COUNTRY) %>%
   summarize(LANDINGS = sum(LANDINGS, na.rm = TRUE))
+
+effortDatClean <- effortDatClean %>%
+  filter(!COUNTRY %in% c("Finland", "Estonia"))
 
 # td <- stecfCatchDatClean %>%
 #   filter(ECOREGION == "Greater North Sea Ecoregion") %>%
@@ -335,19 +345,21 @@ stecfEffortAreaPlot <- function(IA = unique(allDat$ECOREGION)[1],
 }
 
 
-# allDat <- effortDatEco
+allDat <- effortDatClean
 
 lapply(grep("Greater|Celtic|Baltic",
             unique(allDat$ECOREGION), value = TRUE),
-       stecfEffortAreaPlot, type = "GEAR", line_count = 9, plot_type = "line", fig_name = "figure8", fig.save = TRUE, fig.plot = FALSE)
+       stecfEffortAreaPlot, type = "GEAR", line_count = 9,
+       plot_type = "line", fig_name = "figure8", fig.save = TRUE, fig.plot = FALSE)
 
 lapply(grep("Greater|Celtic|Baltic",
             unique(allDat$ECOREGION), value = TRUE),
-       stecfEffortAreaPlot, type = "COUNTRY", line_count = 9, plot_type = "line", fig_name = "figure3", fig.save = TRUE, fig.plot = FALSE)
+       stecfEffortAreaPlot, type = "COUNTRY", line_count = 9,
+       plot_type = "line", fig_name = "figure3", fig.save = TRUE, fig.plot = FALSE)
 
 allDat <- stecfCatchDatClean
 lapply(grep("Greater|Celtic|Baltic",
             unique(allDat$ECOREGION), value = TRUE),
-       stecfEffortAreaPlot, type = "GEAR", line_count = 9, plot_type = "line", fig_name = "figure6",
+       stecfEffortAreaPlot, type = "GEAR", line_count = 9,
+       plot_type = "line", fig_name = "figure6",
        fig.save = TRUE, fig.plot = FALSE)
-

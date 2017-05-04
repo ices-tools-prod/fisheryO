@@ -168,7 +168,7 @@ catchDat1950Clean <- catchDat1950 %>%
          Subdivision, Unit,
          VALUE) %>%
   mutate(VALUE = ifelse(VALUE == "<0.5",
-                        as.numeric(0.5),
+                        as.numeric(0),
                         VALUE),
          VALUE = ifelse(!is.na(VALUE),
                         as.numeric(VALUE),
@@ -201,11 +201,15 @@ catchDat1950Clean <- catchDat1950 %>%
 
 allDat <- catchDat2010Clean %>%
   bind_rows(catchDat1950Clean) %>%
-  mutate(GUILD = ifelse(is.na(GUILD), "undefined", GUILD))
+  mutate(GUILD = ifelse(is.na(GUILD), "undefined", GUILD)) %>%
+  filter(!GUILD %in% c("elasmobranch", "crustacean") |
+           ECOREGION != "Baltic Sea")
+
 
 icesAreaPlot <- function(IA = unique(allDat$ECOREGION)[1],
                          type = c("COMMON_NAME", "COUNTRY", "GUILD")[1],
                          line_count = 4,
+                         # year_start = 1990,
                          plot_type = c("line", "area")[1],
                          fig_name = "figure2",
                          fig.save = FALSE,
@@ -221,11 +225,8 @@ icesAreaPlot <- function(IA = unique(allDat$ECOREGION)[1],
   iaDat <- allDat[allDat$ECOREGION == IA,]
 
   iaDat <- rename_(iaDat, .dots = setNames(type, "type_var"))
-  # iaDat$type_var <- factor(iaDat$type_var)
-  #
-  # dots <- lapply(c("type_var", area, "YEAR"), as.symbol)
+
   catchPlot <- iaDat %>%
-    # group_by_(.dots = dots[1]) %>%
     group_by(type_var) %>%
     dplyr::summarize(typeTotal = sum(VALUE, na.rm = TRUE)) %>% # Overall catch to order plot
     arrange(-typeTotal) %>%
@@ -246,32 +247,26 @@ icesAreaPlot <- function(IA = unique(allDat$ECOREGION)[1],
              type_var = gsub("European ", "", type_var),
              type_var = gsub("Sandeels.*", "sandeel", type_var),
              type_var = gsub("Finfishes nei", "undefined finfish", type_var),
-             type_var = gsub("Blue whiting.*", "blue whiting", type_var)
+             type_var = gsub("Blue whiting.*", "blue whiting", type_var),
+             type_var = gsub("Saithe.*", "saithe", type_var),
+             type_var = ifelse(grepl("Norway", type_var),
+                               type_var,
+                               tolower(type_var))
+
       )
   }
+
+  # if()
+  my_caption <- sprintf("Historical Nominal Catches 1950-2010, \nOfficial Nominal Catches 2006-2014. Accessed %s/%s. ICES, Copenhagen.",
+          lubridate::year(Sys.time()),
+          lubridate::month(Sys.time(), label = TRUE, abbr = FALSE))
 
   catchPlot <- rbind(catchPlot[!catchPlot$type_var == "other",],
                      catchPlot[catchPlot$type_var == "other",])
 
+
+
   colList <- tableau_color_pal('tableau20')(line_count + 1)
-
-  # colList <- gsub("#7F7F7F", "", colList)
-  # colList <- c("#1F77B4",
-  #              "#FF7F0E",
-  #              "#2CA02C",
-  #              "#D62728",
-  #              "#9467BD",
-  #              "#8C564B",
-  #              "#E377C2",
-  #              "#BCBD22",
-  #              "#17BECF",
-  #              "#7F7F7F") #GREY
-
-  # colList <- unlist(colList[c(sample(x = 1:4, 2, replace = FALSE))])
-  #
-  # # colList <- c("#DB9D85", "#C7A76C", "#ABB065", "#86B875", "#5CBD92",
-  # #              "#39BEB1", "#4CB9CC", "#7DB0DD", "#ACA4E2", "#CD99D8")
-  #
 
   catch_order <- catchPlot %>%
     group_by(type_var) %>%
@@ -291,7 +286,6 @@ icesAreaPlot <- function(IA = unique(allDat$ECOREGION)[1],
   pl <- ggplot(catchPlot, aes(x = YEAR, y = typeTotal)) +
     scale_fill_manual(values = myColors) +
     scale_color_manual(values = myColors) +
-    # scale_y_continuous(labels = scales::comma) +
     scale_x_continuous(breaks = seq(min(catchPlot$YEAR),
                                     max(catchPlot$YEAR), by = 10)) +
     geom_segment(aes(x = -Inf, xend = 2014, y = -Inf, yend = -Inf), color = "grey50")+
@@ -299,9 +293,7 @@ icesAreaPlot <- function(IA = unique(allDat$ECOREGION)[1],
     expand_limits(x = c(min(catchPlot$YEAR), 2035)) + # So that we have enough room along x-axis for labels.
     labs(x = "",
          y = "Landings (thousand tonnes)",
-         caption = sprintf("Historical Nominal Catches 1950-2010, \nOfficial Nominal Catches 2006-2014. Accessed %s/%s. ICES, Copenhagen.",
-                           lubridate::year(Sys.time()),
-                           lubridate::month(Sys.time(), label = TRUE, abbr = FALSE))) +
+         caption = my_caption) +
     theme_bw(base_size = text.size) +
     theme(legend.position = 'none',
           plot.caption = element_text(size = 6),
@@ -375,13 +367,20 @@ icesAreaPlot <- function(IA = unique(allDat$ECOREGION)[1],
 
 lapply(grep("Greater|Celtic|Baltic",
             unique(allDat$ECOREGION), value = TRUE),
-       icesAreaPlot, type = "COUNTRY", line_count = 9, plot_type = "area", fig_name = "figure2", fig.save = TRUE, fig.plot = FALSE)
+       icesAreaPlot, type = "COUNTRY", line_count = 9,
+       plot_type = "area", fig_name = "figure2", fig.save = TRUE, fig.plot = FALSE)
 
 
 lapply(grep("Greater|Celtic|Baltic",
-            unique(allDat$ECOREGION), value = TRUE),
-       icesAreaPlot, type = "GUILD", line_count = 9, plot_type = "line", fig_name = "figure4", fig.save = TRUE, fig.plot = FALSE)
+            unique(allDat$ECOREGION), value = TRUE)[3],
+       icesAreaPlot, type = "GUILD", line_count = 9,
+       plot_type = "line", fig_name = "figure4", fig.save = TRUE, fig.plot = FALSE)
 
 lapply(grep("Greater|Celtic|Baltic",
-            unique(allDat$ECOREGION), value = TRUE),
-       icesAreaPlot, type = "COMMON_NAME", line_count = 4, plot_type = "line", fig_name = "figure5", fig.save = TRUE, fig.plot = FALSE)
+            unique(allDat$ECOREGION), value = TRUE)[2],
+       icesAreaPlot, type = "COMMON_NAME", line_count = 10, plot_type = "line",
+       fig_name = "figure5", fig.save = TRUE, fig.plot = FALSE)
+
+
+# remove elasmobranch from figure 4
+

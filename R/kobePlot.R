@@ -23,25 +23,71 @@ plot_kobe <- function(ecoregion, guild = c("all", "benthic", "demersal", "pelagi
     filter(EcoRegion == ecoregion,
            FisheriesGuild == guild,
            !is.na(F_FMSY),
-           !is.na(SSB_MSYBtrigger))
-  # %>%
-  #   distinct(.keep_all = TRUE)
+           !is.na(SSB_MSYBtrigger)) %>%
+    group_by(StockCode) %>%
+    mutate(max_bar = max(catches, landings, discards, na.rm = TRUE),
+           catch_width = ifelse(is.na(catches),
+                                0,
+                                round((catches/(max_bar/1.25) * 100))),
+           landings_width = ifelse(is.na(landings),
+                                   0,
+                                   round((landings/(max_bar/1.25) * 100))),
+           discards_width = ifelse(is.na(discards),
+                                   0,
+                                   round((discards/(max_bar/1.25) * 100))))
 
-  # kobeDat <- stockStatusFull[stockStatusFull$ECOREGION == ecoregion &
-  #                              stockStatusFull$FISHERIES.GUILD %in% guild &
-  #                           !is.na(stockStatusFull$F_FMSY) &
-  #                           !is.na(stockStatusFull$SSB_MSYBtrigger),]
-  # kobeDat <- kobeDat[!duplicated(kobeDat),]
+  kobeDat$tip <- sprintf('
+                        <div class="tipchart">
+                          <h6>%s</h6>
+                          <table>
+                            <tr class="tiprow">
+                             <td class="tipbarticks">F / F<sub>MSY</sub></td>
+                             <td class="tipbardiv"><div class="tipbar" style="width:0px;">%3.2f&nbsp/&nbsp%3.2f&nbsp=&nbsp%3.2f</div></td>
+                            </tr>
+                            <tr class="tiprow">
+                             <td class="tipbarticks">SSB / MSY B<sub>trigger</sub></td>
+                             <td class="tipbardiv"><div class="tipbar" style="width:0px;">%3.0f&nbsp/&nbsp%3.0f&nbsp=&nbsp%3.2f</div></td>
+                            </tr>
+                            <tr class="tiprow">
+                             <td class="tipbarticks">Catch (tonnes)</td>
+                             <td class="tipbardiv"><div class="tipbar" style="width:%dpx;">%3.0f</div></td>
+                            </tr>
+                            <tr class="tiprow">
+                             <td class="tipbarticks">Landings (tonnes)</td>
+                             <td class="tipbardiv"><div class="tipbar" style="width:%dpx;">%3.0f</div></td>
+                            </tr>
+                            <tr class="tiprow">
+                             <td class="tipbarticks">Discards (tonnes)</td>
+                             <td class="tipbardiv"><div class="tipbar" style="width:%dpx;">%3.0f</div></td>
+                            </tr>
+                          </table>
+                        </div>',
+                         kobeDat$Description,
+                         kobeDat$F, kobeDat$FMSY, kobeDat$F/kobeDat$FMSY,
+                         kobeDat$SSB, kobeDat$MSYBtrigger, kobeDat$SSB/kobeDat$MSYBtrigger,
+                         kobeDat$catch_width, kobeDat$catches,
+                         kobeDat$landings_width, kobeDat$landings,
+                         kobeDat$discards_width, kobeDat$discards)
+
+  # javascript is too dumb to deal with line breaks in strings well
+  kobeDat$tip <- gsub("\\\n", "", kobeDat$tip)
+  # kobeDat$tip <- gsub(" ", "&nbsp", kobeDat$tip)
+
 
   if(nrow(kobeDat) != 0) {
 
     labs <- seq(0, max(kobeDat$F_FMSY, kobeDat$SSB_MSYBtrigger, na.rm = TRUE) + 1)
-    kobe_plot <- ggplot(kobeDat, aes(x = F_FMSY, y = SSB_MSYBtrigger)) +
-      geom_hline(yintercept = 1, color = "grey60", linetype = "dashed") +
-      geom_vline(xintercept = 1, color = "grey60", linetype = "dashed") +
+    dynamic = TRUE
+
+
+    kobe_plot <- ggplot(kobeDat, aes(x = F_FMSY, y = SSB_MSYBtrigger,
+                                     data_id = StockCode,
+                                     tooltip = tip)) +
       geom_point(aes(color = colList,
                      size = catches),
                  alpha = 0.7) +
+      geom_hline(yintercept = 1, color = "grey60", linetype = "dashed") +
+      geom_vline(xintercept = 1, color = "grey60", linetype = "dashed") +
       geom_text_repel(aes(label = StockCode),
                       # box.padding = unit(.5, 'lines'),
                       # label.padding = unit(.5, 'lines'),
@@ -63,6 +109,7 @@ plot_kobe <- function(ecoregion, guild = c("all", "benthic", "demersal", "pelagi
             panel.grid.major = element_blank())
 
 
+    # Lollipop plot
     catchBar <- stock_status_full %>%
       ungroup() %>%
       filter(EcoRegion == ecoregion,
@@ -70,54 +117,54 @@ plot_kobe <- function(ecoregion, guild = c("all", "benthic", "demersal", "pelagi
       arrange(!is.na(catches), catches, !is.na(landings), landings) %>%
       mutate(StockCode = factor(StockCode, StockCode))
 
-    #   ungroup()
-    #
-    # nameorder <- catchBar %>%
-    #   arrange(-catches) %>%
-    #   select(StockCode)
-    #
-    # catchBar <- mutate(catchBar, StockCode = factor(StockCode, levels = nameorder[[1]]))
 
-    # %>%
-    #   distinct(.keep_all = TRUE)
-    # #
-    # catchBar <- stockStatusFull[stockStatusFull$ECOREGION == ecoregion &
-    #                              stockStatusFull$FISHERIES.GUILD %in% guild , ]
-    # catchBar <- catchBar[!duplicated(catchBar),]
-    # catchBar$STOCK.CODE <- factor(catchBar$STOCK.CODE, levels = catchBar$STOCK.CODE[order(catchBar$CATCH)])
-    # catchBar$CATCH[is.na(catchBar$CATCH)] <- 0
-
-    # bar_plot <-
+    bar_plot <-
       ggplot(catchBar, aes(x = StockCode, y = catches)) +
-      geom_segment(aes(x = StockCode, y = catches, xend = StockCode, yend = 0, color = colList)) +
-      geom_point(stat = "identity", aes(y = catches, color = colList), size = 3, alpha = 0.5) +
-      geom_point(stat = "identity", aes(y = landings, color = colList), shape = 2, size = 3) +
-      # geom_text(aes(label = catches, x = StockCode, y = catches + 40), vjust=0, size=3) +
-      # geom_bar(stat = "identity", aes(fill = colList)) +
+      geom_segment(aes(x = StockCode, y = catches, xend = StockCode, yend = 0, color = colList), size = 2) +
+      geom_point(stat = "identity", aes(y = catches, fill = colList), color = "grey50", shape = 24, size = 2, alpha = 0.8) +
+      geom_point(stat = "identity", aes(y = landings, fill = colList), color = "grey50", shape = 21, size = 2, alpha = 0.8) +
+      scale_fill_manual(values = c("GREEN" = "#4daf4a",
+                                   "RED" = "#e41a1c",
+                                   "GREY" = "#d3d3d3")) +
       scale_color_manual(values = c("GREEN" = "#4daf4a",
                                     "RED" = "#e41a1c",
                                     "GREY" = "#d3d3d3")) +
       labs(x = "Stock",
-           y = "Catch (tonnes)") +
+           y = "Catch and landings (tonnes)") +
       coord_equal() +
       coord_flip() +
       theme_bw(base_size = 7) +
       theme(legend.position = 'none',
             panel.grid.minor = element_blank(),
-            panel.grid.major = element_blank())
+            panel.grid.major.y = element_blank(),
+            panel.grid.major.x = element_line( size = 0.1, color = "grey80"))
 
-    png(plotName, width = fig.width, height = fig.height, units = units, res = res)
 
-    grid.arrange(kobe_plot,
-                 bar_plot, ncol = 2, respect = TRUE, top = labTitle)
 
-    # grid.draw(grobz.plot)
-    # grid.newpage()
-    # v1 <- viewport(width = 1, height = 1, x = 0.5, y = 0.5) #plot area for the main map
-    # v2 <- viewport(width = 0.7, height = 0.7, x = 0.25, y = 0.8, just = c("left", "top")) #plot area for the inset map
-    # print(bar_plot, vp = v1) # Bar plot
-    # print(kobe_plot, vp = v2) # Inset Kobe
-    dev.off()
+
+    if(!dynamic) {
+      kobe_plot <- kobe_plot +  geom_point(aes(color = colList,
+                                               size = catches),
+                                           alpha = 0.7)
+
+      png(plotName, width = fig.width, height = fig.height, units = units, res = res)
+      grid.arrange(kobe_plot,
+                   bar_plot, ncol = 2, respect = TRUE, top = labTitle)
+      dev.off()
+
+
+    }
+
+    if(dynamic) {
+      kobe_plot <- kobe_plot +  geom_point_interactive(color = "white", fill = "white", shape = 21, size = 1, alpha = 0.01)
+
+      suppressWarnings(
+        rmarkdown::render("~/git/ices-dk/fisheryO/vignettes/kobe-dynamic.rmd",
+                          output_file = paste0("~/git/ices-dk/fisheryO/output/TESTER-dynamic.html"),
+                          envir = new.env())
+      )
+    }
+
   } else ("No stocks have MSY status")
 }
 

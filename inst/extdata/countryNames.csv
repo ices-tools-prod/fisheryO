@@ -1,145 +1,145 @@
-"ISO3","COUNTRY","VARIABLE","VALUE"
-"BEL","Belgium","historicNames","Belgium"
-"BGR","Bulgaria","historicNames","Bulgaria"
-"CHN","China","historicNames","China"
-"CPV","Cabo Verde","historicNames","Cape Verde"
-"DEU","Germany","historicNames","Germany, New L„nder"
-"DEU","Germany","historicNames","Germany"
-"DEU","Germany","historicNames","Germany, Fed. Rep. of"
-"DNK","Denmark","historicNames","Denmark"
-"ESP","Spain","historicNames","Spain"
-"EST","Estonia","historicNames","Estonia"
-"FIN","Finland","historicNames","Finland"
-"FRA","France","historicNames","France"
-"FRO","Faroe Islands","historicNames","Faeroe Islands"
-"GBR","United Kingdom","historicNames","UK - England & Wales"
-"GBR","United Kingdom","historicNames","UK - Eng+Wales+N.Irl."
-"GBR","United Kingdom","historicNames","Channel Islands (ns)"
-"GBR","United Kingdom","historicNames","Channel Is.- Guernsey"
-"GBR","United Kingdom","historicNames","Isle of Man"
-"GBR","United Kingdom","historicNames","Channel Is.- Jersey"
-"GBR","United Kingdom","historicNames","UK - Scotland"
-"GBR","United Kingdom","historicNames","UK - N. Ireland"
-"GRL","Greenland","historicNames","Greenland"
-"IRL","Ireland","historicNames","Ireland"
-"ISL","Iceland","historicNames","Iceland"
-"ITA","Italy","historicNames","Italy"
-"JPN","Japan","historicNames","Japan"
-"KOR","Korea, Republic of","historicNames","Korea, Republic of"
-"LBY","Libya","historicNames","Libyan Arab Jamahiriya"
-"LTU","Lithuania","historicNames","Lithuania"
-"LVA","Latvia","historicNames","Latvia"
-"NLD","Netherlands","historicNames","Netherlands"
-"NOR","Norway","historicNames","Norway"
-"PAN","Panama","historicNames","Panama"
-"POL","Poland","historicNames","Poland"
-"PRT","Portugal","historicNames","Portugal"
-"ROU","Romania","historicNames","Romania"
-"RUS","Russian Federation","historicNames","Un. Sov. Soc. Rep."
-"RUS","Russian Federation","historicNames","Russian Federation"
-"SJM","Svalbard and Jan Mayen","historicNames","Svalbard and Jan Mayen"
-"SWE","Sweden","historicNames","Sweden"
-"TWN","Taiwan, Province of China","historicNames","Taiwan Province of China"
-"UKR","Ukraine","historicNames","Ukraine"
-"USA","United States","historicNames","United States of America"
-"ALB","Albania","shapeNames","Albania"
-"AND","Andorra","shapeNames","Andorra"
-"AUT","Austria","shapeNames","Austria"
-"BEL","Belgium","shapeNames","Belgium"
-"BGR","Bulgaria","shapeNames","Bulgaria"
-"BIH","Bosnia and Herzegovina","shapeNames","Bosnia and Herzegovina"
-"BLR","Belarus","shapeNames","Belarus"
-"CAN","Canada","shapeNames","Canada"
-"CHE","Switzerland","shapeNames","Switzerland"
-"CZE","Czech Republic","shapeNames","Czech Republic"
-"DEU","Germany","shapeNames","Germany"
-"DNK","Denmark","shapeNames","Denmark"
-"ESP","Spain","shapeNames","Spain"
-"EST","Estonia","shapeNames","Estonia"
-"FIN","Finland","shapeNames","Finland"
-"FRA","France","shapeNames","France"
-"FRO","Faroe Islands","shapeNames","Faroe Islands"
-"GBR","United Kingdom","shapeNames","United Kingdom"
-"GGY","Guernsey","shapeNames","Guernsey"
-"GIB","Gibraltar","shapeNames","Gibraltar"
-"GRC","Greece","shapeNames","Greece"
-"GRL","Greenland","shapeNames","Greenland"
-"HRV","Croatia","shapeNames","Croatia"
-"HUN","Hungary","shapeNames","Hungary"
-"IMN","Isle of Man","shapeNames","Isle of Man"
-"IRL","Ireland","shapeNames","Ireland"
-"ISL","Iceland","shapeNames","Iceland"
-"ITA","Italy","shapeNames","Italy"
-"JEY","Jersey","shapeNames","Jersey"
-"LIE","Liechtenstein","shapeNames","Liechtenstein"
-"LTU","Lithuania","shapeNames","Lithuania"
-"LUX","Luxembourg","shapeNames","Luxembourg"
-"LVA","Latvia","shapeNames","Latvia"
-"MCO","Monaco","shapeNames","Monaco"
-"MDA","Moldova, Republic of","shapeNames","Moldova"
-"MKD","Macedonia, the former Yugoslav Republic of","shapeNames","The Former Yugoslav Republic of Macedonia"
-"MLT","Malta","shapeNames","Malta"
-"MNE","Montenegro","shapeNames","Montenegro"
-"NLD","Netherlands","shapeNames","Netherlands"
-"NOR","Norway","shapeNames","Norway"
-"POL","Poland","shapeNames","Poland"
-"PRT","Portugal","shapeNames","Portugal"
-"PRT","Portugal","shapeNames","Azores"
-"ROU","Romania","shapeNames","Romania"
-"RUS","Russian Federation","shapeNames","Russian Federation"
-"SMR","San Marino","shapeNames","San Marino"
-"SRB","Serbia","shapeNames","Serbia"
-"SVK","Slovakia","shapeNames","Slovakia"
-"SVN","Slovenia","shapeNames","Slovenia"
-"SWE","Sweden","shapeNames","Sweden"
-"TUR","Turkey","shapeNames","Turkey"
-"UKR","Ukraine","shapeNames","Ukraine"
-"USA","United States","shapeNames","United States"
-"VAT","Holy See (Vatican City State)","shapeNames","Vatican City"
-"BEL","Belgium","stNames","BEL"
-"DEU","Germany","stNames","GER"
-"DNK","Denmark","stNames","DEN"
-"ESP","Spain","stNames","ESP"
-"EST","Estonia","stNames","EST"
-"FIN","Finland","stNames","FIN"
-"FRA","France","stNames","FRA"
-"GBR","United Kingdom","stNames","ENG"
-"GBR","United Kingdom","stNames","SCO"
-"GBR","United Kingdom","stNames","NIR"
-"GBR","United Kingdom","stNames","GBJ"
-"GBR","United Kingdom","stNames","GBG"
-"GBR","United Kingdom","stNames","IOM"
-"IRL","Ireland","stNames","IRL"
-"LTU","Lithuania","stNames","LIT"
-"LVA","Latvia","stNames","LAT"
-"NLD","Netherlands","stNames","NED"
-"POL","Poland","stNames","POL"
-"PRT","Portugal","stNames","PRT"
-"SWE","Sweden","stNames","SWE"
-"BEL","Belgium","catchNames","BE"
-"CHN","China","catchNames","CN"
-"DEU","Germany","catchNames","DE"
-"DNK","Denmark","catchNames","DK"
-"ESP","Spain","catchNames","ES"
-"EST","Estonia","catchNames","EE"
-"FIN","Finland","catchNames","FI"
-"FRA","France","catchNames","FR"
-"FRO","Faroe Islands","catchNames","FO"
-"GBR","United Kingdom","catchNames","GG"
-"GBR","United Kingdom","catchNames","JE"
-"GBR","United Kingdom","catchNames","IM"
-"GBR","United Kingdom","catchNames","GB"
-"GRL","Greenland","catchNames","GL"
-"IRL","Ireland","catchNames","IE"
-"ISL","Iceland","catchNames","IS"
-"JPN","Japan","catchNames","JP"
-"LBY","Libya","catchNames","LY"
-"LTU","Lithuania","catchNames","LT"
-"LVA","Latvia","catchNames","LV"
-"NLD","Netherlands","catchNames","NL"
-"NOR","Norway","catchNames","NO"
-"POL","Poland","catchNames","PL"
-"PRT","Portugal","catchNames","PT"
-"RUS","Russian Federation","catchNames","RU"
-"SWE","Sweden","catchNames","SE"
-"TWN","Taiwan, Province of China","catchNames","TW"
+ISO3,COUNTRY,VARIABLE,VALUE
+BEL,Belgium,historicNames,Belgium
+BGR,Bulgaria,historicNames,Bulgaria
+CHN,China,historicNames,China
+CPV,Cabo Verde,historicNames,Cape Verde
+DEU,Germany,historicNames,"Germany, New L„nder"
+DEU,Germany,historicNames,Germany
+DEU,Germany,historicNames,"Germany, Fed. Rep. of"
+DNK,Denmark,historicNames,Denmark
+ESP,Spain,historicNames,Spain
+EST,Estonia,historicNames,Estonia
+FIN,Finland,historicNames,Finland
+FRA,France,historicNames,France
+FRO,Faroe Islands,historicNames,Faeroe Islands
+GBR,United Kingdom,historicNames,UK - England & Wales
+GBR,United Kingdom,historicNames,UK - Eng+Wales+N.Irl.
+GBR,United Kingdom,historicNames,Channel Islands (ns)
+GBR,United Kingdom,historicNames,Channel Is.- Guernsey
+GBR,United Kingdom,historicNames,Isle of Man
+GBR,United Kingdom,historicNames,Channel Is.- Jersey
+GBR,United Kingdom,historicNames,UK - Scotland
+GBR,United Kingdom,historicNames,UK - N. Ireland
+GRL,Greenland,historicNames,Greenland
+IRL,Ireland,historicNames,Ireland
+ISL,Iceland,historicNames,Iceland
+ITA,Italy,historicNames,Italy
+JPN,Japan,historicNames,Japan
+KOR,"Korea, Republic of",historicNames,"Korea, Republic of"
+LBY,Libya,historicNames,Libyan Arab Jamahiriya
+LTU,Lithuania,historicNames,Lithuania
+LVA,Latvia,historicNames,Latvia
+NLD,Netherlands,historicNames,Netherlands
+NOR,Norway,historicNames,Norway
+PAN,Panama,historicNames,Panama
+POL,Poland,historicNames,Poland
+PRT,Portugal,historicNames,Portugal
+ROU,Romania,historicNames,Romania
+RUS,Russian Federation,historicNames,Un. Sov. Soc. Rep.
+RUS,Russian Federation,historicNames,Russian Federation
+SJM,Svalbard and Jan Mayen,historicNames,Svalbard and Jan Mayen
+SWE,Sweden,historicNames,Sweden
+TWN,"Taiwan, Province of China",historicNames,Taiwan Province of China
+UKR,Ukraine,historicNames,Ukraine
+USA,United States,historicNames,United States of America
+ALB,Albania,shapeNames,Albania
+AND,Andorra,shapeNames,Andorra
+AUT,Austria,shapeNames,Austria
+BEL,Belgium,shapeNames,Belgium
+BGR,Bulgaria,shapeNames,Bulgaria
+BIH,Bosnia and Herzegovina,shapeNames,Bosnia and Herzegovina
+BLR,Belarus,shapeNames,Belarus
+CAN,Canada,shapeNames,Canada
+CHE,Switzerland,shapeNames,Switzerland
+CZE,Czech Republic,shapeNames,Czech Republic
+DEU,Germany,shapeNames,Germany
+DNK,Denmark,shapeNames,Denmark
+ESP,Spain,shapeNames,Spain
+EST,Estonia,shapeNames,Estonia
+FIN,Finland,shapeNames,Finland
+FRA,France,shapeNames,France
+FRO,Faroe Islands,shapeNames,Faroe Islands
+GBR,United Kingdom,shapeNames,United Kingdom
+GGY,Guernsey,shapeNames,Guernsey
+GIB,Gibraltar,shapeNames,Gibraltar
+GRC,Greece,shapeNames,Greece
+GRL,Greenland,shapeNames,Greenland
+HRV,Croatia,shapeNames,Croatia
+HUN,Hungary,shapeNames,Hungary
+IMN,Isle of Man,shapeNames,Isle of Man
+IRL,Ireland,shapeNames,Ireland
+ISL,Iceland,shapeNames,Iceland
+ITA,Italy,shapeNames,Italy
+JEY,Jersey,shapeNames,Jersey
+LIE,Liechtenstein,shapeNames,Liechtenstein
+LTU,Lithuania,shapeNames,Lithuania
+LUX,Luxembourg,shapeNames,Luxembourg
+LVA,Latvia,shapeNames,Latvia
+MCO,Monaco,shapeNames,Monaco
+MDA,"Moldova, Republic of",shapeNames,Moldova
+MKD,"Macedonia, the former Yugoslav Republic of",shapeNames,The Former Yugoslav Republic of Macedonia
+MLT,Malta,shapeNames,Malta
+MNE,Montenegro,shapeNames,Montenegro
+NLD,Netherlands,shapeNames,Netherlands
+NOR,Norway,shapeNames,Norway
+POL,Poland,shapeNames,Poland
+PRT,Portugal,shapeNames,Portugal
+PRT,Portugal,shapeNames,Azores
+ROU,Romania,shapeNames,Romania
+RUS,Russian Federation,shapeNames,Russian Federation
+SMR,San Marino,shapeNames,San Marino
+SRB,Serbia,shapeNames,Serbia
+SVK,Slovakia,shapeNames,Slovakia
+SVN,Slovenia,shapeNames,Slovenia
+SWE,Sweden,shapeNames,Sweden
+TUR,Turkey,shapeNames,Turkey
+UKR,Ukraine,shapeNames,Ukraine
+USA,United States,shapeNames,United States
+VAT,Holy See (Vatican City State),shapeNames,Vatican City
+BEL,Belgium,stNames,BEL
+DEU,Germany,stNames,DEU
+DNK,Denmark,stNames,DNK
+ESP,Spain,stNames,ESP
+EST,Estonia,stNames,EST
+FIN,Finland,stNames,FIN
+FRA,France,stNames,FRA
+GBR,United Kingdom,stNames,ENG
+GBR,United Kingdom,stNames,SCO
+GBR,United Kingdom,stNames,NIR
+GBR,United Kingdom,stNames,GBJ
+GBR,United Kingdom,stNames,GBG
+GBR,United Kingdom,stNames,IOM
+IRL,Ireland,stNames,IRL
+LTU,Lithuania,stNames,LTU
+LVA,Latvia,stNames,LVA
+NLD,Netherlands,stNames,NLD
+POL,Poland,stNames,POL
+PRT,Portugal,stNames,PRT
+SWE,Sweden,stNames,SWE
+BEL,Belgium,catchNames,BE
+CHN,China,catchNames,CN
+DEU,Germany,catchNames,DE
+DNK,Denmark,catchNames,DK
+ESP,Spain,catchNames,ES
+EST,Estonia,catchNames,EE
+FIN,Finland,catchNames,FI
+FRA,France,catchNames,FR
+FRO,Faroe Islands,catchNames,FO
+GBR,United Kingdom,catchNames,GG
+GBR,United Kingdom,catchNames,JE
+GBR,United Kingdom,catchNames,IM
+GBR,United Kingdom,catchNames,GB
+GRL,Greenland,catchNames,GL
+IRL,Ireland,catchNames,IE
+ISL,Iceland,catchNames,IS
+JPN,Japan,catchNames,JP
+LBY,Libya,catchNames,LY
+LTU,Lithuania,catchNames,LT
+LVA,Latvia,catchNames,LV
+NLD,Netherlands,catchNames,NL
+NOR,Norway,catchNames,NO
+POL,Poland,catchNames,PL
+PRT,Portugal,catchNames,PT
+RUS,Russian Federation,catchNames,RU
+SWE,Sweden,catchNames,SE
+TWN,"Taiwan, Province of China",catchNames,TW

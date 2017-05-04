@@ -5,9 +5,9 @@ date: ""
 output: html_document
 ---
 
-```{r flextable, echo=FALSE}
+```{r flextable, include=FALSE}
 library(ReporteRs)
-library(dplyr)
+# library(dplyr)
 
 base_text_prop <- textProperties(font.size = 10, color = "black", font.family = "Calibri")
 base_par_prop = parProperties( text.align = "left")
@@ -36,5 +36,10 @@ FT <- stockPlot %>%
 
 FT[, 5:15] <- chprop(base_par_prop, text.align = "center")
 
+
+```
+
+```{r, results = "asis", echo = FALSE}
 FT
 ```
+

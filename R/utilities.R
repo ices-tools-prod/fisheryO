@@ -23,3 +23,8 @@ mtexti <- function(text, side, off = 0.25,
     xpos <- usr[2] + upi[1] * off
   text(x=xpos, y=ypos, text, xpd=NA, srt=srt, ...)
 }
+
+gg_color_hue <- function(n) {
+  hues = seq(15, 375, length=n+1)
+  hcl(h=hues, l=65, c=100)[1:n]
+}

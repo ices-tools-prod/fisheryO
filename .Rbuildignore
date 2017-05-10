@@ -3,3 +3,5 @@
 ^packrat/
 ^\.Rprofile$
 ^output/
+^data-raw$
+^vignettes

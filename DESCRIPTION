@@ -8,7 +8,7 @@ Description: Functions that work with International Council for the Exploration
              of the Sea (ICES) web services and databases to collate, aggregate,
              and plot Fisheries Overview products.
 Depends:
-    R (>= 3.3.1)
+    R (>= 3.3.1),
 Imports: devtools,
     ggrepel,
     stringr,
@@ -19,7 +19,7 @@ Imports: devtools,
     ggiraph,
     gridExtra,
     dplyr,
-    tidyr,
+    tidyr
     countrycode
 License: GPL (>= 2)
 LazyData: TRUE

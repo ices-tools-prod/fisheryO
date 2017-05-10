@@ -476,7 +476,7 @@ stock_trends_fun <- function(EcoGuild,
 #'
 #' @examples
 #' \dontrun{
-#' plot_kobe("Greater North Sea Ecoregion", guild = "demersal, return_plot = TRUE)
+#' plot_kobe("Greater North Sea Ecoregion", guild = "demersal", return_plot = TRUE)
 #' }
 #' @export
 #~~~~~~~~~~~#

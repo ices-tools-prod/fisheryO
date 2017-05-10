@@ -10,8 +10,8 @@ library(countrycode)
 # Clean up the Stock Database #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
-# source(stock_list_raw)
-load("data/stock_list_raw.rda")
+data("stock_list_raw")
+# load("data/stock_list_raw.rda")
 
 stock_list <- stock_list_raw %>%
     filter(ActiveYear == 2016) %>% ### This will need to be fixed for BS
@@ -83,7 +83,8 @@ stock_list_frmt <- bind_rows(
     filter(!grepl("[[:space:]]", SpeciesScientificName))
 )
 
-load("data/sag_summary_raw.rda")
+data("sag_summary_raw")
+# load("data/sag_summary_raw.rda")
 
 sag_years <- unique(stock_list$YearOfLastAssessment)
 sag_keys <- do.call("rbind", lapply(sag_years, function(x) icesSAG::findAssessmentKey(stock = NULL,
@@ -165,7 +166,8 @@ sag_summary_clean <- sag_summary %>%
 # Reference Points #
 # ~~~~~~~~~~~~~~~~ #
 
-load("data/sag_refpts_raw.rda")
+data("sag_refpts_raw")
+# load("data/sag_refpts_raw.rda")
 sag_ref_pts <- found_stocks %>%
   left_join(sag_refpts_raw, by = c("StockCode"= "StockKeyLabel",
                                    "YearOfLastAssessment" = "AssessmentYear",
@@ -702,9 +704,14 @@ stock_status_full <-
 #############
 ### Catch ###
 #############
-load("data/catch_data_historical.rda")
-load("data/species_list.rda")
-load("data/stock_list_raw.rda")
+
+data("catch_data_historical")
+data("species_list")
+data("stock_list_raw")
+
+# load("data/catch_data_historical.rda")
+# load("data/species_list.rda")
+# load("data/stock_list_raw.rda")
 
 fish_category <- stock_list_raw %>%
   filter(YearOfLastAssessment >= 2016,
@@ -778,8 +785,8 @@ catch_dat_1950 <- catch_data_historical %>%
          COMMON_NAME = Species,
          VALUE)
 
-
-load("data/catch_data_official.rda")
+data("catch_data_official")
+# load("data/catch_data_official.rda")
 
 catch_dat_2010 <- catch_data_official %>%
   gather(YEAR, VALUE, -Country, -Species, -Area, -Units) %>%
@@ -825,16 +832,14 @@ allDat <- catch_dat_2010 %>%
 # cat(paste0("#'\t\\item{", colnames(effort_data), "{add text}\n"))
 # cat(paste0("#'\t\\item{", colnames(landings_data), "{add text}\n"))
 
-load("data/effort_data.rda")
+# load("data/effort_data.rda")
+data("STECF_effort_data")
+data("STECF_landings_data")
 # load("data/species_list.rda")
 # load("data/stock_list_raw.rda")
 
 
-
-countrycode(unique(effortDat$country), "iso3c", "country.name")
-
-
-effortDat <- effort_data %>%
+effortDat <- STECF_effort_data %>%
   mutate(ISO3c = ifelse(grepl("SCO|ENG|GBG|GBJ|IOM|NIR", country),
                                 "GBR",
                                 country),
@@ -848,7 +853,7 @@ effortDat <- effort_data %>%
          GEAR = regulated.gear,
          EFFORT)
 
-stecfCatchDat <- landings_data %>%
+stecfCatchDat <- STECF_landings_data %>%
   mutate(ISO3c = ifelse(grepl("SCO|ENG|GBG|GBJ|IOM|NIR", country),
                         "GBR",
                         country),

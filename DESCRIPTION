@@ -6,9 +6,20 @@ Authors@R: person("Scott", "Large", email = "Scott.Large@ices.dk",
                   role = c("aut", "cre"))
 Description: Functions that work with International Council for the Exploration
              of the Sea (ICES) web services and databases to collate, aggregate,
-             and plot Fisheries Overviews products.
+             and plot Fisheries Overview products.
 Depends:
-    R (>= 3.3.1)
+    R (>= 3.3.1),
+    devtools,
+    ggrepel,
+    stringr,
+    icesSAG,
+    ReporteRs,
+    ggthemes,
+    lubridate,
+    ggiraph,
+    gridExtra,
+    dplyr,
+    tidyr
 License: GPL (>= 2)
 LazyData: TRUE
 RoxygenNote: 5.0.1

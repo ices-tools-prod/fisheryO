@@ -1,0 +1,11 @@
+---
+title: ""
+author: ""
+date: ""
+output: html_document
+---
+
+```{r table, echo = FALSE}
+return(ggiraph::ggiraph(code = print(p1_plot),
+        hover_css = "cursor:pointer;stroke:black;stroke-width:3pt;"))
+```

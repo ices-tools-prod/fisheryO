@@ -100,6 +100,20 @@
 #' @source \url{https://standardgraphs.ices.dk/}
 "sag_refpts_raw"
 
+#' ICES Stock Assessment Graphs database - keys
+#'
+#' Data from published ICES advice from 2014-2017. “ICES Stock Assessment Database, 2017/May. ICES, Copenhagen”
+#'
+#' \itemize{
+#'	\item{AssessmentYear}{Add text}
+#'	\item{AssessmentKey}{Add text}
+#'	\item{StockKeyLabel}{Add text}
+#' }
+#'
+#' @format A data frame with 429 rows and 3 variables:
+#' @source \url{https://standardgraphs.ices.dk/}
+"sag_keys"
+
 #' Historical Nominal Catches 1950-2010
 #'
 #' Catches in FAO area 27 by country, species, area and year as provided

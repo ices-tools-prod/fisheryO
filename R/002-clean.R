@@ -1,10 +1,10 @@
 rm(list = ls())
-library(dplyr)
-library(tidyr)
-library(icesSAG)
-library(stringr)
-# library(bindr)
-library(countrycode)
+# library(dplyr)
+# library(tidyr)
+# library(icesSAG)
+# library(stringr)
+# # library(bindr)
+# library(countrycode)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # Clean up the Stock Database #

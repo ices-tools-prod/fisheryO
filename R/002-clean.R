@@ -1,4 +1,4 @@
-rm(list = ls())
+# rm(list = ls())
 # library(dplyr)
 # library(tidyr)
 # library(icesSAG)
@@ -14,7 +14,7 @@ data("stock_list_raw")
 # load("data/stock_list_raw.rda")
 
 stock_list <- stock_list_raw %>%
-    filter(ActiveYear == 2016) %>% ### This will need to be fixed for BS
+  dplyr::filter(ActiveYear == 2016) %>% ### This will need to be fixed for BS
   dplyr::select(StockCode = StockKeyLabel,
                 Description = StockKeyDescription,
                 SpeciesScientificName,
@@ -23,11 +23,11 @@ stock_list <- stock_list_raw %>%
                 YearOfLastAssessment,
                 AdviceCategory,
                 FisheriesGuild) %>%
-  filter(!StockCode %in% c("cod-ingr", "cod-wgr",
+  dplyr::filter(!StockCode %in% c("cod-ingr", "cod-wgr",
                            "sal-nea", "san-scow",
                            "sal-na", "sal-32",
                            "trt-bal", "sal-wgc")) %>%
-  mutate(DataCategory = floor(as.numeric(DataCategory)),
+  dplyr::mutate(DataCategory = floor(as.numeric(DataCategory)),
          StockCode = tolower(StockCode),
          FisheriesGuild = tolower(FisheriesGuild),
          Description = gsub(pattern = "\u2013", "-", Description), # remove en dashes in favor of hyphens
@@ -36,74 +36,75 @@ stock_list <- stock_list_raw %>%
          AdviceCategory = ifelse(AdviceCategory == "MSY/PA",
                                  "MSY", AdviceCategory),
          SpeciesID = toupper(gsub( "-.*$", "", StockCode)) ,
-         SpeciesScientificName = recode(SpeciesScientificName,
+         SpeciesScientificName = dplyr::recode(SpeciesScientificName,
                                         "Mustelus asterias" = "Mustelus"),
-         SpeciesScientificName = recode(SpeciesScientificName,
+         SpeciesScientificName = dplyr::recode(SpeciesScientificName,
                                         "Centrophorus squamosus, Centroscymnus coelolepis" = "Centroscymnus coelolepis"),
          EcoRegion = strsplit(EcoRegion, ", ")
   ) %>%
   tidyr::unnest(EcoRegion) %>%
-  mutate(EcoRegion = ifelse(grepl("Norwegian|Barents", EcoRegion),
+  dplyr::mutate(EcoRegion = ifelse(grepl("Norwegian|Barents", EcoRegion),
                             "Norwegian Sea and Barents Sea Ecoregions",
                             EcoRegion))
 
 # Format so the species names will be italicized
-stock_list_frmt <- bind_rows(
+stock_list_frmt <- dplyr::bind_rows(
   # Normal binomial names
   stock_list %>%
-    filter(!grepl(" spp", Description),
-           SpeciesID != "ANG",
-           grepl("[[:space:]]", SpeciesScientificName)) %>%
-    mutate(Description = str_replace_all(string = Description,
-                                         pattern = SpeciesScientificName,
-                                         replacement = paste0("<em>", SpeciesScientificName, "</em>"))),
+    dplyr::filter(!grepl(" spp", Description),
+                  SpeciesID != "ANG",
+                  grepl("[[:space:]]", SpeciesScientificName)) %>%
+    dplyr::mutate(Description = stringr::str_replace_all(string = Description,
+                                                         pattern = SpeciesScientificName,
+                                                         replacement = paste0("<em>", SpeciesScientificName, "</em>"))),
   # Anglerfish (w/ two species)
   stock_list %>%
-    filter(SpeciesID == "ANG") %>%
-    mutate(Description = str_replace_all(string = Description,
-                                         pattern = "Lophius piscatorius and L. budegassa",
-                                         replacement = "<em>Lophius piscatorius</em> and <em>L. budegassa</em>")),
+    dplyr::filter(SpeciesID == "ANG") %>%
+    dplyr::mutate(Description = stringr::str_replace_all(string = Description,
+                                                         pattern = "Lophius piscatorius and L. budegassa",
+                                                         replacement = "<em>Lophius piscatorius</em> and <em>L. budegassa</em>")),
   # Groups of species (.spp)
   stock_list %>%
-    filter(grepl(" spp.*$", Description)) %>%
-    mutate(Description = str_replace_all(string = Description,
-                                         pattern = SpeciesScientificName,
-                                         replacement = paste0("<em>", SpeciesScientificName, "</em>"))),
+    dplyr::filter(grepl(" spp.*$", Description)) %>%
+    dplyr::mutate(Description = stringr::str_replace_all(string = Description,
+                                                         pattern = SpeciesScientificName,
+                                                         replacement = paste0("<em>", SpeciesScientificName, "</em>"))),
   # A bit different notation (embedded in 2 sets of parentheses)
   stock_list %>%
-    filter(StockCode == "raj-mar") %>%
-    mutate(Description = str_replace_all(string = Description,
-                                         pattern = "Raja clavata",
-                                         replacement = "<em>Raja clavata</em>")),
+    dplyr::filter(StockCode == "raj-mar") %>%
+    dplyr::mutate(Description = stringr::str_replace_all(string = Description,
+                                                         pattern = "Raja clavata",
+                                                         replacement = "<em>Raja clavata</em>")),
   # The "others" with no species name
   stock_list %>%
-    filter(SpeciesID != "ANG") %>%
-    filter(!grepl(" spp", Description)) %>%
-    filter(StockCode != "raj-mar") %>%
-    filter(!grepl("[[:space:]]", SpeciesScientificName))
+    dplyr::filter(SpeciesID != "ANG") %>%
+    dplyr::filter(!grepl(" spp", Description)) %>%
+    dplyr::filter(StockCode != "raj-mar") %>%
+    dplyr::filter(!grepl("[[:space:]]", SpeciesScientificName))
 )
 
 data("sag_summary_raw")
+data("sag_keys")
 # load("data/sag_summary_raw.rda")
 
-sag_years <- unique(stock_list$YearOfLastAssessment)
-sag_keys <- do.call("rbind", lapply(sag_years, function(x) icesSAG::findAssessmentKey(stock = NULL,
-                                                                             year = x,
-                                                                             full = TRUE)[, c("AssessmentYear",
-                                                                                              "AssessmentKey",
-                                                                                              "StockKeyLabel")]))
+# sag_years <- unique(stock_list$YearOfLastAssessment)
+# sag_keys <- do.call("rbind", lapply(sag_years, function(x) icesSAG::findAssessmentKey(stock = NULL,
+#                                                                              year = x,
+#                                                                              full = TRUE)[, c("AssessmentYear",
+#                                                                                               "AssessmentKey",
+#                                                                                               "StockKeyLabel")]))
 sag_keys$StockKeyLabel <- tolower(sag_keys$StockKeyLabel)
 
 found_stocks <- stock_list %>%
-  select(-EcoRegion) %>%
-  distinct(.keep_all = TRUE) %>%
-  left_join(sag_keys, by = c("StockCode" = "StockKeyLabel",
+  dplyr::select(-EcoRegion) %>%
+  dplyr::distinct(.keep_all = TRUE) %>%
+  dplyr::left_join(sag_keys, by = c("StockCode" = "StockKeyLabel",
                              "YearOfLastAssessment" = "AssessmentYear"))
 
 sag_summary <- found_stocks %>%
-  left_join(sag_summary_raw, by = c("StockCode" = "fishstock",
+  dplyr::left_join(sag_summary_raw, by = c("StockCode" = "fishstock",
                                     "YearOfLastAssessment" = "AssessmentYear")) %>%
-  select(Year,
+  dplyr::select(Year,
          StockCode,
          F,
          SSB,
@@ -125,7 +126,7 @@ relative_SSB <- c("B/BMSY", "Total biomass/BMSY")
 
 # Clean up the stock summary data
 sag_summary_clean <- sag_summary %>%
-  mutate(StockCode = tolower(StockCode),
+  dplyr::mutate(StockCode = tolower(StockCode),
          # ****************** #
          # SSB is not in SAG for meg-4a6a 2015. Added from:
          # http://ices.dk/sites/pub/Publication%20Reports/Expert%20Group%20Report/acom/2015/WGCSE/05.03_Megrim%20IV_VI_2015.pdf#page=22
@@ -169,10 +170,10 @@ sag_summary_clean <- sag_summary %>%
 data("sag_refpts_raw")
 # load("data/sag_refpts_raw.rda")
 sag_ref_pts <- found_stocks %>%
-  left_join(sag_refpts_raw, by = c("StockCode"= "StockKeyLabel",
+  dplyr::left_join(sag_refpts_raw, by = c("StockCode"= "StockKeyLabel",
                                    "YearOfLastAssessment" = "AssessmentYear",
                                    "AssessmentKey" = "AssessmentKey")) %>%
-  select(StockCode,
+  dplyr::select(StockCode,
          Flim = FLim,
          Fpa,
          Bpa,
@@ -181,19 +182,19 @@ sag_ref_pts <- found_stocks %>%
          MSYBtrigger) %>%
 # ****************** #
 # MSYBtrigger isn't appropriate for Sandeel
-  mutate(MSYBtrigger = ifelse(grepl("san", StockCode),
+  dplyr::mutate(MSYBtrigger = ifelse(grepl("san", StockCode),
                               NA,
                               MSYBtrigger))
 # ****************** #
 
 # Merge the stock data, reference points, and summary table together
 sag_ref_summary <- stock_list_frmt %>%
-  left_join(sag_ref_pts , by = "StockCode") %>%
-  left_join(sag_summary_clean, by = "StockCode") %>%
-  nest(EcoRegion)
+  dplyr::left_join(sag_ref_pts , by = "StockCode") %>%
+  dplyr::left_join(sag_summary_clean, by = "StockCode") %>%
+  tidyr::nest(EcoRegion)
 
 sag_complete_summary <- sag_ref_summary %>%
-  mutate(MSYBtrigger = ifelse(stockSizeDescription %in% relative_SSB,
+  dplyr::mutate(MSYBtrigger = ifelse(stockSizeDescription %in% relative_SSB,
                               0.5,
                               MSYBtrigger),
          MSYBtrigger = ifelse(!stockSizeDescription %in% keeper_SSB,
@@ -215,100 +216,100 @@ sag_complete_summary <- sag_ref_summary %>%
 
 # Recreate check-mark tables
 summary_fmsy <- sag_complete_summary %>%
-  group_by(StockCode) %>%
-  filter(Year >= YearOfLastAssessment - 3,
+  dplyr::group_by(StockCode) %>%
+  dplyr::filter(Year >= YearOfLastAssessment - 3,
          Year <= YearOfLastAssessment - 1) %>%
-  mutate(FMSY = ifelse(F <= FMSY, "GREEN", "RED"),
+  dplyr::mutate(FMSY = ifelse(F <= FMSY, "GREEN", "RED"),
          Year = paste0("FMSY", Year)) %>%
-  select(Year, FMSY, StockCode) %>%
-  spread(Year, FMSY)
+  dplyr::select(Year, FMSY, StockCode) %>%
+  tidyr::spread(Year, FMSY)
 
 summary_bmsy <- sag_complete_summary %>%
-  group_by(StockCode) %>%
-  filter(Year >= YearOfLastAssessment - 2,
+  dplyr::group_by(StockCode) %>%
+  dplyr::filter(Year >= YearOfLastAssessment - 2,
          Year <= YearOfLastAssessment) %>%
-  mutate(BMSY = ifelse(SSB >= MSYBtrigger, "GREEN", "RED"),
+  dplyr::mutate(BMSY = ifelse(SSB >= MSYBtrigger, "GREEN", "RED"),
          Year = paste0("BMSY", Year)) %>%
-  select(Year, BMSY, StockCode) %>%
-  spread(Year, BMSY) %>%
+  dplyr::select(Year, BMSY, StockCode) %>%
+  tidyr::spread(Year, BMSY) %>%
   # ****************** #
   # Nep-9 doesn't provide data for BMSY2016, so we'll make the tick marks consistent with advice
-  mutate(BMSY2013 = ifelse(StockCode == "nep-9",
+  dplyr::mutate(BMSY2013 = ifelse(StockCode == "nep-9",
                            "GREEN",
                            BMSY2013))
   # ****************** #
 
 summary_fpa <- sag_complete_summary %>%
-  group_by(StockCode) %>%
-  filter(Year >= YearOfLastAssessment - 3,
+  dplyr::group_by(StockCode) %>%
+  dplyr::filter(Year >= YearOfLastAssessment - 3,
          Year <= YearOfLastAssessment - 1) %>%
-  ungroup() %>%
-  mutate(FPA = if_else(F <= FMSY,
+  dplyr::ungroup() %>%
+  dplyr::mutate(FPA = dplyr::if_else(F <= FMSY,
                        "GREEN",
                        NA_character_),
-         FPA = if_else(F >= Flim, # If F is greater than Flim, FPA is
+         FPA = dplyr::if_else(F >= Flim, # If F is greater than Flim, FPA is
                        missing = FPA,
                        "RED",
                        ifelse(F <= FMSY, # if F is less than Flim and less than FMSY, FPA is
                               "GREEN",
-                              if_else(F <= Fpa , # If F is greater than FMSY but less than Fpa, FPA is
+                              dplyr::if_else(F <= Fpa , # If F is greater than FMSY but less than Fpa, FPA is
                                       "GREEN",
                                       "ORANGE", # if F is greater than Fpa, FPA is orange
                                       ifelse(F <= Flim, # if Fpa is NA but Flim is available, FPA is
                                              "ORANGE",
                                              NA_character_)))), # If none of this fits the bill, NA.
          Year = paste0("FPA", Year)) %>%
-  select(Year, FPA, StockCode) %>%
-  spread(Year, FPA)
+  dplyr::select(Year, FPA, StockCode) %>%
+  tidyr::spread(Year, FPA)
 
 summary_bpa <- sag_complete_summary %>%
-  group_by(StockCode) %>%
-  filter(Year >= YearOfLastAssessment - 2,
+  dplyr::group_by(StockCode) %>%
+  dplyr::filter(Year >= YearOfLastAssessment - 2,
          Year <= YearOfLastAssessment) %>%
-  ungroup() %>%
-  mutate(BPA = if_else(SSB >= MSYBtrigger,
+  dplyr::ungroup() %>%
+  dplyr::mutate(BPA = dplyr::if_else(SSB >= MSYBtrigger,
                        "GREEN",
                        NA_character_),
-         BPA = if_else(SSB <= Blim, # If SSB is less than Blim, BPA is
+         BPA = dplyr::if_else(SSB <= Blim, # If SSB is less than Blim, BPA is
                        missing = BPA,
                        "RED",
                        ifelse(SSB >= MSYBtrigger, # if SSB is greater than Blim and greater than MSY, BPA is
                               "GREEN",
-                              if_else(SSB >= Bpa , # If SSB is less than MSY Btrigger but greater than Bpa, BPA is
+                              dplyr::if_else(SSB >= Bpa , # If SSB is less than MSY Btrigger but greater than Bpa, BPA is
                                       "GREEN",
                                       "ORANGE", # if SSB is less than Bpa, BPA is orange
-                                      if_else(SSB >= Blim, # if Bpa is NA but Blim is available, BPA is
+                                      dplyr::if_else(SSB >= Blim, # if Bpa is NA but Blim is available, BPA is
                                               "ORANGE",
                                               NA_character_)))), # If none of this fits the bill, NA.
          Year = paste0("BPA", Year)) %>%
-  select(Year, BPA, StockCode) %>%
-  spread(Year, BPA)
+  dplyr::select(Year, BPA, StockCode) %>%
+  tidyr::spread(Year, BPA)
 
 summary_sbl <- sag_complete_summary %>%
-  select(StockCode,
+  dplyr::select(StockCode,
          YearOfLastAssessment) %>%
-  distinct(.keep_all = TRUE) %>%
-  left_join(summary_bpa, by = "StockCode") %>%
-  left_join(summary_fpa, by = "StockCode")
+  dplyr::distinct(.keep_all = TRUE) %>%
+  dplyr::left_join(summary_bpa, by = "StockCode") %>%
+  dplyr::left_join(summary_fpa, by = "StockCode")
 
 summary_sbl <- bind_rows(
   summary_sbl %>%
-    filter(YearOfLastAssessment == 2014) %>%
-    mutate(SBL = ifelse(FPA2013 == "GREEN"  &  BPA2014 == "GREEN",
+    dplyr::filter(YearOfLastAssessment == 2014) %>%
+    dplyr::mutate(SBL = ifelse(FPA2013 == "GREEN"  &  BPA2014 == "GREEN",
                         "GREEN",
                         ifelse(FPA2013 == "RED"  &  BPA2014 == "RED",
                                "RED",
                                NA))),
   summary_sbl %>%
-    filter(YearOfLastAssessment == 2015) %>%
-    mutate(SBL = ifelse(FPA2014 == "GREEN"  &  BPA2015 == "GREEN",
+    dplyr::filter(YearOfLastAssessment == 2015) %>%
+    dplyr::mutate(SBL = ifelse(FPA2014 == "GREEN"  &  BPA2015 == "GREEN",
                         "GREEN",
                         ifelse(FPA2014 == "RED"  &  BPA2015 == "RED",
                                "RED",
                                NA))),
   summary_sbl %>%
-    filter(YearOfLastAssessment == 2016) %>%
-    mutate(SBL = ifelse(FPA2015 == "GREEN"  &  BPA2016 == "GREEN",
+    dplyr::filter(YearOfLastAssessment == 2016) %>%
+    dplyr::mutate(SBL = ifelse(FPA2015 == "GREEN"  &  BPA2016 == "GREEN",
                         "GREEN",
                         ifelse(FPA2015 == "RED"  &  BPA2016 == "RED",
                                "RED",
@@ -316,15 +317,15 @@ summary_sbl <- bind_rows(
 )[, c("StockCode", "SBL")]
 
 summary_table <- summary_fmsy %>%
-  full_join(summary_bmsy, by = "StockCode") %>%
-  full_join(summary_fpa, by = "StockCode") %>%
-  full_join(summary_bpa, by = "StockCode") %>%
-  full_join(summary_sbl, by = "StockCode")
+  dplyr::full_join(summary_bmsy, by = "StockCode") %>%
+  dplyr::full_join(summary_fpa, by = "StockCode") %>%
+  dplyr::full_join(summary_bpa, by = "StockCode") %>%
+  dplyr::full_join(summary_sbl, by = "StockCode")
 
 # stockDat
 summary_table_frmt <- stock_list_frmt %>%  #slFull
-  left_join(summary_table, by = "StockCode") %>%
-  mutate(F_2013 = ifelse(AdviceCategory %in% c("MSY", "MP"),
+  dplyr::left_join(summary_table, by = "StockCode") %>%
+  dplyr::mutate(F_2013 = ifelse(AdviceCategory %in% c("MSY", "MP"),
                          FMSY2013,
                          FPA2013),
          F_2014 = ifelse(AdviceCategory %in% c("MSY", "MP"),
@@ -348,31 +349,31 @@ summary_table_frmt <- stock_list_frmt %>%  #slFull
 
 summary_table_frmt <- bind_rows(
   summary_table_frmt %>%
-    filter(YearOfLastAssessment == 2014) %>%
-    mutate(D3C1 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
+    dplyr::filter(YearOfLastAssessment == 2014) %>%
+    dplyr::mutate(D3C1 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
                          FMSY2013,
                          FPA2013),
            D3C2 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
                          BMSY2014,
                          BPA2014)),
   summary_table_frmt %>%
-    filter(YearOfLastAssessment == 2015) %>%
-    mutate(D3C1 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
+    dplyr::filter(YearOfLastAssessment == 2015) %>%
+    dplyr::mutate(D3C1 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
                          FMSY2014,
                          FPA2014),
            D3C2 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
                          BMSY2015,
                          BPA2015)),
   summary_table_frmt %>%
-    filter(YearOfLastAssessment == 2016) %>%
-    mutate(D3C1 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
+    dplyr::filter(YearOfLastAssessment == 2016) %>%
+    dplyr::mutate(D3C1 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
                          FMSY2015,
                          FPA2015),
            D3C2 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
                          BMSY2016,
                          BPA2016))
 ) %>%
-  select(StockCode,
+  dplyr::select(StockCode,
          Description,
          FisheriesGuild,
          EcoRegion,
@@ -408,12 +409,12 @@ summary_table_frmt <- data.frame(lapply(summary_table_frmt, factor))
 # Data for pie graphs #
 #~~~~~~~~~~~~~~~~~~~~~#
 pie_table <- stock_list_frmt %>%
-  select(StockCode,
+  dplyr::select(StockCode,
          EcoRegion,
          FisheriesGuild,
          YearOfLastAssessment) %>%
-  left_join(summary_table, by = "StockCode") %>%
-  mutate(FMSY = ifelse(YearOfLastAssessment == 2014,
+  dplyr::left_join(summary_table, by = "StockCode") %>%
+  dplyr::mutate(FMSY = ifelse(YearOfLastAssessment == 2014,
                        FMSY2013,
                        ifelse(YearOfLastAssessment == 2015,
                               FMSY2014,
@@ -444,13 +445,13 @@ pie_table <- stock_list_frmt %>%
          SBL = SBL) %>%
   #*****************#
   # nep-9 doesn't have the MSY2016, so we need to use MSY2015. Consider this a bandaid for now.
-  mutate(BMSY = ifelse(StockCode == "nep-9",
+  dplyr::mutate(BMSY = ifelse(StockCode == "nep-9",
                        BMSY2015,
                        BMSY))
   #*****************#
 
 pie_table_stock <- pie_table %>%
-  select(EcoRegion,
+  dplyr::select(EcoRegion,
          StockCode,
          FisheriesGuild,
          FMSY,
@@ -458,41 +459,41 @@ pie_table_stock <- pie_table %>%
          FPA,
          BPA,
          SBL) %>%
-  gather(VARIABLE, VALUE, -EcoRegion, -StockCode, -FisheriesGuild) %>%
-  mutate(VALUE = ifelse(is.na(VALUE),
+  tidyr::gather(VARIABLE, VALUE, -EcoRegion, -StockCode, -FisheriesGuild) %>%
+  dplyr::mutate(VALUE = ifelse(is.na(VALUE),
                         "GREY",
                         VALUE)) %>%
-  group_by(EcoRegion, FisheriesGuild, VARIABLE, VALUE)
+  dplyr::group_by(EcoRegion, FisheriesGuild, VARIABLE, VALUE)
 
 pie_table_count <- pie_table %>%
-  select(EcoRegion,
+  dplyr::select(EcoRegion,
          FisheriesGuild,
          FMSY,
          BMSY,
          FPA,
          BPA,
          SBL) %>%
-  gather(VARIABLE, VALUE, -EcoRegion, -FisheriesGuild) %>%
-  mutate(VALUE = ifelse(is.na(VALUE),
+  tidyr::gather(VARIABLE, VALUE, -EcoRegion, -FisheriesGuild) %>%
+  dplyr::mutate(VALUE = ifelse(is.na(VALUE),
                         "GREY",
                         VALUE)) %>%
-  group_by(EcoRegion, FisheriesGuild, VARIABLE, VALUE) %>%
-  summarize(COUNT = n())
+  dplyr::group_by(EcoRegion, FisheriesGuild, VARIABLE, VALUE) %>%
+  dplyr::summarize(COUNT = n())
 
 # Make sure that all possible combinations are provided
-pie_table_count <- bind_rows(
+pie_table_count <- dplyr::bind_rows(
   pie_table_count %>%
     tidyr::expand(VALUE = c("GREY", "GREEN", "RED", "ORANGE")) %>%
-    left_join(pie_table_count, by = c("EcoRegion", "FisheriesGuild", "VARIABLE", "VALUE")) %>%
-    arrange(EcoRegion, FisheriesGuild, VARIABLE, VALUE) %>%
-    mutate(COUNT = ifelse(is.na(COUNT),
+    dplyr::left_join(pie_table_count, by = c("EcoRegion", "FisheriesGuild", "VARIABLE", "VALUE")) %>%
+    dplyr::arrange(EcoRegion, FisheriesGuild, VARIABLE, VALUE) %>%
+    dplyr::mutate(COUNT = ifelse(is.na(COUNT),
                           0,
                           as.numeric(COUNT))),
   pie_table_count %>%
-    group_by(EcoRegion, VARIABLE, VALUE) %>%
-    mutate(FisheriesGuild = "total",
+    dplyr::group_by(EcoRegion, VARIABLE, VALUE) %>%
+    dplyr::mutate(FisheriesGuild = "total",
            COUNT = sum(COUNT)) %>%
-    distinct(.keep_all = TRUE)
+    dplyr::distinct(.keep_all = TRUE)
 )
 
 
@@ -501,47 +502,47 @@ pie_table_count <- bind_rows(
 #~~~~~~~~~~~~~~~~~~~~~#
 # Split and count by variable and color
 ges_table_count <- pie_table %>%
-  select(EcoRegion,
+  dplyr::select(EcoRegion,
          D3C2 = FMSY,
          D3C1 = BMSY) %>%
-  gather(VARIABLE, COLOR, -EcoRegion) %>%
-  mutate(COLOR = ifelse(is.na(COLOR),
+  tidyr::gather(VARIABLE, COLOR, -EcoRegion) %>%
+  dplyr::mutate(COLOR = ifelse(is.na(COLOR),
                         "GREY",
                         COLOR)) %>%
-  group_by(EcoRegion, VARIABLE, COLOR) %>%
-  summarize(VALUE = n(),
+  dplyr::group_by(EcoRegion, VARIABLE, COLOR) %>%
+  dplyr::summarize(VALUE = n(),
             METRIC = "count")
 
 # Take last year of catch data. If catch is not available, use landings.
 # Remove stocks without quantified catch or landings
 ges_catch_stock <-  sag_complete_summary %>%
-  group_by(StockCode) %>%
-  filter(Year == YearOfLastAssessment - 1) %>%
-  ungroup() %>%
-  mutate(CATCH = ifelse(is.na(catches) & !is.na(landings),
+  dplyr::group_by(StockCode) %>%
+  dplyr::filter(Year == YearOfLastAssessment - 1) %>%
+  dplyr::ungroup() %>%
+  dplyr::mutate(CATCH = ifelse(is.na(catches) & !is.na(landings),
                         landings,
                         catches)) %>%
-  filter(!is.na(CATCH)) %>%
-  select(StockCode,
+  dplyr::filter(!is.na(CATCH)) %>%
+  dplyr::select(StockCode,
          CATCH) %>%
-  distinct(.keep_all = TRUE)
+  dplyr::distinct(.keep_all = TRUE)
 
 # Split and sum catch by variable and color
 ges_table_catch <- ges_catch_stock %>%
-  left_join(pie_table, by = "StockCode") %>%
-  select(EcoRegion,
+  dplyr::left_join(pie_table, by = "StockCode") %>%
+  dplyr::select(EcoRegion,
          CATCH,
          D3C2 = FMSY,
          D3C1 = BMSY) %>%
-  gather(VARIABLE, COLOR, -EcoRegion, -CATCH) %>%
-  mutate(COLOR = ifelse(is.na(COLOR),
+  tidyr::gather(VARIABLE, COLOR, -EcoRegion, -CATCH) %>%
+  dplyr::mutate(COLOR = ifelse(is.na(COLOR),
                         "GREY",
                         COLOR),
          CATCH = ifelse(is.na(CATCH),
                         0,
                         CATCH)) %>%
-  group_by(EcoRegion, VARIABLE, COLOR) %>%
-  summarize(VALUE = sum(CATCH),
+  dplyr::group_by(EcoRegion, VARIABLE, COLOR) %>%
+  dplyr::summarize(VALUE = sum(CATCH),
             METRIC = "total_sum")
 
 ges_table <- rbind(ges_table_count, ges_table_catch)
@@ -550,52 +551,52 @@ ges_table <- rbind(ges_table_count, ges_table_catch)
 # Stock Status over time data #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 stock_trends <- sag_complete_summary %>%
-  unnest(data) %>%
-  mutate(F_FMSY = ifelse(!is.na(FMSY),
+  tidyr::unnest(data) %>%
+  dplyr::mutate(F_FMSY = ifelse(!is.na(FMSY),
                          F / FMSY,
                          NA),
          SSB_MSYBtrigger = ifelse(!is.na(MSYBtrigger),
                                   SSB / MSYBtrigger,
                                   NA)) %>%
-  select(Year,
+  dplyr::select(Year,
          StockCode,
          FisheriesGuild,
          EcoRegion,
          F_FMSY,
          SSB_MSYBtrigger) %>%
-  gather(METRIC, stockValue, -Year, -StockCode, -FisheriesGuild, -EcoRegion) %>%
-  group_by(EcoRegion, FisheriesGuild, METRIC, Year) %>%
-  mutate(ecoGuildMean = mean(stockValue, na.rm = TRUE))
+  tidyr::gather(METRIC, stockValue, -Year, -StockCode, -FisheriesGuild, -EcoRegion) %>%
+  dplyr::group_by(EcoRegion, FisheriesGuild, METRIC, Year) %>%
+  dplyr::mutate(ecoGuildMean = mean(stockValue, na.rm = TRUE))
 
-stock_trends_frmt <- bind_rows(
+stock_trends_frmt <- dplyr::bind_rows(
   stock_trends %>%
-    mutate(EcoGuild = paste0(EcoRegion, " - ", FisheriesGuild, " stocks")) %>%
-    ungroup() %>%
-    select(pageGroup = EcoGuild,
+    dplyr::mutate(EcoGuild = paste0(EcoRegion, " - ", FisheriesGuild, " stocks")) %>%
+    tidyr::ungroup() %>%
+    dplyr::select(pageGroup = EcoGuild,
            lineGroup = StockCode,
            Year,
            plotGroup = METRIC,
            plotValue = stockValue) %>%
-    filter(!is.na(plotValue)),
+    dplyr::filter(!is.na(plotValue)),
 
   stock_trends %>%
-    mutate(EcoGuild = paste0(EcoRegion, " - ", FisheriesGuild, " stocks")) %>%
-    ungroup() %>%
-    distinct(EcoGuild, METRIC, Year, .keep_all = TRUE) %>%
-    select(pageGroup = EcoGuild,
+    dplyr::mutate(EcoGuild = paste0(EcoRegion, " - ", FisheriesGuild, " stocks")) %>%
+    dplyr::ungroup() %>%
+    dplyr::distinct(EcoGuild, METRIC, Year, .keep_all = TRUE) %>%
+    dplyr::select(pageGroup = EcoGuild,
            Year,
            plotGroup = METRIC,
            plotValue = ecoGuildMean) %>%
-    mutate(lineGroup = "MEAN") %>%
-    filter(!is.na(plotValue))
+    dplyr::mutate(lineGroup = "MEAN") %>%
+    dplyr::filter(!is.na(plotValue))
 )
 
 #~~~~~~~~~~~~~~~~#
 # KOBE Plot data #
 #~~~~~~~~~~~~~~~~#
 stock_catch <- sag_complete_summary %>%
-  unnest(data) %>%
-  select(Year,
+  tidyr::unnest(data) %>%
+  dplyr::select(Year,
          YearOfLastAssessment,
          StockCode,
          Description,
@@ -611,62 +612,62 @@ stock_catch <- sag_complete_summary %>%
 
 # Calculate any possible remaining values
 stock_catch_full <-
-  bind_rows(
+  dplyr::bind_rows(
     stock_catch %>% # all present and accounted for
-      filter(!is.na(catches),
+      dplyr::filter(!is.na(catches),
              !is.na(landings),
              !is.na(discards)), # 43
     stock_catch %>%  # Missing discards, but catches == landings
-      filter(is.na(discards),
+      dplyr::filter(is.na(discards),
              catches == landings) %>%
-      mutate(discards = 0), #36
+      dplyr::mutate(discards = 0), #36
     stock_catch %>% # Missing catches, but have landings and discards
-      filter(is.na(catches),
+      dplyr::filter(is.na(catches),
              !is.na(landings),
              !is.na(discards)) %>%
-      mutate(catches = landings + discards), #75
+      dplyr::mutate(catches = landings + discards), #75
     stock_catch %>% # missing catches, but have landings
-      filter(is.na(catches),
+      dplyr::filter(is.na(catches),
              !is.na(landings),
              is.na(discards)) %>%
-      mutate(catches = NA,
+      dplyr::mutate(catches = NA,
              discards = NA),
     stock_catch %>% # missing everything
-      filter(is.na(catches),
+      dplyr::filter(is.na(catches),
              is.na(landings),
              is.na(discards)) %>%
-      mutate(catches = NA,
+      dplyr::mutate(catches = NA,
              discards = NA,
              landings = NA),
     stock_catch %>% # missing landings and discards
-      filter(!is.na(catches),
+      dplyr::filter(!is.na(catches),
              is.na(landings),
              is.na(discards)) %>%
-      mutate(landings = NA,
+      dplyr::mutate(landings = NA,
              discards = NA),
     stock_catch %>% # landings and catches
-      filter(is.na(catches),
+      dplyr::filter(is.na(catches),
              is.na(landings),
              !is.na(discards)) %>%
-      mutate(catches = NA,
+      dplyr::mutate(catches = NA,
              landings = NA),
     stock_catch %>% # Missing discards, but have landings and catches
-      filter(!is.na(catches),
+      dplyr::filter(!is.na(catches),
              !is.na(landings),
              is.na(discards),
              landings != catches) %>%
-      mutate(discards = catches - landings)
+      dplyr::mutate(discards = catches - landings)
   )
 
 stock_status_full <-
-  full_join(
+  dplyr::full_join(
     stock_catch_full %>%
-      group_by(StockCode) %>%
-      filter(Year == YearOfLastAssessment - 1) %>%
-      mutate(F_FMSY =  ifelse(!is.na(FMSY),
+      dplyr::group_by(StockCode) %>%
+      dplyr::filter(Year == YearOfLastAssessment - 1) %>%
+      dplyr::mutate(F_FMSY =  ifelse(!is.na(FMSY),
                               F / FMSY,
                               NA)) %>%
-      select(StockCode,
+      dplyr::select(StockCode,
              Description,
              FisheriesGuild,
              EcoRegion,
@@ -677,12 +678,12 @@ stock_status_full <-
              FMSY,
              F),
     stock_catch_full %>%
-      group_by(StockCode) %>%
-      filter(Year == YearOfLastAssessment) %>%
-      mutate(SSB_MSYBtrigger = ifelse(!is.na(MSYBtrigger),
+      dplyr::group_by(StockCode) %>%
+      dplyr::filter(Year == YearOfLastAssessment) %>%
+      dplyr::mutate(SSB_MSYBtrigger = ifelse(!is.na(MSYBtrigger),
                                       SSB / MSYBtrigger,
                                       NA)) %>%
-      select(StockCode,
+      dplyr::select(StockCode,
              FisheriesGuild,
              EcoRegion,
              SSB_MSYBtrigger,
@@ -692,7 +693,7 @@ stock_status_full <-
            "FisheriesGuild",
            "EcoRegion")
   ) %>%
-  mutate(colList = ifelse(is.na(F_FMSY) | is.na(SSB_MSYBtrigger),
+  dplyr::mutate(colList = ifelse(is.na(F_FMSY) | is.na(SSB_MSYBtrigger),
                           "GREY",
                           if_else(F_FMSY < 1 & SSB_MSYBtrigger >= 1,
                                   "GREEN",
@@ -714,18 +715,18 @@ data("stock_list_raw")
 # load("data/stock_list_raw.rda")
 
 fish_category <- stock_list_raw %>%
-  filter(YearOfLastAssessment >= 2016,
+  dplyr::filter(YearOfLastAssessment >= 2016,
          !is.na(FisheriesGuild)) %>%
-  mutate(X3A_CODE = gsub("-.*$", "", StockKeyLabel),
+  dplyr::mutate(X3A_CODE = gsub("-.*$", "", StockKeyLabel),
          X3A_CODE = gsub("\\..*", "", X3A_CODE),
          X3A_CODE = toupper(X3A_CODE),
          FisheriesGuild = tolower(FisheriesGuild)) %>%
-  select(X3A_CODE, FisheriesGuild) %>%
-  distinct(.keep_all = TRUE)
+  dplyr::select(X3A_CODE, FisheriesGuild) %>%
+  dplyr::distinct(.keep_all = TRUE)
 
 species_list <- species_list %>%
-  select(English_name, Scientific_name, X3A_CODE) %>%
-  left_join(fish_category, by = "X3A_CODE")
+  dplyr::select(English_name, Scientific_name, X3A_CODE) %>%
+  dplyr::left_join(fish_category, by = "X3A_CODE")
 
 historic_bs <- paste0(c("III (not specified)", "III b  Baltic 23",
                         "III b+c (not specified)", "III b-d (not specified)",
@@ -749,15 +750,15 @@ historic_uk <- paste0(c("^UK", "^Channel", "^Isle of Man"),
                       collapse = "|")
 
 catch_dat_1950 <- catch_data_historical %>%
-  gather(YEAR, VALUE, -Country, -Species, -Division) %>%
-  mutate(YEAR = as.numeric(gsub("X", "", YEAR)),
+  tidyr::gather(YEAR, VALUE, -Country, -Species, -Division) %>%
+  dplyr::mutate(YEAR = as.numeric(gsub("X", "", YEAR)),
          VALUE = ifelse(VALUE == "<0.5",
                         as.numeric(0),
                         VALUE),
          VALUE = ifelse(!is.na(VALUE),
                         as.numeric(VALUE),
                         NA),
-         COUNTRY = case_when(
+         COUNTRY = dplyr::case_when(
            grepl(historic_uk, .$Country) ~ "United Kingdom",
            grepl("^Germany", .$Country) ~ "Germany",
            grepl("Un. Sov. Soc. Rep.", .$Country) ~ "Russia",
@@ -765,17 +766,17 @@ catch_dat_1950 <- catch_data_historical %>%
            grepl("Other nei", .$Country) ~ "OTHER",
            TRUE ~ .$Country
          ),
-         ISO3 = countrycode(COUNTRY, "country.name", "iso3c", warn = FALSE),
-         ECOREGION = case_when(
+         ISO3 = countrycode::countrycode(COUNTRY, "country.name", "iso3c", warn = FALSE),
+         ECOREGION = dplyr::case_when(
            grepl(historic_bs, .$Division) ~ "Baltic Sea Ecoregion",
            grepl(historic_ns, .$Division) ~ "Greater North Sea Ecoregion",
            TRUE ~ "OTHER")) %>%
-  filter(YEAR <= 2005,
+  dplyr::filter(YEAR <= 2005,
          ECOREGION != "OTHER",
          COUNTRY != "OTHER") %>%
-  left_join(y = species_list, c("Species" = "English_name")) %>% # Merge to add FAO species information
+  dplyr::left_join(y = species_list, c("Species" = "English_name")) %>% # Merge to add FAO species information
   # left_join(y = fish_category, by = "X3A_CODE") %>% # Merge to add FAO species information
-  select(YEAR,
+  dplyr::select(YEAR,
          COUNTRY,
          ISO3,
          GUILD = FisheriesGuild,
@@ -789,23 +790,23 @@ data("catch_data_official")
 # load("data/catch_data_official.rda")
 
 catch_dat_2010 <- catch_data_official %>%
-  gather(YEAR, VALUE, -Country, -Species, -Area, -Units) %>%
-  filter(Country != "") %>%
-  mutate(YEAR = as.numeric(gsub("X", "", YEAR)),
+  tidyr::gather(YEAR, VALUE, -Country, -Species, -Area, -Units) %>%
+  dplyr::filter(Country != "") %>%
+  dplyr::mutate(YEAR = as.numeric(gsub("X", "", YEAR)),
          VALUE = as.numeric(VALUE),
-         Country = countrycode(Country,"iso2c", "country.name"),
+         Country = countrycode::countrycode(Country,"iso2c", "country.name"),
          Country = ifelse(grepl("Guernsey|Isle of Man|Jersey", Country),
                           "United Kingdom",
                           Country),
-         ISO3 = countrycode(Country, "country.name", "iso3c", warn = FALSE),
+         ISO3 = countrycode::countrycode(Country, "country.name", "iso3c", warn = FALSE),
          Area = tolower(Area),
-         ECOREGION = case_when(
+         ECOREGION = dplyr::case_when(
            grepl("27.3.bc|27.3.d|27.3_nk", .$Area) ~ "Baltic Sea Ecoregion",
            grepl("27.3.a|27.4|27.7.d", .$Area) ~ "Greater North Sea Ecoregion",
            TRUE ~ "OTHER")) %>%
-  filter(ECOREGION != "OTHER") %>%
-  left_join(species_list, c("Species" = "X3A_CODE")) %>%
-  select(YEAR,
+  dplyr::filter(ECOREGION != "OTHER") %>%
+  dplyr::left_join(species_list, c("Species" = "X3A_CODE")) %>%
+  dplyr::select(YEAR,
          COUNTRY = Country,
          ISO3,
          GUILD = FisheriesGuild,
@@ -816,11 +817,11 @@ catch_dat_2010 <- catch_data_official %>%
          VALUE)
 
 allDat <- catch_dat_2010 %>%
-  bind_rows(catch_dat_1950) %>%
-  mutate(GUILD = ifelse(is.na(GUILD),
+  dplyr::bind_rows(catch_dat_1950) %>%
+  dplyr::mutate(GUILD = ifelse(is.na(GUILD),
                         "undefined",
                         GUILD)) %>%
-  filter(!GUILD %in% c("elasmobranch", "crustacean") |
+  dplyr::filter(!GUILD %in% c("elasmobranch", "crustacean") |
            ECOREGION != "Baltic Sea")
 
 
@@ -840,13 +841,13 @@ data("STECF_landings_data")
 
 
 effortDat <- STECF_effort_data %>%
-  mutate(ISO3c = ifelse(grepl("SCO|ENG|GBG|GBJ|IOM|NIR", country),
+  dplyr::mutate(ISO3c = ifelse(grepl("SCO|ENG|GBG|GBJ|IOM|NIR", country),
                                 "GBR",
                                 country),
-         COUNTRY = countrycode(ISO3c, "iso3c", "country.name")) %>%
-  mutate(YEAR = as.numeric(year),
+         COUNTRY = countrycode::countrycode(ISO3c, "iso3c", "country.name")) %>%
+  dplyr::mutate(YEAR = as.numeric(year),
          EFFORT = as.numeric(nominal_effort)) %>%
-  select(YEAR,
+  dplyr::select(YEAR,
          ANNEX = annex,
          AREA = regulated.area,
          COUNTRY,
@@ -854,17 +855,17 @@ effortDat <- STECF_effort_data %>%
          EFFORT)
 
 stecfCatchDat <- STECF_landings_data %>%
-  mutate(ISO3c = ifelse(grepl("SCO|ENG|GBG|GBJ|IOM|NIR", country),
+  dplyr::mutate(ISO3c = ifelse(grepl("SCO|ENG|GBG|GBJ|IOM|NIR", country),
                         "GBR",
                         country),
-         COUNTRY = countrycode(ISO3c, "iso3c", "country.name")) %>%
-  left_join(species_list, c("species" = "X3A_CODE")) %>% # merge with FAO species names
-  mutate(LANDINGS = as.numeric(sum_landings),
+         COUNTRY = countrycode::countrycode(ISO3c, "iso3c", "country.name")) %>%
+  dplyr::left_join(species_list, c("species" = "X3A_CODE")) %>% # merge with FAO species names
+  dplyr::mutate(LANDINGS = as.numeric(sum_landings),
          LANDINGS = ifelse(COUNTRY == "Germany" &
                              year == 2013 &
                              vessel.length == "U8M",
                            NA, LANDINGS)) %>%
-  select(YEAR = year,
+  dplyr::select(YEAR = year,
          COUNTRY,
          ANNEX = annex,
          AREA = regulated.area,
@@ -873,20 +874,20 @@ stecfCatchDat <- STECF_landings_data %>%
          LANDINGS)
 
 
-gear_dat <- full_join(
+gear_dat <- dplyr::full_join(
   effortDat %>%
-    select(ANNEX, AREA, GEAR),
+    dplyr::select(ANNEX, AREA, GEAR),
   stecfCatchDat %>%
-    select(ANNEX, AREA, GEAR),
+    dplyr::select(ANNEX, AREA, GEAR),
   by = c("ANNEX", "AREA", "GEAR")
 ) %>%
-  distinct(.keep_all = TRUE)
+  dplyr::distinct(.keep_all = TRUE)
 
-gear_dat_clean <- bind_rows(
+gear_dat_clean <- dplyr::bind_rows(
   gear_dat %>%
-    filter(ANNEX == "BAL") %>%
-    mutate(ECOREGION = "Baltic Sea Ecoregion",
-           gear_class = case_when(
+    dplyr::filter(ANNEX == "BAL") %>%
+    dplyr::mutate(ECOREGION = "Baltic Sea Ecoregion",
+           gear_class = dplyr::case_when(
              grepl("BEAM", .$GEAR) ~ "Beam trawl",
              grepl("DREDGE", .$GEAR) ~ "Dredge",
              grepl("GILL|TRAMMEL|LONGLINE", .$GEAR) ~ "Static/Gill net/LL",
@@ -899,10 +900,10 @@ gear_dat_clean <- bind_rows(
            )
     ),
   gear_dat %>%
-    filter(ANNEX == "IIA",
+    dplyr::filter(ANNEX == "IIA",
            AREA %in% c("3A", "3B1", "3B2", "3B3")) %>%
-    mutate(ECOREGION = "Greater North Sea Ecoregion",
-           gear_class = case_when(
+    dplyr::mutate(ECOREGION = "Greater North Sea Ecoregion",
+           gear_class = dplyr::case_when(
              grepl("BEAM|BT1|BT2", .$GEAR) ~ "Beam trawl",
              grepl("DREDGE", .$GEAR) ~ "Dredge",
              grepl("GN1|GT1|LL1|TRAMMEL", .$GEAR) ~ "Static/Gill net/LL",
@@ -915,9 +916,9 @@ gear_dat_clean <- bind_rows(
            )
     ),
   gear_dat %>%
-    filter(ANNEX == "CEL1") %>%
-    mutate(ECOREGION = "Celtic Seas Ecoregion",
-           gear_class = case_when(
+    dplyr::filter(ANNEX == "CEL1") %>%
+    dplyr::mutate(ECOREGION = "Celtic Seas Ecoregion",
+           gear_class = dplyr::case_when(
              grepl("BEAM|BT1|BT2", .$GEAR) ~ "Beam trawl",
              grepl("DREDGE", .$GEAR) ~ "Dredge",
              grepl("GN1|GT1|LL1|TRAMMEL", .$GEAR) ~ "Static/Gill net/LL",
@@ -932,8 +933,8 @@ gear_dat_clean <- bind_rows(
 )
 
 effortDatClean <- gear_dat_clean %>%
-  left_join(effortDat, by = c("ANNEX", "AREA", "GEAR")) %>%
-  select(YEAR,
+  dplyr::left_join(effortDat, by = c("ANNEX", "AREA", "GEAR")) %>%
+  dplyr::select(YEAR,
          ANNEX,
          ECOREGION,
          AREA,
@@ -943,18 +944,16 @@ effortDatClean <- gear_dat_clean %>%
 
 
 stecfCatchDatClean <- gear_dat_clean %>%
-  left_join(stecfCatchDat, by = c("ANNEX", "AREA", "GEAR")) %>%
-  select(YEAR,
+  dplyr::left_join(stecfCatchDat, by = c("ANNEX", "AREA", "GEAR")) %>%
+  dplyr::select(YEAR,
          ANNEX,
          ECOREGION,
          AREA,
          GEAR = gear_class,
          COUNTRY,
          LANDINGS) %>%
-  group_by(YEAR, ANNEX, ECOREGION, AREA, GEAR, COUNTRY) %>%
-  summarize(LANDINGS = sum(LANDINGS, na.rm = TRUE))
+  dplyr::group_by(YEAR, ANNEX, ECOREGION, AREA, GEAR, COUNTRY) %>%
+  dplyr::summarize(LANDINGS = sum(LANDINGS, na.rm = TRUE))
 
 effortDatClean <- effortDatClean %>%
-  filter(!COUNTRY %in% c("Finland", "Estonia"))
-
-
+  dplyr::filter(!COUNTRY %in% c("Finland", "Estonia"))

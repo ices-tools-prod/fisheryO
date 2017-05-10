@@ -24,6 +24,14 @@ sag_refpts_raw <- icesSAG::getSAG(stock = NULL,
                                   combine = TRUE)
 devtools::use_data(sag_refpts_raw)
 
+
+sag_keys <- do.call("rbind", lapply(2014:2016,
+                                    function(x) icesSAG::findAssessmentKey(stock = NULL,
+                                                                           year = x,
+                                                                           full = TRUE)[, c("AssessmentYear",
+                                                                                            "AssessmentKey",
+                                                                                            "StockKeyLabel")]))
+devtools::use_data(sag_keys)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # DATA SOURCE: ICES official catch statistics (1950-2010) #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #

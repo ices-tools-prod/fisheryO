@@ -1,17 +1,10 @@
-# rm(list = ls())
-# library(dplyr)
-# library(tidyr)
-# library(icesSAG)
-# library(stringr)
-# # library(bindr)
-# library(countrycode)
-
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # Clean up the Stock Database #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
 data("stock_list_raw")
-# load("data/stock_list_raw.rda")
+data("sag_summary_raw")
+data("sag_keys")
 
 stock_list <- stock_list_raw %>%
   dplyr::filter(ActiveYear == 2016) %>% ### This will need to be fixed for BS
@@ -83,16 +76,7 @@ stock_list_frmt <- dplyr::bind_rows(
     dplyr::filter(!grepl("[[:space:]]", SpeciesScientificName))
 )
 
-data("sag_summary_raw")
-data("sag_keys")
-# load("data/sag_summary_raw.rda")
 
-# sag_years <- unique(stock_list$YearOfLastAssessment)
-# sag_keys <- do.call("rbind", lapply(sag_years, function(x) icesSAG::findAssessmentKey(stock = NULL,
-#                                                                              year = x,
-#                                                                              full = TRUE)[, c("AssessmentYear",
-#                                                                                               "AssessmentKey",
-#                                                                                               "StockKeyLabel")]))
 sag_keys$StockKeyLabel <- tolower(sag_keys$StockKeyLabel)
 
 found_stocks <- stock_list %>%
@@ -213,6 +197,8 @@ sag_complete_summary <- sag_ref_summary %>%
                        NA,
                        FMSY)
   )
+
+devtools::use_data(sag_complete_summary)
 
 # Recreate check-mark tables
 summary_fmsy <- sag_complete_summary %>%
@@ -404,7 +390,7 @@ summary_table_frmt[summary_table_frmt == "ORANGE"] <- "<i class=\"glyphicon glyp
 
 summary_table_frmt <- data.frame(lapply(summary_table_frmt, factor))
 
-
+devtools::use_data(summary_table_frmt)
 #~~~~~~~~~~~~~~~~~~~~~#
 # Data for pie graphs #
 #~~~~~~~~~~~~~~~~~~~~~#
@@ -496,7 +482,7 @@ pie_table_count <- dplyr::bind_rows(
     dplyr::distinct(.keep_all = TRUE)
 )
 
-
+devtools::use_data(pie_table_count)
 #~~~~~~~~~~~~~~~~~~~~~#
 # GES Pie charts data #
 #~~~~~~~~~~~~~~~~~~~~~#
@@ -547,6 +533,7 @@ ges_table_catch <- ges_catch_stock %>%
 
 ges_table <- rbind(ges_table_count, ges_table_catch)
 
+devtools::use_data(ges_table)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Stock Status over time data #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -571,7 +558,7 @@ stock_trends <- sag_complete_summary %>%
 stock_trends_frmt <- dplyr::bind_rows(
   stock_trends %>%
     dplyr::mutate(EcoGuild = paste0(EcoRegion, " - ", FisheriesGuild, " stocks")) %>%
-    tidyr::ungroup() %>%
+    dplyr::ungroup() %>%
     dplyr::select(pageGroup = EcoGuild,
            lineGroup = StockCode,
            Year,
@@ -591,6 +578,7 @@ stock_trends_frmt <- dplyr::bind_rows(
     dplyr::filter(!is.na(plotValue))
 )
 
+devtools::use_data(stock_trends_frmt)
 #~~~~~~~~~~~~~~~~#
 # KOBE Plot data #
 #~~~~~~~~~~~~~~~~#
@@ -659,6 +647,8 @@ stock_catch_full <-
       dplyr::mutate(discards = catches - landings)
   )
 
+devtools::use_data(stock_catch_full)
+
 stock_status_full <-
   dplyr::full_join(
     stock_catch_full %>%
@@ -702,6 +692,9 @@ stock_status_full <-
          FisheriesGuild = ifelse(StockCode %in% c("whb-comb", "mac-nea"),
                                  "large-scale stocks",
                                  FisheriesGuild))
+
+devtools::use_data(stock_status_full)
+
 #############
 ### Catch ###
 #############
@@ -709,10 +702,6 @@ stock_status_full <-
 data("catch_data_historical")
 data("species_list")
 data("stock_list_raw")
-
-# load("data/catch_data_historical.rda")
-# load("data/species_list.rda")
-# load("data/stock_list_raw.rda")
 
 fish_category <- stock_list_raw %>%
   dplyr::filter(YearOfLastAssessment >= 2016,
@@ -823,7 +812,7 @@ allDat <- catch_dat_2010 %>%
                         GUILD)) %>%
   dplyr::filter(!GUILD %in% c("elasmobranch", "crustacean") |
            ECOREGION != "Baltic Sea")
-
+devtools::use_data(allDat)
 
 # ~~~~~~~~~~~~~~~~~~~~~~ #
 # STECF Catch and Effort #

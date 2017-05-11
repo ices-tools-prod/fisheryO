@@ -9,7 +9,10 @@ Description: Functions that work with International Council for the Exploration
              and plot Fisheries Overview products.
 Depends:
     R (>= 3.3.1),
-Imports: devtools,
+    dplyr,
+    tidyr
+Imports: 
+    devtools,
     ggrepel,
     stringr,
     icesSAG,
@@ -18,9 +21,9 @@ Imports: devtools,
     lubridate,
     ggiraph,
     gridExtra,
-    dplyr,
-    tidyr
     countrycode
+Suggests:
+  testthat
 License: GPL (>= 2)
 LazyData: TRUE
 RoxygenNote: 6.0.1

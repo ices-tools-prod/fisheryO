@@ -1,0 +1,46 @@
+---
+title: "Greater North Sea Ecoregion"
+output: 
+  html_document:
+    template: null
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(fisheryO)
+```
+
+## Here we go...
+
+This document shows how the fisheryO package can be used to generate plots for the Greater North Sea Ecoregion Fishery Overview
+
+
+Figure 1. Yellow shading is the Greater North Sea ecoregion as defined by ICES. The fisheries covered in this overview are the fisheries conducted in ICES divisions 3a, 4a, 4b, 4c, and 7d.
+```{r figure_1}
+
+```
+
+
+```{r figure_2}
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+# Annex
+```{r echo=TRUE, include = TRUE}
+load("data/summary_table_frmt.rda")
+# data("summary_table_frmt", package = "fisheryO")
+
+stockPlot <- summary_table_frmt %>%
+  filter(grepl(pattern = "Greater North Sea Ecoregion", EcoRegion)) %>%
+  select(-EcoRegion) %>%
+  distinct() %>%
+  arrange(StockCode)
+```
+
+```{r, annex_1, code = readLines("~/git/ices-dk/fisheryO/inst/rmd/stockSummaryTable-dynamic.R"), echo = FALSE, eval = TRUE}
+
+```

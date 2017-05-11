@@ -21,7 +21,9 @@ Imports:
     lubridate,
     ggiraph,
     gridExtra,
-    countrycode
+    countrycode,
+    htmltools,
+    DT
 Suggests:
   testthat
 License: GPL (>= 2)

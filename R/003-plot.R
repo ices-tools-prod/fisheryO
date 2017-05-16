@@ -1099,6 +1099,7 @@ ices_catch_plot <- function(ecoregion, #IA = unique(allDat$ECOREGION)[1],
 #' guild, or species.
 #'
 #' @param ecoregion ecoregion name, e.g. Greater North Sea Ecoregion
+#' @param metric the value to plot e.g., EFFORT or LANDINGS
 #' @param type the variable that will be used to group and display data: COMMON_NAME, GUILD, or COUNTRY
 #' @param line_count number of lines to display
 #' @param plot_type area or line plot
@@ -1110,8 +1111,8 @@ ices_catch_plot <- function(ecoregion, #IA = unique(allDat$ECOREGION)[1],
 #' @param fig.height height of combined set of plots
 #' @param text.size = size of text in plots
 #'
-#' @note Historic and official nominal catch are actually only the landings and do not account for discards, misreporting, or other
-#' potential issues.
+#' @note Some considerable errors have been identified in the STECF data. Finland and Estonia effort data are not reliable,
+#' and Germany recorded an erroneous haul in 2013. These values have been removed.
 #'
 #' @return A ggplot2 object when \code{return_plot} is \code{TRUE} or .png when \code{save_plot} is \code{TRUE}.
 #' Output is saved as \code{file_name} in \code{output_path}.
@@ -1122,43 +1123,56 @@ ices_catch_plot <- function(ecoregion, #IA = unique(allDat$ECOREGION)[1],
 #'
 #' @examples
 #' \dontrun{
-#' ices_catch_plot("Greater North Sea Ecoregion", type = "COMMON_NAME", return_plot = TRUE, line_count = 4)
+#' stecf_plot("Greater North Sea Ecoregion", type = "COMMON_NAME", return_plot = TRUE, line_count = 4)
 #' }
 #' @export
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # Landings over time by country, guild, or species #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+stecf_plot <- function(ecoregion,
+                       metric = c("EFFORT", "LANDINGS")[1],
+                       type = c("GEAR", "COUNTRY")[1],
+                       line_count = 4,
+                       plot_type = c("line", "area")[1],
+                       file_name = "figure3",
+                       save_plot = FALSE,
+                       return_plot = TRUE,
+                       fig.width = 174,
+                       fig.height = 68,
+                       text.size = 9,
+                       ...) {
 
+  if(metric == "EFFORT"){
+    data("stecf_effort_clean")
 
-stecfEffortAreaPlot <- function(IA = unique(allDat$ECOREGION)[1],
-                                type = c("GEAR", "COUNTRY")[1],
-                                line_count = 4,
-                                plot_type = c("line", "area")[1],
-                                fig_name = "figure3",
-                                fig.save = FALSE,
-                                fig.plot = TRUE,
-                                fig.width = 174,
-                                fig.height = 68,
-                                text.size = 9,
-                                ...) {
+    allDat <- stecf_effort_clean %>%
+      filter(ECOREGION == ecoregion) %>%
+      rename_(.dots = setNames(c(type, "EFFORT"),
+                               c("type_var", "VALUE")))
+    }
+
+  if(metric == "LANDINGS"){
+    if(type == "COUNTRY") stop("You should use the ices_catch_plot() function instead.")
+
+    data("stecf_landings_clean")
+
+    allDat <- stecf_landings_clean %>%
+      filter(ECOREGION == ecoregion) %>%
+      rename_(.dots = setNames(c(type, "LANDINGS"),
+                               c("type_var", "VALUE")))
+  }
 
   if(line_count >= 10) warning("Color scales are hard to see beyond this point... try plotting fewer categories.")
   if(line_count == 14) stop("Color palette only has 14 colors... sorry.")
 
-  iaDat <- allDat[allDat$ECOREGION == IA,]
-
-  value_type <- grep("EFFORT|LANDINGS", colnames(iaDat), value = TRUE)
-  iaDat <- rename_(iaDat, .dots = setNames(c(type, value_type),
-                                           c("type_var", "VALUE")))
-
-  catchPlot <- iaDat %>%
+  catchPlot <- allDat %>%
     group_by(ANNEX, type_var) %>%
     dplyr::summarize(typeTotal = sum(VALUE, na.rm = TRUE)) %>% # Overall catch to order plot
     arrange(ANNEX, -typeTotal) %>%
     filter(typeTotal >= 1) %>%
     group_by(ANNEX) %>%
     dplyr::mutate(RANK = min_rank(desc(typeTotal))) %>%
-    inner_join(iaDat, c("ANNEX", "type_var")) %>%
+    inner_join(allDat, c("ANNEX", "type_var")) %>%
     ungroup() %>%
     dplyr::mutate(type_var = replace(type_var, RANK > line_count, "other"),
                   ANNEX = str_wrap(ANNEX, width = 26)) %>%
@@ -1170,17 +1184,17 @@ stecfEffortAreaPlot <- function(IA = unique(allDat$ECOREGION)[1],
   if(nchar(max(catchPlot$typeTotal, na.rm = TRUE)) >= 6) {
     catchPlot$typeTotal <- catchPlot$typeTotal / 1000
 
-    if(value_type == "EFFORT"){
+    if(metric == "EFFORT"){
       catchLabel <- "Nominal effort (1000 kW days at sea)"
     }
-    if(value_type == "LANDINGS"){
+    if(metric == "LANDINGS"){
       catchLabel <- "Landings (thousand tonnes)"
     }
   } else {
-    if(value_type == "EFFORT"){
+    if(metric == "EFFORT"){
       catchLabel <- "Nominal effort (kW days at sea)"
     }
-    if(value_type == "LANDINGS"){
+    if(metric == "LANDINGS"){
       catchLabel <- "Landings (tonnes)"
     }
   }
@@ -1275,8 +1289,9 @@ stecfEffortAreaPlot <- function(IA = unique(allDat$ECOREGION)[1],
   }
 
 
-  if(fig.save == TRUE) {
-    ggsave(filename = paste0("~/git/ices-dk/fisheryO/output/", fig_name, "_", IA, ".png"),
+  if(save_plot) {
+    ggsave(paste0(output_path, file_name, ".png"),
+      # filename = paste0("~/git/ices-dk/fisheryO/output/", fig_name, "_", IA, ".png"),
            plot = pl,
            width = fig.width,
            height = fig.height,
@@ -1284,7 +1299,7 @@ stecfEffortAreaPlot <- function(IA = unique(allDat$ECOREGION)[1],
            dpi = 300)
 
   }
-  if(fig.plot == TRUE) {
+  if(return_plot) {
     return(pl)
   }
 }

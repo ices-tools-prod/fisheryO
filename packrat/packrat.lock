@@ -14,6 +14,12 @@ Source: CRAN
 Version: 0.6-1
 Hash: 4aef5bda70897c1663d5b8bae2f4419a
 
+Package: DT
+Source: CRAN
+Version: 0.2
+Hash: 36b032203797956fedad5a25055016a9
+Requires: htmltools, htmlwidgets, magrittr
+
 Package: R.methodsS3
 Source: CRAN
 Version: 1.7.1
@@ -90,10 +96,21 @@ Version: 0.1
 Hash: 57498e6d551c8b99bfd980f34191867f
 Requires: Rcpp, bindr, plogr
 
+Package: bitops
+Source: CRAN
+Version: 1.0-6
+Hash: 67d0775189fd0041d95abca618c5c07e
+
 Package: brew
 Source: CRAN
 Version: 1.0-6
 Hash: 931f9972deae0f205e1c78a51f33149b
+
+Package: caTools
+Source: CRAN
+Version: 1.17.1
+Hash: 97cb6f6293cd18d17df77a6383cc6763
+Requires: bitops
 
 Package: colorspace
 Source: CRAN
@@ -108,6 +125,7 @@ Hash: 1290583b9d16fb60322126a8698fb729
 Package: countrycode
 Source: CRAN
 Version: 0.19
+Hash: edf948180dbf4105b2ca27f3f8d269f1
 
 Package: crayon
 Source: CRAN
@@ -143,21 +161,21 @@ Version: 0.6.12
 Hash: e53fb8c58673df868183697e39a6a4d6
 
 Package: dplyr
-Source: github
-Version: 0.5.0.9004
-Hash: 0054baa5ac69ff509da82e2f5a092e5e
-Requires: BH, R6, Rcpp, assertthat, bindrcpp, glue, magrittr,
-    pkgconfig, plogr, rlang, tibble
-GithubRepo: dplyr
-GithubUsername: tidyverse
-GithubRef: master
-GithubSha1: 0d95cf35af03c8d4600b20617433e555bd38ce35
+Source: CRAN
+Version: 0.5.0
+Hash: 673660fd0b947477dab1044abc8b2c95
+Requires: BH, DBI, R6, Rcpp, assertthat, lazyeval, magrittr, tibble
 
 Package: evaluate
 Source: CRAN
 Version: 0.10
 Hash: c3601a10c987d439e0c63ec635234a76
 Requires: stringr
+
+Package: formatR
+Source: CRAN
+Version: 1.5
+Hash: 258cf79a8dbeedf1c981cdb53837d2af
 
 Package: gdtools
 Source: CRAN
@@ -344,10 +362,15 @@ Source: CRAN
 Version: 0.1-7
 Hash: 421d7d6e0fb4bd885ecbd909b6456b8b
 
+Package: praise
+Source: CRAN
+Version: 1.0.0
+Hash: 77da8f1df873a4b91e5c4a68fe2fb1b6
+
 Package: purrr
 Source: CRAN
 Version: 0.2.2
-Hash: 88243ecd89c2a68bbde9fb2c2a335f76
+Hash: 9f218b40dee7fe7f942039f974bd98b8
 Requires: BH, Rcpp, dplyr, lazyeval, magrittr
 
 Package: rJava
@@ -365,6 +388,13 @@ Package: rlang
 Source: CRAN
 Version: 0.1
 Hash: c6c4821e54319dc19a16836f01f596cd
+
+Package: rmarkdown
+Source: CRAN
+Version: 1.5
+Hash: b37fc27c2604de97b4981eeae7a00879
+Requires: base64enc, caTools, evaluate, htmltools, jsonlite, knitr,
+    rprojroot, yaml
 
 Package: roxygen2
 Source: CRAN
@@ -418,6 +448,12 @@ Source: CRAN
 Version: 1.2.0
 Hash: 25a86d7f410513ebb7c0bc6a5e16bdc3
 Requires: magrittr, stringi
+
+Package: testthat
+Source: CRAN
+Version: 1.0.2
+Hash: 88d5291104227f9dc2e7c7c1d0eb6c74
+Requires: R6, crayon, digest, magrittr, praise
 
 Package: tibble
 Source: github

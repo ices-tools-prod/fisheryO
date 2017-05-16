@@ -76,7 +76,6 @@ stock_list_frmt <- bind_rows(
     filter(!grepl("[[:space:]]", SpeciesScientificName))
 )
 
-
 sag_keys$StockKeyLabel <- tolower(sag_keys$StockKeyLabel)
 
 found_stocks <- stock_list %>%
@@ -198,7 +197,7 @@ sag_complete_summary <- sag_ref_summary %>%
                        FMSY)
   )
 
-devtools::use_data(sag_complete_summary)
+devtools::use_data(sag_complete_summary, overwrite = TRUE)
 
 # Recreate check-mark tables
 summary_fmsy <- sag_complete_summary %>%
@@ -383,14 +382,8 @@ summary_table_frmt[c("SBL", "F_2013", "F_2014", "F_2015",
                                                                         "SSB_2014", "SSB_2015", "SSB_2016",
                                                                         "D3C1", "D3C2", "GES")])] <- "GREY"
 
-summary_table_frmt[summary_table_frmt == "GREEN"] <- "<i class=\"glyphicon glyphicon-ok-sign\" style=\"color:green; font-size:2.2em\"></i>"
-summary_table_frmt[summary_table_frmt == "RED"] <- "<i class=\"glyphicon glyphicon-remove-sign\" style=\"color:red; font-size:2.2em\"></i>"
-summary_table_frmt[summary_table_frmt == "GREY"] <- "<i class=\"glyphicon glyphicon-question-sign\" style=\"color:grey; font-size:2.2em\"></i>"
-summary_table_frmt[summary_table_frmt == "ORANGE"] <- "<i class=\"glyphicon glyphicon-record\" style=\"color:#FAB700; font-size:2.2em\"></i>"
+devtools::use_data(summary_table_frmt, overwrite = TRUE)
 
-summary_table_frmt <- data.frame(lapply(summary_table_frmt, factor))
-
-devtools::use_data(summary_table_frmt)
 #~~~~~~~~~~~~~~~~~~~~~#
 # Data for pie graphs #
 #~~~~~~~~~~~~~~~~~~~~~#
@@ -698,13 +691,12 @@ devtools::use_data(stock_status_full)
 #############
 ### Catch ###
 #############
-
 data("catch_data_historical")
 data("species_list")
 data("stock_list_raw")
 
 fish_category <- stock_list_raw %>%
-  filter(YearOfLastAssessment >= 2016,
+  filter(YearOfLastAssessment == 2016,
          !is.na(FisheriesGuild)) %>%
   mutate(X3A_CODE = gsub("-.*$", "", StockKeyLabel),
          X3A_CODE = gsub("\\..*", "", X3A_CODE),
@@ -714,8 +706,7 @@ fish_category <- stock_list_raw %>%
   distinct(.keep_all = TRUE)
 
 species_list <- species_list %>%
-  select(English_name, Scientific_name, X3A_CODE) %>%
-  left_join(fish_category, by = "X3A_CODE")
+  select(English_name, Scientific_name, X3A_CODE)
 
 historic_bs <- c("III (not specified)", "III b  Baltic 23",
                         "III b+c (not specified)", "III b-d (not specified)",
@@ -739,6 +730,7 @@ historic_uk <- paste0(c("^UK", "^Channel", "^Isle of Man"),
 catch_dat_1950 <- catch_data_historical %>%
   gather(YEAR, VALUE, -Country, -Species, -Division) %>%
   mutate(YEAR = as.numeric(gsub("X", "", YEAR)),
+         Division = gsub("  ", " ", Division),
          VALUE = ifelse(VALUE == "<0.5",
                         as.numeric(0),
                         VALUE),
@@ -748,21 +740,23 @@ catch_dat_1950 <- catch_data_historical %>%
          COUNTRY = case_when(
            grepl(historic_uk, .$Country) ~ "United Kingdom",
            grepl("^Germany", .$Country) ~ "Germany",
-           grepl("Un. Sov. Soc. Rep.", .$Country) ~ "Russia",
+           .$Country %in% c("Un. Sov. Soc. Rep.") ~ "Russian Federation",
            grepl("Faeroe Islands", .$Country) ~ "Faroe Islands",
            grepl("Other nei", .$Country) ~ "OTHER",
            TRUE ~ .$Country
          ),
          ISO3 = countrycode::countrycode(COUNTRY, "country.name", "iso3c", warn = FALSE),
          ECOREGION = case_when(
-           .$Division %in% historic_bs ~ "Baltic Sea Ecoregion",
-           .$Division %in% historic_ns ~ "Greater North Sea Ecoregion",
+           .$Division %in% gsub("  ", " ", historic_bs) ~ "Baltic Sea Ecoregion",
+           .$Division %in% gsub("  ", " ", historic_ns) ~ "Greater North Sea Ecoregion",
            TRUE ~ "OTHER")) %>%
-  filter(YEAR <= 2005,
-         ECOREGION != "OTHER",
-         COUNTRY != "OTHER") %>%
+  filter(YEAR <= 2005) %>%  #,
+         # ECOREGION != "OTHER",
+         # COUNTRY != "OTHER") %>%
   left_join(y = species_list, c("Species" = "English_name")) %>% # Merge to add FAO species information
-  # left_join(y = fish_category, by = "X3A_CODE") %>% # Merge to add FAO species information
+  left_join(y = species_list, c("Species" = "Scientific_name", # Merge to add FAO species information
+                                "X3A_CODE")) %>%
+  left_join(y = fish_category, by = "X3A_CODE") %>%
   select(YEAR,
          COUNTRY,
          ISO3,
@@ -774,7 +768,6 @@ catch_dat_1950 <- catch_data_historical %>%
          VALUE)
 
 data("catch_data_official")
-# load("data/catch_data_official.rda")
 
 catch_dat_2010 <- catch_data_official %>%
   gather(YEAR, VALUE, -Country, -Species, -Area, -Units) %>%
@@ -786,10 +779,11 @@ catch_dat_2010 <- catch_data_official %>%
                           "United Kingdom",
                           Country),
          ISO3 = countrycode::countrycode(Country, "country.name", "iso3c", warn = FALSE),
+         Country = gsub("(United Kingdom) .*", "\\1", Country),
          Area = tolower(Area),
          ECOREGION = case_when(
-           grepl("27.3.bc|27.3.d|27.3_nk", .$Area) ~ "Baltic Sea Ecoregion",
-           grepl("27.3.a|27.4|27.7.d", .$Area) ~ "Greater North Sea Ecoregion",
+           .$Area %in% c("27.3.bc", "27.3.d", "27.3_nk") ~ "Baltic Sea Ecoregion",
+           .$Area %in% c("27.3.a", "27.4", "27.7.d") ~ "Greater North Sea Ecoregion",
            TRUE ~ "OTHER")) %>%
   filter(ECOREGION != "OTHER") %>%
   left_join(species_list, c("Species" = "X3A_CODE")) %>%
@@ -810,24 +804,16 @@ ices_catch_dat <- catch_dat_2010 %>%
                         GUILD)) %>%
   filter(!GUILD %in% c("elasmobranch", "crustacean") |
            ECOREGION != "Baltic Sea")
-devtools::use_data(ices_catch_dat)
+devtools::use_data(ices_catch_dat, overwrite = TRUE)
 
 # ~~~~~~~~~~~~~~~~~~~~~~ #
 # STECF Catch and Effort #
 # ~~~~~~~~~~~~~~~~~~~~~~ #
 
-# For roxygen2 documentation
-# cat(paste0("#'\t\\item{", colnames(effort_data), "{add text}\n"))
-# cat(paste0("#'\t\\item{", colnames(landings_data), "{add text}\n"))
-
-# load("data/effort_data.rda")
 data("STECF_effort_data")
 data("STECF_landings_data")
-# load("data/species_list.rda")
-# load("data/stock_list_raw.rda")
 
-
-effortDat <- STECF_effort_data %>%
+stecf_effort_df <- STECF_effort_data %>%
   mutate(ISO3c = ifelse(grepl("SCO|ENG|GBG|GBJ|IOM|NIR", country),
                                 "GBR",
                                 country),
@@ -841,13 +827,13 @@ effortDat <- STECF_effort_data %>%
          GEAR = regulated.gear,
          EFFORT)
 
-stecfCatchDat <- STECF_landings_data %>%
+stecf_landings_df <- STECF_landings_data %>%
   mutate(ISO3c = ifelse(grepl("SCO|ENG|GBG|GBJ|IOM|NIR", country),
                         "GBR",
                         country),
          COUNTRY = countrycode::countrycode(ISO3c, "iso3c", "country.name")) %>%
-  left_join(species_list, c("species" = "X3A_CODE")) %>% # merge with FAO species names
-  mutate(LANDINGS = as.numeric(sum_landings),
+  mutate(YEAR = as.numeric(year),
+         LANDINGS = as.numeric(sum_landings),
          LANDINGS = ifelse(COUNTRY == "Germany" &
                              year == 2013 &
                              vessel.length == "U8M",
@@ -857,14 +843,12 @@ stecfCatchDat <- STECF_landings_data %>%
          ANNEX = annex,
          AREA = regulated.area,
          GEAR = regulated.gear,
-         COMMON_NAME = English_name,
          LANDINGS)
 
-
 gear_dat <- full_join(
-  effortDat %>%
+  stecf_effort_df %>%
     select(ANNEX, AREA, GEAR),
-  stecfCatchDat %>%
+  stecf_landings_df %>%
     select(ANNEX, AREA, GEAR),
   by = c("ANNEX", "AREA", "GEAR")
 ) %>%
@@ -919,19 +903,19 @@ gear_dat_clean <- bind_rows(
     )
 )
 
-effortDatClean <- gear_dat_clean %>%
-  left_join(effortDat, by = c("ANNEX", "AREA", "GEAR")) %>%
+stecf_effort_clean <- gear_dat_clean %>%
+  left_join(stecf_effort_df, by = c("ANNEX", "AREA", "GEAR")) %>%
   select(YEAR,
          ANNEX,
          ECOREGION,
          AREA,
          GEAR = gear_class,
          COUNTRY,
-         EFFORT)
+         EFFORT) %>%
+  filter(!COUNTRY %in% c("Finland", "Estonia"))
 
-
-stecfCatchDatClean <- gear_dat_clean %>%
-  left_join(stecfCatchDat, by = c("ANNEX", "AREA", "GEAR")) %>%
+stecf_landings_clean <- gear_dat_clean %>%
+  left_join(stecf_landings_df, by = c("ANNEX", "AREA", "GEAR")) %>%
   select(YEAR,
          ANNEX,
          ECOREGION,
@@ -942,5 +926,5 @@ stecfCatchDatClean <- gear_dat_clean %>%
   group_by(YEAR, ANNEX, ECOREGION, AREA, GEAR, COUNTRY) %>%
   summarize(LANDINGS = sum(LANDINGS, na.rm = TRUE))
 
-effortDatClean <- effortDatClean %>%
-  filter(!COUNTRY %in% c("Finland", "Estonia"))
+devtools::use_data(stecf_effort_clean, overwrite = TRUE)
+devtools::use_data(stecf_landings_clean, overwrite = TRUE)

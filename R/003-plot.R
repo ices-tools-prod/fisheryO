@@ -39,10 +39,17 @@ stockSummaryTable_fun <- function(ecoregion,
     output_path <- "~/"
   }
 
+  summary_table_frmt[summary_table_frmt == "GREEN"] <- "<i class=\"glyphicon glyphicon-ok-sign\" style=\"color:green; font-size:2.2em\"></i>"
+  summary_table_frmt[summary_table_frmt == "RED"] <- "<i class=\"glyphicon glyphicon-remove-sign\" style=\"color:red; font-size:2.2em\"></i>"
+  summary_table_frmt[summary_table_frmt == "GREY"] <- "<i class=\"glyphicon glyphicon-question-sign\" style=\"color:grey; font-size:2.2em\"></i>"
+  summary_table_frmt[summary_table_frmt == "ORANGE"] <- "<i class=\"glyphicon glyphicon-record\" style=\"color:#FAB700; font-size:2.2em\"></i>"
+
+  summary_table_frmt <- data.frame(lapply(summary_table_frmt, factor))
+
   stockPlot <- summary_table_frmt %>%
     filter(grepl(pattern = ecoregion, EcoRegion)) %>%
     select(-EcoRegion) %>%
-    distinct() %>%
+    distinct(.keep_all = TRUE) %>%
     arrange(StockCode)
 
   if(table_type %in% c("static", "both")) {
@@ -702,8 +709,7 @@ plot_kobe <- function(ecoregion,
 
 #' Discard rate over time
 #'
-#' This function returns a series of line plots of F and SSB relative to F<sub>MSY</sub> and MSY B<sub>trigger</sub>
-#' reference points for stocks of a fish category for an ecoregion.
+#' This function returns a series of plots of discard rate and landings by fish category for an ecoregion.
 #'
 #' @param ecoregion ecoregion name, e.g. Greater North Sea Ecoregion
 #' @param output_path path for output to live.
@@ -715,6 +721,8 @@ plot_kobe <- function(ecoregion,
 #' Reference points are as published in ICES Stock Assessment Graphs database. In some cases,
 #' status relative to reference points may vary from published ICES advice
 #' when reported F or SSB are very close to reference points (e.g., F = 0.201 > F<sub>MSY</sub> = 0.20).
+#' There is an assumption that discard rates for biannual stocks and
+#'  are consistent over the years that we don't provide new advice.
 #'
 #' @return A ggplot2 object when \code{return_plot} is \code{TRUE}, html when \code{dynamic} is \code{TRUE}
 #' or .png when \code{dynamic} is \code{FALSE}. Output is saved as \code{file_name} in \code{output_path}.
@@ -893,7 +901,7 @@ guild_discards_fun <- function(ecoregion,
 
 #' Landings over time by country, guild, or species
 #'
-#' This function returns an area or line plot of landings (historic and official catch) for an ecoregion by country
+#' This function returns an area or line plot of landings (historic and official catch) for an ecoregion by country,
 #' guild, or species.
 #'
 #' @param ecoregion ecoregion name, e.g. Greater North Sea Ecoregion
@@ -951,7 +959,7 @@ ices_catch_plot <- function(ecoregion, #IA = unique(allDat$ECOREGION)[1],
     }
   }
 
-  iaDat <- allDat %>%
+  iaDat <- ices_catch_dat %>%
     filter(ECOREGION == ecoregion) %>%
     rename_(.dots = setNames(type, "type_var"))
 
@@ -1281,5 +1289,21 @@ stecfEffortAreaPlot <- function(IA = unique(allDat$ECOREGION)[1],
   }
 }
 
+# col_roxygen
+#' Internal function to generate roxygen formatting for data files.
+#'
+#' @keywords internal
+#'
+#' @param base_num The number to multiply by three
+#'
+#' @return Returns a string ready to copy and paste into Roxygen
+#'
+col_oxygen <- function(object) {
+  stopifnot(is.object(object))
 
+  cat(paste0("#'\t\\item{", colnames(object), "}{Add text}\n"))
 
+  cat(paste0("#' }\n#'\n#' @format A ", gsub("\\.", " ", class(object)),
+             " with ", nrow(object),
+             " rows and ", ncol(object), " variables."))
+}

@@ -10,8 +10,8 @@ Description: Functions that work with International Council for the Exploration
 Depends:
     R (>= 3.3.1),
     dplyr,
-    tidyr
-Imports: 
+    tidyr,
+    ggplot2,
     devtools,
     ggrepel,
     stringr,
@@ -24,6 +24,7 @@ Imports:
     countrycode,
     htmltools,
     DT
+Imports: 
 Suggests:
   testthat
 License: GPL (>= 2)

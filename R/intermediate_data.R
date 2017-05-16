@@ -124,17 +124,128 @@
 #'  \code{\link{sag_summary_raw}},\code{\link{sag_refpts_raw}}, and \code{\link{sag_keys}}.
 "sag_complete_summary"
 
+#' stock_status_full
+#'
+#' F/F<sub>MSY</sub> and SSB/MSY B<sub>trigger</sub> by fish category and ecoregion and
+#' total catch (divided into discards and landings) by stock.
+#'
+#' \itemize{
+#'	\item{StockCode}{Add text}
+#'	\item{Description}{Add text}
+#'	\item{FisheriesGuild}{Add text}
+#'	\item{EcoRegion}{Add text}
+#'	\item{F_FMSY}{Add text}
+#'	\item{catches}{Add text}
+#'	\item{landings}{Add text}
+#'	\item{discards}{Add text}
+#'	\item{FMSY}{Add text}
+#'	\item{F}{Add text}
+#'	\item{SSB_MSYBtrigger}{Add text}
+#'	\item{SSB}{Add text}
+#'	\item{MSYBtrigger}{Add text}
+#'	\item{colList}{Add text}
+#' }
+#'
+#' @format A data frame with 759 rows and 14 variables.
+#' @seealso Used in \code{\link{plot_kobe}} to 2 plots: a scatter plot of F/F<sub>MSY</sub> and SSB/MSY B<sub>trigger</sub>
+#' by fish category and ecoregion and a "lollipop" plot of total catch (divided into discards and landings) by stock.
+#' Input data: Input data: \code{\link{stock_list_raw}},
+#'  \code{\link{sag_summary_raw}},\code{\link{sag_refpts_raw}}, and \code{\link{sag_keys}}.
+"stock_status_full"
 
 
+#' stock_catch_full
+#'
+#' Discard rate and landings by fish category for an ecoregion.
+#'
+#' \itemize{
+#'	\item{Year}{Add text}
+#'	\item{YearOfLastAssessment}{Add text}
+#'	\item{StockCode}{Add text}
+#'	\item{Description}{Add text}
+#'	\item{FisheriesGuild}{Add text}
+#'	\item{EcoRegion}{Add text}
+#'	\item{F}{Add text}
+#'	\item{FMSY}{Add text}
+#'	\item{SSB}{Add text}
+#'	\item{MSYBtrigger}{Add text}
+#'	\item{catches}{Add text}
+#'	\item{landings}{Add text}
+#'	\item{discards}{Add text}
+#' }
+#'
+#' @format A data frame with 26485 rows and 13 variables.
+#' @seealso Used in \code{\link{guild_discards_fun}} to 2 plots: a scatter plot of F/F<sub>MSY</sub> and SSB/MSY B<sub>trigger</sub>
+#' by fish category and ecoregion and a "lollipop" plot of total catch (divided into discards and landings) by stock.
+#' Input data: Input data: \code{\link{stock_list_raw}},
+#'  \code{\link{sag_summary_raw}},\code{\link{sag_refpts_raw}}, and \code{\link{sag_keys}}.
+"stock_catch_full"
 
+#' ices_catch_dat
+#'
+#' Historic and official catch for an ecoregion by country, guild, and species.
+#'
+#' \itemize{
+#'	\item{YEAR}{Add text}
+#'	\item{COUNTRY}{Add text}
+#'	\item{ISO3}{Add text}
+#'	\item{GUILD}{Add text}
+#'	\item{ECOREGION}{Add text}
+#'	\item{SPECIES_NAME}{Add text}
+#'	\item{SPECIES_CODE}{Add text}
+#'	\item{COMMON_NAME}{Add text}
+#'	\item{VALUE}{Add text}
+#' }
+#'
+#' @format A data frame with 443077 rows and 9 variables.
+#' @seealso Used in \code{\link{ices_catch_plot}} to create an area or line plot of landings (historic and official catch) for an ecoregion by country,
+#' guild, or species.
+#' Input data: Input data: \code{\link{catch_data_official}}, \code{\link{catch_data_historical}}, \code{\link{species_list}}, and \code{\link{stock_list_raw}}.
+"ices_catch_dat"
 
+#' stecf_effort_clean
+#'
+#' Historic and official catch for an ecoregion by country, guild, and species.
+#'
+#' \itemize{
+#'	\item{YEAR}{Add text}
+#'	\item{COUNTRY}{Add text}
+#'	\item{ISO3}{Add text}
+#'	\item{GUILD}{Add text}
+#'	\item{ECOREGION}{Add text}
+#'	\item{SPECIES_NAME}{Add text}
+#'	\item{SPECIES_CODE}{Add text}
+#'	\item{COMMON_NAME}{Add text}
+#'	\item{VALUE}{Add text}
+#' }
+#'
+#' @format A data frame with 443077 rows and 9 variables.
+#' @seealso Used in \code{\link{ices_catch_plot}} to create an area or line plot of landings (historic and official catch) for an ecoregion by country,
+#' guild, or species.
+#' Input data: Input data: \code{\link{catch_data_official}}, \code{\link{catch_data_historical}}, \code{\link{species_list}}, and \code{\link{stock_list_raw}}.
+"stecf_effort_clean"
 
-
-
-
-
-
-
+#' stecf_landings_clean
+#'
+#' Historic and official catch for an ecoregion by country, guild, and species.
+#'
+#' \itemize{
+#'	\item{YEAR}{Add text}
+#'	\item{COUNTRY}{Add text}
+#'	\item{ISO3}{Add text}
+#'	\item{GUILD}{Add text}
+#'	\item{ECOREGION}{Add text}
+#'	\item{SPECIES_NAME}{Add text}
+#'	\item{SPECIES_CODE}{Add text}
+#'	\item{COMMON_NAME}{Add text}
+#'	\item{VALUE}{Add text}
+#' }
+#'
+#' @format A data frame with 443077 rows and 9 variables.
+#' @seealso Used in \code{\link{ices_catch_plot}} to create an area or line plot of landings (historic and official catch) for an ecoregion by country,
+#' guild, or species.
+#' Input data: Input data: \code{\link{catch_data_official}}, \code{\link{catch_data_historical}}, \code{\link{species_list}}, and \code{\link{stock_list_raw}}.
+"stecf_landings_clean"
 
 
 

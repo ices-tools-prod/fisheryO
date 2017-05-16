@@ -717,7 +717,7 @@ species_list <- species_list %>%
   select(English_name, Scientific_name, X3A_CODE) %>%
   left_join(fish_category, by = "X3A_CODE")
 
-historic_bs <- paste0(c("III (not specified)", "III b  Baltic 23",
+historic_bs <- c("III (not specified)", "III b  Baltic 23",
                         "III b+c (not specified)", "III b-d (not specified)",
                         "III c  Baltic 22", "III d  (not specified)",
                         "III d  Baltic 24", "III d  Baltic 25",
@@ -725,15 +725,13 @@ historic_bs <- paste0(c("III (not specified)", "III b  Baltic 23",
                         "III d  Baltic 28 (not specified)", "III d  Baltic 28-1",
                         "III d  Baltic 28-2", "III d  Baltic 29",
                         "III d  Baltic 30", "III d  Baltic 31",
-                        "III d  Baltic 32"),
-                      collapse = "|")
+                        "III d  Baltic 32")
 
-historic_ns <- paste0(c("III a", "IIIa  and  IV  (not specified)",
+historic_ns <- c("III a", "IIIa  and  IV  (not specified)",
                         "IIIa  and  IVa+b  (not specified)", "IV (not specified)",
                         "IV a", "IV a+b (not specified)",
                         "IV b", "IV b+c (not specified)",
-                        "IV c", "VII d"),
-                      collapse = "|")
+                        "IV c", "VII d")
 
 historic_uk <- paste0(c("^UK", "^Channel", "^Isle of Man"),
                       collapse = "|")
@@ -757,8 +755,8 @@ catch_dat_1950 <- catch_data_historical %>%
          ),
          ISO3 = countrycode::countrycode(COUNTRY, "country.name", "iso3c", warn = FALSE),
          ECOREGION = case_when(
-           grepl(historic_bs, .$Division) ~ "Baltic Sea Ecoregion",
-           grepl(historic_ns, .$Division) ~ "Greater North Sea Ecoregion",
+           .$Division %in% historic_bs ~ "Baltic Sea Ecoregion",
+           .$Division %in% historic_ns ~ "Greater North Sea Ecoregion",
            TRUE ~ "OTHER")) %>%
   filter(YEAR <= 2005,
          ECOREGION != "OTHER",
@@ -805,14 +803,14 @@ catch_dat_2010 <- catch_data_official %>%
          COMMON_NAME = English_name,
          VALUE)
 
-allDat <- catch_dat_2010 %>%
+ices_catch_dat <- catch_dat_2010 %>%
   bind_rows(catch_dat_1950) %>%
   mutate(GUILD = ifelse(is.na(GUILD),
                         "undefined",
                         GUILD)) %>%
   filter(!GUILD %in% c("elasmobranch", "crustacean") |
            ECOREGION != "Baltic Sea")
-devtools::use_data(allDat)
+devtools::use_data(ices_catch_dat)
 
 # ~~~~~~~~~~~~~~~~~~~~~~ #
 # STECF Catch and Effort #

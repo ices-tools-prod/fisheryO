@@ -197,7 +197,7 @@ sag_complete_summary <- sag_ref_summary %>%
                        FMSY)
   )
 
-devtools::use_data(sag_complete_summary, overwrite = TRUE)
+devtools::use_data(sag_complete_summary)
 
 # Recreate check-mark tables
 summary_fmsy <- sag_complete_summary %>%
@@ -381,7 +381,6 @@ summary_table_frmt[c("SBL", "F_2013", "F_2014", "F_2015",
                      "D3C1", "D3C2", "GES")][is.na(summary_table_frmt[c("SBL", "F_2013", "F_2014", "F_2015",
                                                                         "SSB_2014", "SSB_2015", "SSB_2016",
                                                                         "D3C1", "D3C2", "GES")])] <- "GREY"
-
 devtools::use_data(summary_table_frmt, overwrite = TRUE)
 
 #~~~~~~~~~~~~~~~~~~~~~#

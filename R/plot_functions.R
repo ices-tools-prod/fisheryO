@@ -408,7 +408,7 @@ stock_trends_fun <- function(EcoGuild,
          caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
                            lubridate::year(Sys.time()),
                            lubridate::month(Sys.time(), label = TRUE, abbr = FALSE))) +
-    facet_wrap(~ plotGroup, labeller = label_parsed, strip.position = "left")
+    facet_wrap(~ plotGroup, labeller = label_parsed, strip.position = "left", ncol = 1, nrow = 2)
 
   if(dynamic) {
     p1_plot <- p1_plot + geom_line_interactive(alpha = 0.8)
@@ -596,7 +596,7 @@ plot_kobe <- function(ecoregion,
                                      data_id = StockCode,
                                      tooltip = tip)) +
       geom_point(aes(color = colList), size = 2,
-                 alpha = 0.7) +
+                 alpha = 0.7, na.rm = TRUE) +
       geom_hline(yintercept = 1, color = "grey60", linetype = "dashed") +
       geom_vline(xintercept = 1, color = "grey60", linetype = "dashed") +
       geom_text_repel(aes(label = StockCode),
@@ -638,15 +638,15 @@ plot_kobe <- function(ecoregion,
     bar_plot <-
       ggplot(catchBar, aes(x = StockCode, y = catches)) +
       geom_segment(aes(x = StockCode, y = catches,
-                       xend = StockCode, yend = 0, color = colList), size = 2) +
+                       xend = StockCode, yend = 0, color = colList), size = 2, na.rm = TRUE) +
       geom_segment(aes(x = StockCode, y = landings,
-                       xend = StockCode, yend = 0, color = colList), size = 2) +
+                       xend = StockCode, yend = 0, color = colList), size = 2, na.rm = TRUE) +
       geom_point(stat = "identity", aes(y = catches,
                                         fill = colList), color = "grey50",
-                 shape = 24, size = 2, alpha = 0.8) +
+                 shape = 24, size = 2, alpha = 0.8, na.rm = TRUE) +
       geom_point(stat = "identity", aes(y = landings,
                                         fill = colList), color = "grey50",
-                 shape = 21, size = 2, alpha = 0.8) +
+                 shape = 21, size = 2, alpha = 0.8, na.rm = TRUE) +
       scale_fill_manual(values = c("GREEN" = "#4daf4a",
                                    "RED" = "#e41a1c",
                                    "GREY" = "#d3d3d3")) +

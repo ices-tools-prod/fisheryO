@@ -5,7 +5,8 @@
 \title{Stock status over time}
 \usage{
 stock_trends_fun(EcoGuild, dynamic = TRUE, file_name = NULL,
-  save_plot = FALSE, return_plot = TRUE, output_path = NULL)
+  save_plot = FALSE, return_plot = TRUE, output_path = NULL,
+  stackable = FALSE)
 }
 \arguments{
 \item{EcoGuild}{combined ecoregion name and fish category, e.g. Greater North Sea}

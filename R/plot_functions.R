@@ -326,7 +326,8 @@ stock_trends_fun <- function(EcoGuild,
                              file_name = NULL,
                              save_plot = FALSE,
                              return_plot = TRUE,
-                             output_path = NULL) {
+                             output_path = NULL,
+                             stackable = FALSE) {
 
   clicks <- sag_complete_summary %>%
     mutate(onclick = sprintf("window.open(\"%s%i/%i/%s.pdf\")",
@@ -415,14 +416,19 @@ stock_trends_fun <- function(EcoGuild,
                                                alpha = 0.9, size = 1.15)
 
     if(return_plot){
+      if(stackable) {
+        return(p1_plot)
+      }
+      if(!stackable) {
       return(ggiraph::ggiraph(code = print(p1_plot),
                               hover_css = "cursor:pointer;stroke:black;stroke-width:3pt;"))
+      }
     }
 
     if(save_plot) {
       suppressWarnings(
         rmarkdown::render(system.file("rmd/stockStatusTrends-dynamic.Rmd", package = "fisheryO"),
-          # "~/git/ices-dk/fisheryO/vignettes/stockStatusTrends-dynamic.rmd",
+                          # "~/git/ices-dk/fisheryO/vignettes/stockStatusTrends-dynamic.rmd",
                           output_file = paste0(output_path, file_name, "_", EcoGuild, "-dynamic.html"),
                           rmarkdown::html_document(template = NULL),
                           envir = new.env())

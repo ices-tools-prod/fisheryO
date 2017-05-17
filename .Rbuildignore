@@ -5,3 +5,5 @@
 ^output/
 ^data-raw$
 ^vignettes
+^README\.Rmd$
+^README-.*\.png$

@@ -1,46 +1,227 @@
 ---
 title: "Greater North Sea Ecoregion"
 output: 
-  html_document:
-    template: null
+  html_document
+fig_caption: TRUE
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup, echo=FALSE, include = FALSE}
 library(dplyr)
 library(fisheryO)
+library(ggplot2)
+library(ggiraph)
+library(ggrepel)
+# library(svglite)
+# library(htmlwidgets)
+# devtools::install_github("metrumresearchgroup/slickR")
+# library(slickR)
+
+# options(width = 999)
+knitr::opts_chunk$set(echo = FALSE, dev='svg', warnings = FALSE)
+
+figRef <- local({
+    tag <- numeric()
+    created <- logical()
+    used <- logical()
+    function(label, caption, prefix = options("figcap.prefix"), 
+        sep = options("figcap.sep"), prefix.highlight = options("figcap.prefix.highlight")) {
+        i <- which(names(tag) == label)
+        if (length(i) == 0) {
+            i <- length(tag) + 1
+            tag <<- c(tag, i)
+            names(tag)[length(tag)] <<- label
+            used <<- c(used, FALSE)
+            names(used)[length(used)] <<- label
+            created <<- c(created, FALSE)
+            names(created)[length(created)] <<- label
+        }
+        if (!missing(caption)) {
+            created[label] <<- TRUE
+            paste0(prefix.highlight, prefix, " ", i, sep, prefix.highlight, 
+                " ", caption)
+        } else {
+            used[label] <<- TRUE
+            paste(prefix, tag[label])
+        }
+    }
+})
+
+options(figcap.prefix = "Figure", figcap.sep = ".", figcap.prefix.highlight = "**")
+
 ```
+
 
 ## Here we go...
 
 This document shows how the fisheryO package can be used to generate plots for the Greater North Sea Ecoregion Fishery Overview
 
 
-Figure 1. Yellow shading is the Greater North Sea ecoregion as defined by ICES. The fisheries covered in this overview are the fisheries conducted in ICES divisions 3a, 4a, 4b, 4c, and 7d.
-```{r figure_1}
+
+```{r figure_1, echo=TRUE, fig.cap=figRef("F1", "Yellow shading is the Greater North Sea ecoregion as defined by ICES. The fisheries covered in this overview are the fisheries conducted in ICES divisions 3a, 4a, 4b, 4c, and 7d.")}
 
 ```
 
 
-```{r figure_2}
+```{r figure_2, echo=FALSE, fig.cap=figRef("F2", "Landings (tonnes) by country within the Greater North Sea from ICES Official Catch Statistics (Official Historical Catches (1950-2005) and Official Nominal Catches 2006-2014). The top 10 countries with the greatest aggregate catch are displayed separately and the remaining countries are aggregated and displayed as “other”.")}
+
+ices_catch_plot("Greater North Sea Ecoregion", "COUNTRY", line_count = 9,
+                "area")
+```
+
+
+
+```{r figure_3, echo = FALSE, fig.cap = figRef("F3", "Effort (1000 kW days at sea) by EU vessels by country within the Greater North Sea ecoregion (from STECF 16-20).")}
+stecf_plot("Greater North Sea Ecoregion", metric = "EFFORT", type = "COUNTRY", line_count = 9, plot_type = "line")
+```
+
+
+```{r figure_4, echo=FALSE, fig.cap=figRef("F4", "Landings (tonnes) by fish categories within the Greater North Sea from ICES Official Catch Statistics (Official Nominal Catches 2006-2014 and Official Historical Catches 1950-2005).")}
+
+ices_catch_plot("Greater North Sea Ecoregion", "GUILD", line_count = 9,
+                "line")
+```
+
+```{r figure_5, echo = FALSE, fig.cap = figRef("F5", "Landings (tonnes) by species within the Greater North Sea ecoregion from ICES Official Catch Statistics (Official Historical Catches 1950-2005 and Official Nominal Catches 2006-2014). The top 10 species with the greatest aggregate catch are displayed separately and the remaining species are aggregated and displayed as “other”.")}
+
+ices_catch_plot("Greater North Sea Ecoregion", "COMMON_NAME", line_count = 9, "line")
+```
+
+```{r figure_6, echo = FALSE, fig.cap = figRef("F6", "Landings (1000 tonnes) by EU vessels by country within the Greater North Sea ecoregion (from STECF 16-20). LL = longline")}
+
+stecf_plot("Greater North Sea Ecoregion", metric = "LANDINGS", type = "GEAR", line_count = 9, plot_type = "line")
+```
+
+```{r, figure_7, echo=FALSE, warning=FALSE, fig.cap = figRef("F7", "Left panel (a): Discards rates as percentage of total catch by fish category for all years for which ICES has data. Right panel (b): Landings (blue) and discards (red) in weights (1000 tonnes) of the most recent year, 2015. Note that not all stock catches are disaggregated between landings and discards. Where there has not been an assessment in the most recent year (due to biennial processes), the discard rate is assumed to be that of the previous year.")}
+guild_discards_fun("Greater North Sea Ecoregion", return_plot = TRUE)
+```
+
+```{r figure_8, echo = FALSE, fig.cap = figRef("F8", "Effort (1000 kW days at sea) by EU vessels by gear type within the Greater North Sea ecoregion (from STECF 16-20). LL = longline")}
+
+stecf_plot("Greater North Sea Ecoregion", metric = "EFFORT", type = "GEAR", line_count = 9, plot_type = "line")
+```
+
+
+```{r figure_9, echo = FALSE, fig.cap = figRef("F9", "Spatial distribution of yearly average fishing effort (mW fishing hours) by static gears, bottom trawls and seines, beam trawls, dredges, and pelagic gears from 2012-2015 in the Greater North Sea ecoregion from vessels >12 metres. Fishing effort by vessels of <12 metres is primarily in coastal waters.")}
+
 
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
+```{r figure_10, fig.height = 8, echo = FALSE, fig.cap =  figRef("F10","Stock status summary, in regards to the ICES Maximum Sustainable Yield (MSY) approach and precautionary approach (PA) for stocks within the Greater North Sea ecoregion. Grey represents unknown reference points. For MSY approach: green represents a stock that is fished below F<sub>MSY</sub> or the stock size is greater than MSY B<sub>trigger</sub>; red represents a stock status that is fished above F<sub>MSY</sub> or the stock size is less than MSY B<sub>trigger</sub>. For PA: green represents a stock that is fished below F<sub>pa</sub> or the stock size is greater than B<sub>pa</sub>; orange represents a stock that is fished between F<sub>pa</sub> and F<sub>lim</sub> or the stock size is between B<sub>lim</sub> and B<sub>pa</sub>; red represents a stock that is fished above F<sub>lim</sub> or the stock size is less than B<sub>lim</sub> Stocks with a fishing mortality below or at F<sub>pa</sub> and a stock size above  B<sub>pa</sub> are defined as being inside safe biological limits. F is in the table denoting the fishing pressure and SSB is in the table denoting the stock size. A detailed classification by stocks is available in Annex 1.")}
 
-# Annex
-```{r echo=TRUE, include = TRUE}
-load("data/summary_table_frmt.rda")
-# data("summary_table_frmt", package = "fisheryO")
-
-stockPlot <- summary_table_frmt %>%
-  filter(grepl(pattern = "Greater North Sea Ecoregion", EcoRegion)) %>%
-  select(-EcoRegion) %>%
-  distinct() %>%
-  arrange(StockCode)
+stockPie_fun("Greater North Sea Ecoregion", return_plot = TRUE)
 ```
 
-```{r, annex_1, code = readLines("~/git/ices-dk/fisheryO/inst/rmd/stockSummaryTable-dynamic.R"), echo = FALSE, eval = TRUE}
+
+
+
+```{r figure_11, echo = FALSE, fig.cap = figRef("F11","Stock status summary, in relation to the Marine Strategy Framework Directive (MSFD) good environmental status (GES) assessment criteria of the level of pressure of fishing activity (D3C1) and reproductive capacity of the stock (D3C2) for stocks within the Greater North Sea ecoregion. Green represents the proportion of stocks fished below F<sub>MSY</sub> or the stock size is greater than MSY B<sub>trigger</sub>, for criteria D3C1 and D3C2. Red represents the proportion of stocks fished F<sub>MSY</sub> or the stock size is less than MSY B<sub>trigger</sub>, for criteria D3C1 and D3C2. Grey represents the proportion of stocks without MSY reference points. A detailed classification by stocks is available in Annex 1")}
+
+gesPie_fun("Greater North Sea Ecoregion", return_plot = TRUE)
+```
+
+
+
+```{r figure_12a, echo=FALSE, fig.width = 14}
+
+stock_trends_fun("Greater North Sea Ecoregion - benthic", return_plot = TRUE, dynamic = TRUE, stackable = FALSE)
+```
+
+```{r figure_12b, echo=FALSE}
+
+stock_trends_fun("Greater North Sea Ecoregion - crustacean", return_plot = TRUE, dynamic = TRUE, stackable = FALSE)
+```
+
+```{r figure_12c, echo=FALSE}
+
+stock_trends_fun("Greater North Sea Ecoregion - demersal", return_plot = TRUE, dynamic = TRUE, stackable = FALSE)
+```
+
+```{r figure_12d, echo=FALSE, messages = FALSE, fig.cap=figRef("F12","Stock trends of F/F<sub>MSY</sub> in relation to F<sub>MSY</sub> status and SSB/MSY B<sub>trigger</sub> in relation to biomass status for benthic, crustacean, demersal, and pelagic stocks within the Greater North Sea over time. Only stocks with defined MSY reference points were considered. Full stock names are available in Annex Table A.")}
+
+stock_trends_fun("Greater North Sea Ecoregion - pelagic", return_plot = TRUE, dynamic = TRUE, stackable = FALSE)
+```
+
+
+
+```{r figure_13a, echo=FALSE, fig.width = 14}
+
+plot_kobe("Greater North Sea Ecoregion", guild = "all", return_plot = TRUE, dynamic = TRUE)
+```
+
+```{r figure_13b, echo=FALSE}
+
+plot_kobe("Greater North Sea Ecoregion", guild = "benthic", return_plot = TRUE, dynamic = TRUE)
+```
+
+```{r figure_13c, echo=FALSE}
+
+plot_kobe("Greater North Sea Ecoregion", guild = "crustacean", return_plot = TRUE, dynamic = TRUE)
+```
+
+```{r figure_13d, echo=FALSE}
+
+plot_kobe("Greater North Sea Ecoregion", guild = "demersal", return_plot = TRUE, dynamic = TRUE)
+```
+
+```{r figure_13e, echo=FALSE, messages = FALSE, fig.cap=figRef("F13","Kobe plot in relation to the ICES MSY Approach and landings of the Greater North Sea ecoregion stocks by fish category (all stocks, benthic, crustacean, demersal, and pelagic). The left Kobe plots show relative fishing pressure (F/F<sub>MSY</sub>) and stock size (SSB/ MSY B<sub>trigger</sub>) for stocks that MSY reference points defined (MSY where available, otherwise PA or Qualitative). Stocks in green are exploited below F<sub>MSY</sub> and the stock size is above MSY B<sub>trigger</sub>. Stocks in red are either exploited above F<sub>MSY</sub> or the stock size is below MSY B<sub>trigger</sub>, or both cases. Stocks in grey are of unknown/undefined status in relation to reference points but see text for short-lived species. Full stock names by stock codes are available in Annex Table A.")}
+
+plot_kobe("Greater North Sea Ecoregion", guild = "pelagic", return_plot = TRUE, dynamic = TRUE)
+```
+
+
+```{r figure_14, echo=FALSE, messages = FALSE, fig.cap=figRef("F14","Technical interactions between demersal stocks in the Greater North Sea. Red cells indicate that the species are often caught together. Orange cells indicate less strong interactions and yellow cells indicate a weak interaction.")}
+
 
 ```
+
+
+```{r figure_15, echo=FALSE, messages = FALSE, fig.cap=figRef("F15","Greater North Sea mixed-fisheries projections. Estimates of potential catches (in tonnes) by stock and by scenario. Horizontal lines correspond to the single-stock catch advice for 2017. Bars below zero show undershoot (compared to single-stock advice) where catches are predicted to be lower when applying the scenario. Hatched columns represent catches that overshoot the single-stock advice.")}
+
+
+```
+
+
+
+<!-- # Annex -->
+<!-- ```{r echo = FALSE, include = TRUE, out.width = "100%", fig.width = 14} -->
+<!-- # rm(list= ls()) -->
+<!-- # load("data/summary_table_frmt.rda") -->
+<!-- data("summary_table_frmt") -->
+
+<!-- summary_table_frmt %>% -->
+<!--   filter(grepl(pattern = "Greater North Sea Ecoregion", EcoRegion)) %>% -->
+<!--   select(-EcoRegion) %>% -->
+<!--   distinct() %>% -->
+<!--   arrange(StockCode) -->
+<!-- ``` -->
+
+<!-- # ```{r, annex_1, out.width = "100%", fig.width = 14, code = readLines("rmd/stockSummaryTable-dynamic.R"), echo = FALSE, eval = TRUE} -->
+<!-- #  -->
+<!-- # ``` -->
+
+
+<!-- ```{r figure_12, echo=FALSE, messages = FALSE, fig.cap=figRef("F12","Stock trends of F/F<sub>MSY</sub> in relation to F<sub>MSY</sub> status and SSB/MSY B<sub>trigger</sub> in relation to biomass status for benthic, crustacean, demersal, and pelagic stocks within the Greater North Sea over time. Only stocks with defined MSY reference points were considered. Full stock names are available in Annex Table A.")} -->
+
+<!-- carousel_fun <- function(x) { -->
+<!--  htmlwidgets::saveWidget(ggiraph(code = print(stock_trends_fun(sprintf("Greater North Sea Ecoregion - %s", x), -->
+<!--                                                                return_plot = TRUE, dynamic = TRUE, -->
+<!--                                                                stackable = TRUE)), -->
+<!--                                  hover_css = "cursor:pointer;stroke:black;stroke-width:3pt;", -->
+<!--                                  width_svg = 8), -->
+<!--                          paste0(x, '.html')) -->
+<!-- } -->
+
+<!-- invisible(lapply(c("benthic", "pelagic", "demersal", "crustacean"), carousel_fun)) -->
+
+<!-- slickR(c(paste0(readLines('benthic.html'), collapse = '\n'), -->
+<!--          paste0(readLines('crustacean.html'), collapse = '\n'), -->
+<!--          paste0(readLines('demersal.html'), collapse = '\n'), -->
+<!--          paste0(readLines('pelagic.html'), collapse = '\n')), -->
+<!--        slideId = 'stock_trends', -->
+<!--        # slideIdx = list(1:4), -->
+<!--        slideType = 'iframe', -->
+<!--        slickOpts = list(dots = T, slidesToShow = 1, slidesToScroll = 1), -->
+<!--        height = '1000px', width = '100%') -->
+<!-- ``` -->
+

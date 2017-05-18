@@ -25,7 +25,7 @@ sag_refpts_raw <- icesSAG::getSAG(stock = NULL,
 devtools::use_data(sag_refpts_raw)
 
 
-sag_keys <- do.call("rbind", lapply(2014:2017,
+sag_keys_raw <- do.call("rbind", lapply(2014:2017,
                                     function(x) icesSAG::findAssessmentKey(stock = NULL,
                                                                            year = x,
                                                                            full = TRUE)[, c("AssessmentYear",
@@ -68,7 +68,7 @@ devtools::use_data(ices_catch_official_raw)
 spURL <- "ftp://ftp.fao.org/FI/STAT/DATA/ASFIS_sp.zip"
 tmpFileSp <- tempfile(fileext = ".zip")
 download.file(spURL, destfile = tmpFileSp, mode = "wb", quiet = TRUE)
-species_list_raw <- read.delim("~/git/ices-dk/fisheryO/inst/extdata/ASFIS_sp_Feb_2016.txt",
+species_list_raw <- read.delim(unz(tmpFileSp, "ASFIS_sp_Feb_2016.txt"),
                            fill = TRUE,
                            stringsAsFactors = FALSE,
                            header = TRUE,

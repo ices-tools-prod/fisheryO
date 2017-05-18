@@ -28,7 +28,7 @@ line plots of F and SSB relative to F<sub>MSY</sub> and MSY B<sub>trigger</sub>
 reference points for stocks of a fish category for an ecoregion.
 Also, used in \code{\link{frmt_summary_table}}.
 
-Input data: \code{\link{stock_list_raw}}, \code{\link{sag_summary_raw}},\code{\link{sag_refpts_raw}}, and \code{\link{sag_keys}}.
+Input data: \code{\link{stock_list_raw}}, \code{\link{sag_summary_raw}},\code{\link{sag_refpts_raw}}, and \code{\link{sag_keys_raw}}.
 }
 \author{
 Scott Large

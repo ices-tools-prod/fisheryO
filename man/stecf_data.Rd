@@ -19,7 +19,7 @@ head(stecf_data())
 \seealso{
 Used in \code{\link{stecf_plot}} to create an area or line plot of landings and effort for an ecoregion
 by country and guild.
-Input data: \code{\link{STECF_effort_data}} and \code{\link{STECF_landings_data}}.
+Input data: \code{\link{stecf_effort_raw}} and \code{\link{stecf_landings_raw}}.
 }
 \author{
 Scott Large

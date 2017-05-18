@@ -79,9 +79,9 @@ devtools::use_data(species_list_raw)
 # DATA SOURCE: STECF Effort and Catch tables #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
-STECF_effort_data <- readRDS("data-raw/STECF_effort_data.rds")
-devtools::use_data(STECF_effort_data)
+stecf_effort_raw <- readRDS("data-raw/STECF_effort_data.rds")
+devtools::use_data(stecf_effort_raw)
 
-STECF_landings_data <- readRDS("data-raw/STECF_landings_data.rds")
-devtools::use_data(STECF_landings_data)
+stecf_landings_raw <- readRDS("data-raw/STECF_landings_data.rds")
+devtools::use_data(stecf_landings_raw)
 

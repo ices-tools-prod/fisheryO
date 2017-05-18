@@ -4,11 +4,13 @@
 \alias{guild_discards_fun}
 \title{Discard rate over time}
 \usage{
-guild_discards_fun(ecoregion, output_path = NULL, save_plot = FALSE,
-  return_plot = TRUE, file_name = NULL)
+guild_discards_fun(ecoregion, active_year = 2016, output_path = NULL,
+  save_plot = FALSE, return_plot = TRUE, file_name = NULL)
 }
 \arguments{
 \item{ecoregion}{ecoregion name, e.g. Greater North Sea Ecoregion}
+
+\item{active_year}{numeric of the stock database version (year). e.g., 2016}
 
 \item{output_path}{path for output to live.}
 

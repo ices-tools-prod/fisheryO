@@ -50,7 +50,7 @@ and Germany recorded an erroneous haul in 2013. These values have been removed.
 }
 \examples{
 \dontrun{
-stecf_plot("Greater North Sea Ecoregion", type = "COMMON_NAME", return_plot = TRUE, line_count = 4)
+stecf_plot("Greater North Sea Ecoregion", metric = "EFFORT", type = "GEAR", return_plot = TRUE, line_count = 4)
 }
 }
 \author{

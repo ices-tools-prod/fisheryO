@@ -5,15 +5,17 @@
 \title{Kobe plot of stock status}
 \usage{
 plot_kobe(ecoregion, guild = c("all", "benthic", "demersal", "pelagic",
-  "crustacean", "elasmobranch", "large-scale stocks")[1], output_path = NULL,
-  return_plot = TRUE, save_plot = FALSE, catch_limit = 0,
-  file_name = NULL, plotTitle = NULL, fig.width = 110, fig.height = 75,
-  units = "mm", res = 300, dynamic = FALSE)
+  "crustacean", "elasmobranch", "large-scale stocks")[1], active_year = 2016,
+  output_path = NULL, return_plot = TRUE, save_plot = FALSE,
+  catch_limit = 0, file_name = NULL, plotTitle = NULL, fig.width = 110,
+  fig.height = 75, units = "mm", res = 300, dynamic = FALSE)
 }
 \arguments{
 \item{ecoregion}{ecoregion name, e.g. Greater North Sea Ecoregion}
 
 \item{guild}{fish category (options: "all", "benthic", "demersal", "pelagic", "crustacean", "elasmobranch", "large-scale stocks"), e.g. demersal}
+
+\item{active_year}{numeric of the stock database version (year). e.g., 2016}
 
 \item{output_path}{path for output to live.}
 

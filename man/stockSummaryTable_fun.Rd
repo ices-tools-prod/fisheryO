@@ -4,11 +4,14 @@
 \alias{stockSummaryTable_fun}
 \title{Render html stock summary table}
 \usage{
-stockSummaryTable_fun(ecoregion, table_type = c("static", "dynamic",
-  "both")[2], output_path = NULL, file_name = NULL)
+stockSummaryTable_fun(ecoregion, active_year = 2016,
+  table_type = c("static", "dynamic", "both")[2], output_path = NULL,
+  file_name = NULL)
 }
 \arguments{
 \item{ecoregion}{ecoregion name, e.g. Greater North Sea}
+
+\item{active_year}{numeric of the stock database version (year). e.g., 2016}
 
 \item{table_type}{type of table, "both" returns both "dynamic" (using DT) and "static" (using ReporteRs) html tables.}
 
@@ -29,11 +32,18 @@ in an ecoregion.
 Stocks are linked to ecoregions via the ICES Stock database. Reference points are as published in ICES Stock Assessment
 Graphs database. In some cases, status relative to reference points may vary from
 published ICES advice when reported F or SSB are very close to reference points (e.g., F = 0.201 > F<sub>MSY</sub> = 0.20).
+
+Periodically, ICES adds or removes stocks from the advisory process. The function returns
+the SAG reference points and summary table for all published (in SAG) and active stocks for a given year.
 }
 \examples{
 \dontrun{
 stockSummaryTable_fun("Greater North Sea Ecoregion")
 }
+}
+\seealso{
+SAG summary table and reference points come from \code{\link{clean_sag}}. \code{\link{frmt_summary_table}} evaluates
+status relative to reference points and formats the table for .html.
 }
 \author{
 Scott Large

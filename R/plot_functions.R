@@ -7,14 +7,21 @@
 #' @param table_type type of table, "both" returns both "dynamic" (using DT) and "static" (using ReporteRs) html tables.
 #' @param output_path path for output to live.
 #' @param file_name name for the output.
+#' @param active_year numeric of the stock database version (year). e.g., 2016
 #'
 #' @note Stocks are linked to ecoregions via the ICES Stock database. Reference points are as published in ICES Stock Assessment
 #' Graphs database. In some cases, status relative to reference points may vary from
 #' published ICES advice when reported F or SSB are very close to reference points (e.g., F = 0.201 > F<sub>MSY</sub> = 0.20).
 #'
+#' Periodically, ICES adds or removes stocks from the advisory process. The function returns
+#' the SAG reference points and summary table for all published (in SAG) and active stocks for a given year.
+#'
 #' @return A html file. When \code{file_name} is \code{NULL}, the file name is the ecoregion.
 #' When \code{output_path} is \code{NULL}, the file is saved to "~/". When \code{table_type} is \code{"static"} or \code{"both"},
 #' it might take a bit of time...
+#'
+#' @seealso SAG summary table and reference points come from \code{\link{clean_sag}}. \code{\link{frmt_summary_table}} evaluates
+#' status relative to reference points and formats the table for .html.
 #'
 #' @author Scott Large
 #'
@@ -27,6 +34,7 @@
 # Stock Summary Table  #
 # ~~~~~~~~~~~~~~~~~~~~ #
 stockSummaryTable_fun <- function(ecoregion,
+                                  active_year = 2016,
                                   table_type = c("static", "dynamic", "both")[2],
                                   output_path = NULL,
                                   file_name = NULL) {
@@ -39,14 +47,7 @@ stockSummaryTable_fun <- function(ecoregion,
     output_path <- "~/"
   }
 
-  summary_table_frmt[summary_table_frmt == "GREEN"] <- "<i class=\"glyphicon glyphicon-ok-sign\" style=\"color:green; font-size:2.2em\"></i>"
-  summary_table_frmt[summary_table_frmt == "RED"] <- "<i class=\"glyphicon glyphicon-remove-sign\" style=\"color:red; font-size:2.2em\"></i>"
-  summary_table_frmt[summary_table_frmt == "GREY"] <- "<i class=\"glyphicon glyphicon-question-sign\" style=\"color:grey; font-size:2.2em\"></i>"
-  summary_table_frmt[summary_table_frmt == "ORANGE"] <- "<i class=\"glyphicon glyphicon-record\" style=\"color:#FAB700; font-size:2.2em\"></i>"
-
-  summary_table_frmt <- data.frame(lapply(summary_table_frmt, factor))
-
-  stockPlot <- summary_table_frmt %>%
+  stockPlot <- frmt_summary_tbl(active_year)$summary_table_frmt %>%
     filter(grepl(pattern = ecoregion, EcoRegion)) %>%
     select(-EcoRegion) %>%
     distinct(.keep_all = TRUE) %>%
@@ -81,6 +82,7 @@ stockSummaryTable_fun <- function(ecoregion,
 #'
 #' @param ecoregion ecoregion name, e.g. Greater North Sea
 #' @param output_path path for output to live.
+#' @param active_year numeric of the stock database version (year). e.g., 2016
 #' @param file_name name for the output.
 #' @param save_plot logical to save plot.
 #' @param return_plot logical to return plot to current environment.
@@ -89,6 +91,7 @@ stockSummaryTable_fun <- function(ecoregion,
 #' Reference points are as published in ICES Stock Assessment Graphs database. In some cases,
 #' status relative to reference points may vary from published ICES advice
 #'  when reported F or SSB are very close to reference points (e.g., F = 0.201 > F<sub>MSY</sub> = 0.20).
+#'
 #'
 #' @return A ggplot2 object or .png saved as \code{file_name} to \code{output_path}.
 #' When \code{file_name} is \code{NULL}, the file name is the ecoregion.
@@ -106,6 +109,7 @@ stockSummaryTable_fun <- function(ecoregion,
 # ~~~~~~~~~~~~~~~~~~~~~~~~ #
 stockPie_fun <- function(ecoregion,
                          file_name,
+                         active_year = 2016,
                          save_plot = FALSE,
                          return_plot = TRUE,
                          output_path = NULL) {
@@ -125,7 +129,7 @@ stockPie_fun <- function(ecoregion,
                "ORANGE" = "#ff7f00",
                "RED" = "#d93b1c")
 
-  rowDat <- pie_table_count %>%
+  rowDat <- ices_stock_props(active_year) %>%
     filter(grepl(pattern = ecoregion, EcoRegion)) %>%
     ungroup() %>%
     select(-EcoRegion) %>%
@@ -186,6 +190,7 @@ stockPie_fun <- function(ecoregion,
 #'
 #' @param ecoregion ecoregion name, e.g. Greater North Sea
 #' @param output_path path for output to live.
+#' @param active_year numeric of the stock database version (year). e.g., 2016
 #' @param file_name name for the output.
 #' @param save_plot logical to save plot.
 #' @param return_plot logical to return plot to current environment.
@@ -211,6 +216,7 @@ stockPie_fun <- function(ecoregion,
 #~~~~~~~~~~~~~~~~#
 gesPie_fun <- function(ecoregion,
                        file_name,
+                       active_year = 2016,
                        save_plot = FALSE,
                        return_plot = TRUE,
                        output_path = NULL) {
@@ -229,7 +235,7 @@ gesPie_fun <- function(ecoregion,
                "GREY" = "#d3d3d3",
                "RED" = "#d93b1c")
 
-  rowDat <- ges_table %>%
+  rowDat <- ges_stock_props(active_year) %>%
     filter(grepl(pattern = ecoregion, EcoRegion)) %>%
     ungroup() %>%
     select(-EcoRegion) %>%
@@ -294,7 +300,8 @@ gesPie_fun <- function(ecoregion,
 #' This function returns a series of line plots of F and SSB relative to F<sub>MSY</sub> and MSY B<sub>trigger</sub>
 #' reference points for stocks of a fish category for an ecoregion.
 #'
-#' @param EcoGuild combined ecoregion name and fish category, e.g. Greater North Sea
+#' @param EcoGuild combined ecoregion name and fish category, e.g. Greater North Sea Ecoregion
+#' @param active_year numeric of the stock database version (year). e.g., 2016
 #' @param dynamic logical to generate html output with dynamic features.
 #' @param output_path path for output to live.
 #' @param file_name name for the output.
@@ -315,13 +322,14 @@ gesPie_fun <- function(ecoregion,
 #'
 #' @examples
 #' \dontrun{
-#' stock_trends_fun("Greater North Sea Ecoregion", return_plot = TRUE)
+#' stock_trends_fun("Greater North Sea Ecoregion - demersal", return_plot = TRUE)
 #' }
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~#
 # Stock Status over time #
 #~~~~~~~~~~~~~~~~~~~~~~~~#
 stock_trends_fun <- function(EcoGuild,
+                             active_year = 2016,
                              dynamic = TRUE,
                              file_name = NULL,
                              save_plot = FALSE,
@@ -329,7 +337,9 @@ stock_trends_fun <- function(EcoGuild,
                              output_path = NULL,
                              stackable = FALSE) {
 
-  clicks <- sag_complete_summary %>%
+  dat <- clean_stock_trends(active_year)
+
+  clicks <- dat$sag_complete_summary %>%
     mutate(onclick = sprintf("window.open(\"%s%i/%i/%s.pdf\")",
                              "http://ices.dk/sites/pub/Publication%20Reports/Advice/",
                              YearOfLastAssessment,
@@ -340,7 +350,7 @@ stock_trends_fun <- function(EcoGuild,
            onclick) %>%
     distinct(.keep_all = TRUE)
 
-  p1_dat <- stock_trends_frmt %>%
+  p1_dat <- dat$stock_trends_frmt %>%
     left_join(clicks, by = c("lineGroup" = "StockCode")) %>%
     filter(grepl(EcoGuild, pageGroup)) %>%
     mutate(tooltip_line =   sprintf("<b>%s</b>",
@@ -464,6 +474,7 @@ stock_trends_fun <- function(EcoGuild,
 #'
 #' @param ecoregion ecoregion name, e.g. Greater North Sea Ecoregion
 #' @param guild fish category (options: "all", "benthic", "demersal", "pelagic", "crustacean", "elasmobranch", "large-scale stocks"), e.g. demersal
+#' @param active_year numeric of the stock database version (year). e.g., 2016
 #' @param dynamic logical to generate html output with dynamic features.
 #' @param output_path path for output to live.
 #' @param file_name name for the output.
@@ -503,6 +514,7 @@ plot_kobe <- function(ecoregion,
                                 "crustacean",
                                 "elasmobranch",
                                 "large-scale stocks")[1],
+                      active_year = 2016,
                       output_path = NULL,
                       return_plot = TRUE,
                       save_plot = FALSE,
@@ -718,6 +730,7 @@ plot_kobe <- function(ecoregion,
 #' This function returns a series of plots of discard rate and landings by fish category for an ecoregion.
 #'
 #' @param ecoregion ecoregion name, e.g. Greater North Sea Ecoregion
+#' @param active_year numeric of the stock database version (year). e.g., 2016
 #' @param output_path path for output to live.
 #' @param file_name name for the output.
 #' @param save_plot logical to save plot.
@@ -748,6 +761,7 @@ plot_kobe <- function(ecoregion,
 
 # Landings and discards disaggregated by guild
 guild_discards_fun <- function(ecoregion,
+                               active_year = 2016,
                                output_path = NULL,
                                save_plot = FALSE,
                                return_plot = TRUE,
@@ -765,7 +779,7 @@ guild_discards_fun <- function(ecoregion,
 
   # The whole bit here is to make the assumption that discard rates for biannual stocks and
   # and are consistent over the years that we don't provide new advice.
-  p3_dat_ts <-  stock_catch_full %>%
+  p3_dat_ts <-  stock_catch(active_year) %>%
     filter(grepl(ecoregion, EcoRegion),
            Year >= 2012,
            Year <= 2015)
@@ -965,7 +979,7 @@ ices_catch_plot <- function(ecoregion, #IA = unique(allDat$ECOREGION)[1],
     }
   }
 
-  iaDat <- ices_catch_dat %>%
+  iaDat <- ices_catch_data() %>%
     filter(ECOREGION == ecoregion) %>%
     rename_(.dots = setNames(type, "type_var"))
 
@@ -1129,7 +1143,7 @@ ices_catch_plot <- function(ecoregion, #IA = unique(allDat$ECOREGION)[1],
 #'
 #' @examples
 #' \dontrun{
-#' stecf_plot("Greater North Sea Ecoregion", type = "COMMON_NAME", return_plot = TRUE, line_count = 4)
+#' stecf_plot("Greater North Sea Ecoregion", metric = "EFFORT", type = "GEAR", return_plot = TRUE, line_count = 4)
 #' }
 #' @export
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
@@ -1149,9 +1163,9 @@ stecf_plot <- function(ecoregion,
                        ...) {
 
   if(metric == "EFFORT"){
-    data("stecf_effort_clean")
+    # data("stecf_effort_clean")
 
-    allDat <- stecf_effort_clean %>%
+    allDat <- stecf_data()$stecf_effort_clean %>%
       filter(ECOREGION == ecoregion) %>%
       rename_(.dots = setNames(c(type, "EFFORT"),
                                c("type_var", "VALUE")))
@@ -1160,9 +1174,9 @@ stecf_plot <- function(ecoregion,
   if(metric == "LANDINGS"){
     if(type == "COUNTRY") stop("You should use the ices_catch_plot() function instead.")
 
-    data("stecf_landings_clean")
+    # data("stecf_landings_clean")
 
-    allDat <- stecf_landings_clean %>%
+    allDat <- stecf_data()$stecf_landings_clean %>%
       filter(ECOREGION == ecoregion) %>%
       rename_(.dots = setNames(c(type, "LANDINGS"),
                                c("type_var", "VALUE")))
@@ -1173,17 +1187,17 @@ stecf_plot <- function(ecoregion,
 
   catchPlot <- allDat %>%
     group_by(ANNEX, type_var) %>%
-    dplyr::summarize(typeTotal = sum(VALUE, na.rm = TRUE)) %>% # Overall catch to order plot
+    summarize(typeTotal = sum(VALUE, na.rm = TRUE)) %>% # Overall catch to order plot
     arrange(ANNEX, -typeTotal) %>%
     filter(typeTotal >= 1) %>%
     group_by(ANNEX) %>%
-    dplyr::mutate(RANK = min_rank(desc(typeTotal))) %>%
+    mutate(RANK = min_rank(desc(typeTotal))) %>%
     inner_join(allDat, c("ANNEX", "type_var")) %>%
     ungroup() %>%
-    dplyr::mutate(type_var = replace(type_var, RANK > line_count, "other"),
-                  ANNEX = str_wrap(ANNEX, width = 26)) %>%
+    mutate(type_var = replace(type_var, RANK > line_count, "other"),
+           ANNEX = str_wrap(ANNEX, width = 26)) %>%
     group_by(ANNEX, type_var, YEAR) %>%
-    dplyr::summarize(typeTotal = sum(VALUE, na.rm = TRUE)) %>%
+    summarize(typeTotal = sum(VALUE, na.rm = TRUE)) %>%
     filter(!is.na(YEAR))
 
 
@@ -1308,23 +1322,4 @@ stecf_plot <- function(ecoregion,
   if(return_plot) {
     return(pl)
   }
-}
-
-# col_roxygen
-#' Internal function to generate roxygen formatting for data files.
-#'
-#' @keywords internal
-#'
-#' @param base_num The number to multiply by three
-#'
-#' @return Returns a string ready to copy and paste into Roxygen
-#'
-col_oxygen <- function(object) {
-  stopifnot(is.object(object))
-
-  cat(paste0("#'\t\\item{", colnames(object), "}{Add text}\n"))
-
-  cat(paste0("#' }\n#'\n#' @format A ", gsub("\\.", " ", class(object)),
-             " with ", nrow(object),
-             " rows and ", ncol(object), " variables."))
 }

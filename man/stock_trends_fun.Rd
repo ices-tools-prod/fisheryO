@@ -4,12 +4,14 @@
 \alias{stock_trends_fun}
 \title{Stock status over time}
 \usage{
-stock_trends_fun(EcoGuild, dynamic = TRUE, file_name = NULL,
-  save_plot = FALSE, return_plot = TRUE, output_path = NULL,
-  stackable = FALSE)
+stock_trends_fun(EcoGuild, active_year = 2016, dynamic = TRUE,
+  file_name = NULL, save_plot = FALSE, return_plot = TRUE,
+  output_path = NULL, stackable = FALSE)
 }
 \arguments{
-\item{EcoGuild}{combined ecoregion name and fish category, e.g. Greater North Sea}
+\item{EcoGuild}{combined ecoregion name and fish category, e.g. Greater North Sea Ecoregion}
+
+\item{active_year}{numeric of the stock database version (year). e.g., 2016}
 
 \item{dynamic}{logical to generate html output with dynamic features.}
 
@@ -39,7 +41,7 @@ when reported F or SSB are very close to reference points (e.g., F = 0.201 > F<s
 }
 \examples{
 \dontrun{
-stock_trends_fun("Greater North Sea Ecoregion", return_plot = TRUE)
+stock_trends_fun("Greater North Sea Ecoregion - demersal", return_plot = TRUE)
 }
 }
 \author{

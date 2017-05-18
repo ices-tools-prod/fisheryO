@@ -542,6 +542,7 @@ plot_kobe <- function(ecoregion,
     labTitle <- "All stocks"
   }
 
+  stock_status_full <- stock_status(active_year)
   kobeDat <- stock_status_full %>%
     filter(EcoRegion == ecoregion,
            FisheriesGuild %in% guild,

@@ -45,7 +45,8 @@ You can install fisheryO from github with:
 
 ```{r gh-installation, eval = FALSE}
 # install.packages("devtools")
-devtools::install_github("slarge/fisheryO")
+# devtools::install_github("slarge/fisheryO")
+library(fisheryO)
 ```
 
 
@@ -59,13 +60,10 @@ devtools::install_github("slarge/fisheryO")
 
 The list of data can be found using:
 ```{r example}
-knitr::kable(as.data.frame(data(package = "fisheryO")$results[,c("Item", "Title")]),
-             caption = c("Raw and intermediate data used to generate Fisheries Overviews"))
+knitr::kable(as.data.frame(data(package = "fisheryO")$results[,c("Item", "Title")]))
 ```
 
-note: [Consistent naming](https://github.com/slarge/fisheryO/issues/11) will make the data easily searchable using `grep()`.
-
-If you want more information about the data source for each data file, use the "?<data_name>" notation, e.g., `?sag_complete_summary` function to explore the description.
+If you want more information about the data source for each data file, use the "?<data_name>" notation, e.g., `?ices_catch_historical_raw` function to explore the description and to find a url for the source.
 
 ## Plots
 

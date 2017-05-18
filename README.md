@@ -30,7 +30,8 @@ You can install fisheryO from github with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("slarge/fisheryO")
+# devtools::install_github("slarge/fisheryO")
+library(fisheryO)
 ```
 
 Work flow
@@ -45,36 +46,22 @@ Work flow
 The list of data can be found using:
 
 ``` r
-knitr::kable(as.data.frame(data(package = "fisheryO")$results[,c("Item", "Title")]),
-             caption = c("Raw and intermediate data used to generate Fisheries Overviews"))
+knitr::kable(as.data.frame(data(package = "fisheryO")$results[,c("Item", "Title")]))
 ```
 
-| Item                    | Title                                                                              |
-|:------------------------|:-----------------------------------------------------------------------------------|
-| STECF\_effort\_data     | STECF nominal effort                                                               |
-| STECF\_landings\_data   | STECF landings and discards                                                        |
-| allDat                  |                                                                                    |
-| catch\_data\_historical | Historical Nominal Catches 1950-2010                                               |
-| catch\_data\_official   | Official Nominal Catches 2006-2014                                                 |
-| ges\_table              |                                                                                    |
-| ices\_catch\_dat        |                                                                                    |
-| pie\_table\_count       |                                                                                    |
-| sag\_complete\_summary  |                                                                                    |
-| sag\_keys               | ICES Stock Assessment Graphs database - keys                                       |
-| sag\_refpts\_raw        | ICES Stock Assessment Graphs database - reference points                           |
-| sag\_summary\_raw       | ICES Stock Assessment Graphs database - summary information from assessment output |
-| species\_list           | ASFIS list of species                                                              |
-| stecf\_effort\_clean    |                                                                                    |
-| stecf\_landings\_clean  |                                                                                    |
-| stock\_catch\_full      |                                                                                    |
-| stock\_list\_raw        | ICES Stock database                                                                |
-| stock\_status\_full     |                                                                                    |
-| stock\_trends\_frmt     |                                                                                    |
-| summary\_table\_frmt    |                                                                                    |
+| Item                         | Title                                                                              |
+|:-----------------------------|:-----------------------------------------------------------------------------------|
+| ices\_catch\_historical\_raw | Historical Nominal Catches 1950-2010                                               |
+| ices\_catch\_official\_raw   | Official Nominal Catches 2006-2014                                                 |
+| sag\_keys\_raw               | ICES Stock Assessment Graphs database - keys                                       |
+| sag\_refpts\_raw             | ICES Stock Assessment Graphs database - reference points                           |
+| sag\_summary\_raw            | ICES Stock Assessment Graphs database - summary information from assessment output |
+| species\_list\_raw           | ASFIS list of species                                                              |
+| stecf\_effort\_raw           | STECF nominal effort                                                               |
+| stecf\_landings\_raw         | STECF landings and discards                                                        |
+| stock\_list\_raw             | ICES Stock database                                                                |
 
-note: [Consistent naming](https://github.com/slarge/fisheryO/issues/11) will make the data easily searchable using `grep()`.
-
-If you want more information about the data source for each data file, use the "?<data_name>" notation, e.g., `?sag_complete_summary` function to explore the description.
+If you want more information about the data source for each data file, use the "?<data_name>" notation, e.g., `?ices_catch_historical_raw` function to explore the description and to find a url for the source.
 
 Plots
 -----
@@ -89,6 +76,15 @@ fisheryO::plot_kobe("Greater North Sea Ecoregion", guild = "demersal", return_pl
 Some of the more complex plots have the option to be dynamic .html graphics with the "dynamic = TRUE" argument.
 
 [To do](https://github.com/slarge/fisheryO/issues/12): If you want more information about the data source used for each plot, use the "?<plot_function>" notation, e.g., `?plot_kobe` function to explore the description.
+
+Notes
+-----
+
+``` r
+# install.packages("rJava")
+## Download Java
+# Sys.setenv(JAVA_HOME='C:/Program Files/Java/jre1.8.0_131')`
+```
 
 References
 ----------

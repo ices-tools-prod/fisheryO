@@ -18,7 +18,7 @@ head(ices_catch_data())
 \seealso{
 Used in \code{\link{ices_catch_plot}} to create an area or line plot of landings (historic and official catch)
 for an ecoregion by country, fish category, or species.
-Input data: \code{\link{catch_data_official}}, \code{\link{catch_data_historical}}, \code{\link{species_list}},
+Input data: \code{\link{ices_catch_official_raw}}, \code{\link{ices_catch_historical_raw}}, \code{\link{species_list_raw}},
 and \code{\link{stock_list_raw}}.
 }
 \author{

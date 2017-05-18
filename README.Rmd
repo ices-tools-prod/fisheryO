@@ -79,6 +79,15 @@ Some of the more complex plots have the option to be dynamic .html graphics with
 [To do](https://github.com/slarge/fisheryO/issues/12): If you want more information about the data source used for each plot, use the "?<plot_function>" notation, e.g., `?plot_kobe` function to explore the description.
 
 
+Notes
+-------
+
+```{r, echo = TRUE}
+# install.packages("rJava")
+## Download Java
+# Sys.setenv(JAVA_HOME='C:/Program Files/Java/jre1.8.0_131')`
+```
+
 References
 ----------
 

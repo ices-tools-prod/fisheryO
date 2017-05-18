@@ -111,7 +111,7 @@
 #'
 #' @format A data frame with 429 rows and 3 variables:
 #' @source \url{https://standardgraphs.ices.dk/}
-"sag_keys"
+"sag_keys_raw"
 
 #' Historical Nominal Catches 1950-2010
 #'
@@ -131,7 +131,7 @@
 #'
 #' @format A data frame with 28582 rows and 64 variables:
 #' @source \url{http://www.ices.dk/marine-data/dataset-collections/Pages/Fish-catch-and-stock-assessment.aspx}
-"catch_data_historical"
+"ices_catch_historical_raw"
 
 
 #' @title Official Nominal Catches 2006-2014
@@ -158,7 +158,7 @@
 #'
 #' @format A data frame with 49182 rows and 13 variables:
 #' @source \url{http://www.ices.dk/marine-data/dataset-collections/Pages/Fish-catch-and-stock-assessment.aspx}
-"catch_data_official"
+"ices_catch_official_raw"
 
 #' ASFIS list of species
 #'
@@ -185,7 +185,7 @@
 #'
 #' @format A data frame with 12700 rows and 11 variables:
 #' @source \url{http://www.fao.org/fishery/collection/asfis/en}
-"species_list"
+"species_list_raw"
 
 #' STECF nominal effort
 #'
@@ -209,7 +209,7 @@
 #'
 #' @format A data frame with 23993 rows and 13 variables.
 #' @source \url{https://stecf.jrc.ec.europa.eu/dd/effort/graphs-annex}
-"STECF_effort_data"
+"stecf_effort_raw"
 
 #' STECF landings and discards
 #'
@@ -230,4 +230,4 @@
 #'
 #' @format A data frame with 530230 rows and 11 variables.
 #' @source \url{https://stecf.jrc.ec.europa.eu/dd/effort/graphs-annex}
-"STECF_landings_data"
+"stecf_landings_raw"

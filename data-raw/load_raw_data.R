@@ -85,3 +85,40 @@ devtools::use_data(stecf_effort_raw)
 stecf_landings_raw <- readRDS("data-raw/STECF_landings_data.rds")
 devtools::use_data(stecf_landings_raw)
 
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+# DATA SOURCE: ICES Area and ecoregion shapefiles #
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+
+ices_url <- "http://gis.ices.dk/shapefiles/ICES_areas.zip"
+eco_url <- "http://gis.ices.dk/shapefiles/ICES_ecoregions.zip"
+
+tmp_path <- tempdir()
+
+get_map <- function(URL) {
+  tmp_file <- tempfile(fileext = ".zip")
+  download.file(url = URL,
+                destfile = tmp_file,
+                mode = "wb", quiet = TRUE)
+  unzip(tmp_file, exdir = tmp_path)
+}
+
+lapply(list(ices_url,
+            eco_url), get_map)
+
+ices_shape <- sf::st_read(dsn = tmp_path, layer = "ICES_Areas_20160601_dense", quiet = FALSE)
+eco_shape <- sf::st_read(dsn = tmp_path, layer = "ICES_ecoregions_20150113_no_land", quiet = FALSE)
+
+devtools::use_data(ices_shape, compress='xz', overwrite = TRUE)
+devtools::use_data(eco_shape, compress='xz', overwrite = TRUE)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+# DATA SOURCE: rnaturalearth 10  #
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+
+europe_shape <- rnaturalearth::ne_countries(scale = 10,
+                                        type = "countries",
+                                        continent = "europe",
+                                        returnclass = "sf")[, c("iso_a3", "iso_n3", "admin", "geometry")]
+
+devtools::use_data(europe_shape, compress='xz', overwrite = TRUE)

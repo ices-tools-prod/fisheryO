@@ -24,6 +24,7 @@ Depends:
     countrycode,
     htmltools,
     DT,
+    rnaturalearth,
     sf (>= 0.4-3)
 Imports: 
 Suggests:

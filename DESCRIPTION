@@ -23,7 +23,8 @@ Depends:
     gridExtra,
     countrycode,
     htmltools,
-    DT
+    DT,
+    sf (>= 0.4-3)
 Imports: 
 Suggests:
   testthat

@@ -231,3 +231,54 @@
 #' @format A data frame with 530230 rows and 11 variables.
 #' @source \url{https://stecf.jrc.ec.europa.eu/dd/effort/graphs-annex}
 "stecf_landings_raw"
+
+#' ICES Statistical Areas
+#'
+#' ICES Statistical Areas. Accessed 23 May 2017.
+#' \itemize{
+#'	\item{OBJECTID}{add text}
+#'	\item{Major_FA}{add text}
+#'	\item{SubArea}{add text}
+#'	\item{Division}{add text}
+#'	\item{SubDivisio}{add text}
+#'	\item{Unit}{add text}
+#'	\item{Area_Full{add text}
+#'	\item{Shape_Leng}{add text}
+#'	\item{Shape_Area}{add text}
+#'	\item{Area_27}{add text}
+#'	\item{geometry}{add text}
+#' }
+#'
+#' @format A sf data frame with 66 rows and 11 variables.
+#' @source \url{http://gis.ices.dk/shapefiles/ICES_areas.zip}
+"ices_shape"
+
+#' ICES Ecoregions
+#'
+#' ICES Ecoregions. Accessed 23 May 2017.
+#' \itemize{
+#'	\item{OBJECTID}{add text}
+#'	\item{Ecoregion}{add text}
+#'	\item{Shape_Leng}{add text}
+#'	\item{Shape_Le_1}{add text}
+#'	\item{Shape_Area}{add text}
+#'	\item{geometry}{add text}
+#' }
+#'
+#' @format A sf data frame with 17 rows and 6 variables.
+#' @source \url{http://gis.ices.dk/shapefiles/ICES_ecoregions.zip}
+"eco_shape"
+
+#' Europe map
+#'
+#' ICES Ecoregions. Accessed 23 May 2017.
+#' \itemize{
+#'	\item{iso_a3}{add text}
+#'	\item{iso_n3}{add text}
+#'	\item{admin}{add text}
+#'	\item{geometry}{add text}
+#' }
+#'
+#' @format A sf data frame with 51 rows and 6 variables. From Natural Earth via the rnaturalearth package
+#' @source \url{http://www.naturalearthdata.com/}, \url{https://cran.r-project.org/package=rnaturalearth}
+"europe_shape"

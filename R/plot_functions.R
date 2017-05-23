@@ -1,3 +1,85 @@
+
+#' ICES Area and Ecoregion map
+#'
+#' \code{area_definition_map}} returns a map describing potential mismatches between ICES Ecoregions and ICES Areas
+#'
+#' @param ecoregion ecoregion name, e.g. Greater North Sea Ecoregion
+#'
+#' @note
+#'
+#' @return A png or ggplot plot
+#'
+#' @seealso SAG summary table and reference points come from \code{\link{clean_sag}}. \code{\link{frmt_summary_table}} evaluates
+#' status relative to reference points and formats the table for .html.
+#'
+#' @author Scott Large
+#'
+#' @examples
+#' \dontrun{
+#' area_definition_map("Greater North Sea")
+#' }
+#' @export
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+# ICES Area and Ecoregion Map #
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+
+area_definition_map <- function(ecoregion,
+                                save_plot = FALSE,
+                                return_plot = TRUE,
+                                output_path = NULL,
+                                file_name = NULL) {
+
+  if(is.null(file_name)) {
+    file_name <- gsub("\\s", "_", ecoregion)
+  }
+
+  if(is.null(output_path)) {
+    output_path <- "~/"
+  }
+
+  dat <- area_definition(ecoregion)
+  europe_shape <- dat$europe_shape
+  eco_areas <- dat$eco_areas
+  ices_areas <- dat$ices_areas
+  centroids <- dat$centroids
+
+  xmin <- min(st_bbox(eco_areas)[1], st_bbox(ices_areas)[1])
+  xmax <- max(st_bbox(eco_areas)[3], st_bbox(ices_areas)[3])
+  xmin <- min(st_bbox(eco_areas)[2], st_bbox(ices_areas)[2])
+  xmax <- max(st_bbox(eco_areas)[4], st_bbox(ices_areas)[4])
+
+  ylims <- c(xmin, xmax)
+  ylims <- c(ymin, ymax)
+
+  p1 <- ggplot() +
+    geom_sf(data = europe_shape, fill = "grey80", color = "grey90") +
+    geom_sf(data = ices_areas, color = "grey60", fill = "white") +
+    geom_sf(data = eco_areas, color = "grey80", fill = "gold", alpha = 0.5) +
+    geom_text(data = centroids, aes(x = X, y = Y, label = Area_27), size = 2.5) +
+    theme_bw(base_size = 8) +
+    theme(plot.caption = element_text(size = 6),
+          plot.subtitle = element_text(size = 7)) +
+    coord_sf(crs = crs, xlim = xlims, ylim = ylims) +
+    labs(title = "Area definitions", x = "", y = "",
+         subtitle = paste0("ICES areas (dark lines) and ", ecoregion, " (yellow shading)"),
+         caption = "Made with Natural Earth and ICES Marine Data")
+
+
+  if(return_plot) {
+    return(p1)
+  }
+
+  if(save_plot) {
+    ggsave(filename = paste0(output_path, file_name, ".png"),
+           plot = p1,
+           width = 178,
+           height = 152,
+           units = "mm",
+           dpi = 300)
+  }
+}
+
 #' Render html stock summary table
 #'
 #' This function returns "Status of stock summary relative to reference points" for all stocks

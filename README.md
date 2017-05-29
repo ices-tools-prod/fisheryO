@@ -80,8 +80,9 @@ Some of the more complex plots have the option to be dynamic .html graphics with
 
 [To do](https://github.com/slarge/fisheryO/issues/12): If you want more information about the data source used for each plot, use the "?<plot_function>" notation, e.g., `?plot_kobe` function to explore the description.
 
-``` r
+ICES Ecoregions are not quite the same as the ICES areas that most assessments are based on. In fact, much of the historic catch data (`?ices_catch_historical_raw`) is aggregated across multiple ICES areas that are may extend into other ecoregions. The following function will show the discrepancies between the ICES Ecoregions and ICES areas.
 
+``` r
 fisheryO::area_definition_map(ecoregion = "Greater North Sea Ecoregion", return_plot = TRUE)
 ```
 

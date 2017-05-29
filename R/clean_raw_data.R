@@ -82,8 +82,9 @@ area_definition <- function(ecoregion = "Greater North Sea Ecoregion"){
               "eco_areas" = eco_areas,
               "europe_shape" = europe_shape,
               "centroids" = centroids))
-}
 
+
+}
 
 #' Clean SAG reference points and summary table
 #'

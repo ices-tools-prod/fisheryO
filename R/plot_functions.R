@@ -121,7 +121,7 @@ stockSummaryTable_fun <- function(ecoregion,
                                   output_path = NULL,
                                   file_name = NULL) {
 
-  if(is.null(fileName)) {
+  if(is.null(file_name)) {
     file_name <- gsub("\\s", "_", ecoregion)
   }
 

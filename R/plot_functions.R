@@ -43,13 +43,14 @@ area_definition_map <- function(ecoregion,
   eco_areas <- dat$eco_areas
   ices_areas <- dat$ices_areas
   centroids <- dat$centroids
+  crs <- dat$crs
 
   xmin <- min(st_bbox(eco_areas)[1], st_bbox(ices_areas)[1])
   xmax <- max(st_bbox(eco_areas)[3], st_bbox(ices_areas)[3])
-  xmin <- min(st_bbox(eco_areas)[2], st_bbox(ices_areas)[2])
-  xmax <- max(st_bbox(eco_areas)[4], st_bbox(ices_areas)[4])
+  ymin <- min(st_bbox(eco_areas)[2], st_bbox(ices_areas)[2])
+  ymax <- max(st_bbox(eco_areas)[4], st_bbox(ices_areas)[4])
 
-  ylims <- c(xmin, xmax)
+  xlims <- c(xmin, xmax)
   ylims <- c(ymin, ymax)
 
   p1 <- ggplot() +

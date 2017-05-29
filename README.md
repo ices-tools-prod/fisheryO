@@ -51,8 +51,11 @@ knitr::kable(as.data.frame(data(package = "fisheryO")$results[,c("Item", "Title"
 
 | Item                         | Title                                                                              |
 |:-----------------------------|:-----------------------------------------------------------------------------------|
+| eco\_shape                   | ICES Ecoregions                                                                    |
+| europe\_shape                | Europe map                                                                         |
 | ices\_catch\_historical\_raw | Historical Nominal Catches 1950-2010                                               |
 | ices\_catch\_official\_raw   | Official Nominal Catches 2006-2014                                                 |
+| ices\_shape                  | ICES Statistical Areas                                                             |
 | sag\_keys\_raw               | ICES Stock Assessment Graphs database - keys                                       |
 | sag\_refpts\_raw             | ICES Stock Assessment Graphs database - reference points                           |
 | sag\_summary\_raw            | ICES Stock Assessment Graphs database - summary information from assessment output |
@@ -76,6 +79,11 @@ fisheryO::plot_kobe("Greater North Sea Ecoregion", guild = "demersal", return_pl
 Some of the more complex plots have the option to be dynamic .html graphics with the "dynamic = TRUE" argument.
 
 [To do](https://github.com/slarge/fisheryO/issues/12): If you want more information about the data source used for each plot, use the "?<plot_function>" notation, e.g., `?plot_kobe` function to explore the description.
+
+``` r
+
+# fisheryO::area_definition_map(ecoregion = "Greater North Sea", return_plot = TRUE)
+```
 
 Notes
 -----

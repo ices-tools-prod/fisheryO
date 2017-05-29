@@ -31,7 +31,7 @@ You can install fisheryO from github with:
 ``` r
 # install.packages("devtools")
 # devtools::install_github("slarge/fisheryO")
-library(fisheryO)
+# library(fisheryO)
 ```
 
 Work flow
@@ -82,17 +82,13 @@ Some of the more complex plots have the option to be dynamic .html graphics with
 
 ``` r
 
-# fisheryO::area_definition_map(ecoregion = "Greater North Sea", return_plot = TRUE)
+fisheryO::area_definition_map(ecoregion = "Greater North Sea Ecoregion", return_plot = TRUE)
 ```
+
+![](README-map_area-1.png)
 
 Notes
 -----
-
-``` r
-# install.packages("rJava")
-## Download Java
-# Sys.setenv(JAVA_HOME='C:/Program Files/Java/jre1.8.0_131')`
-```
 
 References
 ----------

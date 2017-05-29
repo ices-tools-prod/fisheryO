@@ -81,11 +81,11 @@ area_definition <- function(ecoregion = "Greater North Sea Ecoregion"){
   return(list("ices_areas" = ices_areas,
               "eco_areas" = eco_areas,
               "europe_shape" = europe_shape,
-              "centroids" = centroids))
+              "centroids" = centroids,
+              "crs" = crs))
 
 
 }
-
 #' Clean SAG reference points and summary table
 #'
 #' \code{clean_sag} returns a merged and tidied SAG reference points and summary table and a formatted (.html) stock list
@@ -1343,91 +1343,3 @@ stecf_landings_clean <- gear_dat_clean %>%
 return(list("stecf_effort_clean" = stecf_effort_clean,
             "stecf_landings_clean" = stecf_landings_clean))
 }
-
-
-
-
-#' ICES Area and Ecoregion definitions
-#'
-#' \code{area_definition} returns a list of 3 sf data frames: Europe, ICES Areas, and ICES Ecoregions
-#'
-#' @return a list of 3 sf data frames: Europe, ICES Areas, and ICES Ecoregions to show potential mismatches between
-#' ICES Ecoregions and ICES Areas.
-#'
-#' @seealso Used in \code{\link{area_definition_map}} to create a map of ICES Ecoregions and Areas.
-#'
-#' Input data: \code{\link{ices_shape}}, \code{\link{eco_shape}}, and \code{\link{europe_shape}}.
-#'
-#' @author Scott Large
-#'
-#' @examples
-#'
-#' @export
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-# ICES Area and Ecoregion Definition #
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-
-area_definition <- function(ecoregion) {
-
-  library(sf)
-
-  raw_data <- c("europe_shape",
-                "ices_shape",
-                "eco_shape")
-  data(list = raw_data, envir = environment())
-
-  crs <- "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
-
-
-
-  eco_areas <- eco_shape %>%
-    filter(grepl(ecoregion, Ecoregion)) %>%
-    st_transform(crs = crs)
-
-  Area_27_baltic <- c("3.d.27", "3.d.25", "3.d.24",
-                      "3.b.23", "3.c.22", "3.d.31",
-                      "3.d.30", "3.d.32", "3.d.29",
-                      "3.d.28.1", "3.d.28.2", "3.d.26")
-
-  Area_27_ns <- c("3.a.20", "3.a.21",
-                  "4.a", "4.b", "4.c",
-                  "7.d")
-
-  ices_areas <- ices_shape %>%
-    mutate(ECOREGION = case_when(
-      .$Area_27 %in% Area_27_baltic ~ "Baltic Sea Ecoregion",
-      .$Area_27 %in%  Area_27_ns ~ "Greater North Sea Ecoregion",
-      # ... add remaining ecoregions
-      TRUE ~ "OTHER")) %>%
-    st_transform(crs = crs)
-
-  # Centroids for labels
-  ices_area_centroids <- sf::st_centroid(ices_areas)
-  centroids <- data.frame(ices_area_centroids$Area_27,
-                          ices_area_centroids$ECOREGION,
-                          matrix(unlist(ices_area_centroids$geometry),
-                                 ncol = 2,
-                                 byrow = TRUE))
-
-  colnames(centroids) <- c("Area_27", "ECOREGION", "X", "Y")
-
-  centroids <- centroids %>%
-    mutate(Area_27 = case_when(
-      .$ECOREGION == "Baltic Sea Ecoregion" ~ sub("3.b.|3.c.|3.d.", "", .$Area_27),
-      .$ECOREGION == "Greater North Sea Ecoregion" ~ as.character(.$Area_27),
-      TRUE ~ "OTHER"
-    ))
-
-  ices_areas <- ices_areas %>%
-    filter(grepl(ecoregion, ECOREGION))
-
-  centroids <- centroids %>%
-    filter(grepl(ecoregion, ECOREGION))
-
-
-
-
-}
-
-
-

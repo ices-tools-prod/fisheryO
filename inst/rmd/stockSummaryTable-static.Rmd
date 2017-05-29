@@ -6,40 +6,81 @@ output: html_document
 ---
 
 ```{r flextable, include=FALSE}
-library(ReporteRs)
-# library(dplyr)
 
-base_text_prop <- textProperties(font.size = 10, color = "black", font.family = "Calibri")
-base_par_prop = parProperties( text.align = "left")
-icon_par_prop = parProperties( text.align = "center" )
-base_cell_prop = cellProperties( padding = 6 )
+FT <- stockPlot %>% 
+  flextable() %>% 
+  display(SBL = fpar(SBL),
+                     F_2013 = fpar(F_2013),
+                     F_2014 = fpar(F_2014),
+                     F_2015 = fpar(F_2015),
+                     SSB_2014 = fpar(SSB_2014),
+                     SSB_2015 = fpar(SSB_2015),
+                     SSB_2016 = fpar(SSB_2016),
+                     D3C1 = fpar(D3C1),
+                     D3C2 = fpar(D3C2),
+                     GES = fpar(GES)) %>% 
+  add_header(StockCode = "",
+             Description = "",
+             FisheriesGuild = "",
+             AdviceCategory = "",
+             DataCategory = "",
+             SBL = "",
+             F_2013 = "F reference points",
+             F_2014 = "F reference points",
+             F_2015 = "F reference points",
+             SSB_2014 = "SSB reference points",
+             SSB_2015 = "SSB reference points",
+             SSB_2016 = "SSB reference points",
+             D3C1 = "MSFD descriptors",
+             D3C2 = "MSFD descriptors",
+             GES = "MSFD descriptors", 
+             top = TRUE ) %>% 
+  set_header_labels(StockCode = "Stock code",
+                    FisheriesGuild = "Fish category",
+                    AdviceCategory = "Data category",
+                    F_2013 = "2013",
+                    F_2014 = "2014",
+                    F_2015 = "2015",
+                    SSB_2014 = "2014",
+                    SSB_2015 = "2015",
+                    SSB_2016 = "2016") %>% 
+  align(align = "center", part = "all") %>% 
+  align(j = c(1:5), align = "left", part = "body") %>% 
+  theme_zebra(odd_header = "transparent", even_header = "transparent") %>% 
+  autofit()
 
-FT <- stockPlot %>%
-  FlexTable(header.columns = FALSE,
-            header.cell.props = base_cell_prop, 
-            header.par.props = base_par_prop, 
-            header.text.props = chprop(base_text_prop, font.weight = "bold"), 
-            body.cell.props = base_cell_prop, 
-            body.par.props = base_par_prop, 
-            body.text.props = base_text_prop) %>%
-  addHeaderRow(value = c("", "F reference points", "SSB reference points", "MSFD GES"), colspan = c(6, 3, 3, 3)) %>%
-  addHeaderRow(value = c("Stock code", "Stock name", "Fishery guild", 
-                         "Advice type", "Data category", "Safe biological limits",
-                         "2013", "2014", "2015", "2014", "2015", "2016",
-                         "D3C1", "D3C2", "GES<sub>Stock</sub>")) %>%
-  setZebraStyle(odd = "#F9F9F9", even = "#FFFFFF" ) %>%
-  setFlexTableBorders(inner.vertical = borderProperties(width = 0), 
-                      inner.horizontal = borderProperties( width = 1 , color = "#DDDDDD"),
-                      outer.vertical = borderProperties( width = 0 ),
-                      outer.horizontal = borderProperties( width = 1, color = "grey30")) %>%
-  setFlexTableWidths(widths = c(0.5, 3, 1, 0.7, rep(0.5, 11)))
-
-FT[, 5:15] <- chprop(base_par_prop, text.align = "center")
+# 
+# base_text_prop <- textProperties(font.size = 10, color = "black", font.family = "Calibri")
+# base_par_prop = parProperties( text.align = "left")
+# icon_par_prop = parProperties( text.align = "center" )
+# base_cell_prop = cellProperties( padding = 6 )
+# 
+# FT <- stockPlot %>%
+#   FlexTable(header.columns = FALSE,
+#             header.cell.props = base_cell_prop, 
+#             header.par.props = base_par_prop, 
+#             header.text.props = chprop(base_text_prop, font.weight = "bold"), 
+#             body.cell.props = base_cell_prop, 
+#             body.par.props = base_par_prop, 
+#             body.text.props = base_text_prop) %>%
+#   addHeaderRow(value = c("", "F reference points", "SSB reference points", "MSFD GES"), colspan = c(6, 3, 3, 3)) %>%
+#   addHeaderRow(value = c("Stock code", "Stock name", "Fishery guild", 
+#                          "Advice type", "Data category", "Safe biological limits",
+#                          "2013", "2014", "2015", "2014", "2015", "2016",
+#                          "D3C1", "D3C2", "GES<sub>Stock</sub>")) %>%
+#   setZebraStyle(odd = "#F9F9F9", even = "#FFFFFF" ) %>%
+#   setFlexTableBorders(inner.vertical = borderProperties(width = 0), 
+#                       inner.horizontal = borderProperties( width = 1 , color = "#DDDDDD"),
+#                       outer.vertical = borderProperties( width = 0 ),
+#                       outer.horizontal = borderProperties( width = 1, color = "grey30")) %>%
+#   setFlexTableWidths(widths = c(0.5, 3, 1, 0.7, rep(0.5, 11)))
+# 
+# FT[, 5:15] <- chprop(base_par_prop, text.align = "center")
 
 
 ```
 
 ```{r, results = "asis", echo = FALSE}
-FT
+tabwid(FT)
 ```
 

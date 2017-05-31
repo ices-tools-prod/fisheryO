@@ -54,17 +54,18 @@ area_definition_map <- function(ecoregion,
   ylims <- c(ymin, ymax)
 
   p1 <- ggplot() +
+    geom_sf(data = eco_areas, color = "grey80", fill = "gold", alpha = 0.9) +
     geom_sf(data = europe_shape, fill = "grey80", color = "grey90") +
-    geom_sf(data = ices_areas, color = "grey60", fill = "white") +
-    geom_sf(data = eco_areas, color = "grey80", fill = "gold", alpha = 0.5) +
+    geom_sf(data = ices_areas, color = "grey60", fill = "transparent") +
     geom_text(data = centroids, aes(x = X, y = Y, label = Area_27), size = 2.5) +
     theme_bw(base_size = 8) +
     theme(plot.caption = element_text(size = 6),
           plot.subtitle = element_text(size = 7)) +
     coord_sf(crs = crs, xlim = xlims, ylim = ylims) +
-    labs(title = "Area definitions", x = "", y = "",
-         subtitle = paste0("ICES areas (dark lines) and ", ecoregion, " (yellow shading)"),
-         caption = "Made with Natural Earth and ICES Marine Data")
+    labs(#title = "Area definitions",
+         x = "", y = "")#,
+         #subtitle = paste0("ICES areas (dark lines) and ", ecoregion, " (yellow shading)"),
+         #caption = "Made with Natural Earth and ICES Marine Data")
 
 
   if(return_plot) {

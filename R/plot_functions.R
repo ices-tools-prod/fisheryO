@@ -54,7 +54,7 @@ area_definition_map <- function(ecoregion,
   ylims <- c(ymin, ymax)
 
   p1 <- ggplot() +
-    geom_sf(data = eco_areas, color = "grey80", fill = "gold", alpha = 0.9) +
+    geom_sf(data = eco_areas, color = "grey80", fill = "gold") +
     geom_sf(data = europe_shape, fill = "grey80", color = "grey90") +
     geom_sf(data = ices_areas, color = "grey60", fill = "transparent") +
     geom_text(data = centroids, aes(x = X, y = Y, label = Area_27), size = 2.5) +

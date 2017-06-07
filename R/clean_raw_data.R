@@ -1090,12 +1090,21 @@ ices_catch_data <- function() {
   data(list = raw_data, envir = environment())
 
   fish_category <- stock_list_raw %>%
-    filter(YearOfLastAssessment == 2016,
+    filter(ActiveYear >= 2016,
            !is.na(FisheriesGuild)) %>%
     mutate(X3A_CODE = gsub("-.*$", "", StockKeyLabel),
            X3A_CODE = gsub("\\..*", "", X3A_CODE),
            X3A_CODE = toupper(X3A_CODE),
            FisheriesGuild = tolower(FisheriesGuild)) %>%
+    mutate(
+           FisheriesGuild = case_when(
+             .$X3A_CODE %in% c("SMN", "REB") ~ "pelagic",
+             .$X3A_CODE %in% c("ANF") ~ "benthic",
+             .$X3A_CODE %in% c("SMR", "ARG", "GUG", "RNG") ~ "demersal",
+             .$X3A_CODE %in% c("SHO") ~ "elasmobranch",
+             TRUE ~ .$FisheriesGuild
+           )
+    ) %>%
     select(X3A_CODE, FisheriesGuild) %>%
     distinct(.keep_all = TRUE)
 
@@ -1144,9 +1153,9 @@ ices_catch_data <- function() {
              .$Division %in% gsub("  ", " ", historic_bs) ~ "Baltic Sea Ecoregion",
              .$Division %in% gsub("  ", " ", historic_ns) ~ "Greater North Sea Ecoregion",
              TRUE ~ "OTHER")) %>%
-    filter(YEAR <= 2005) %>%  #,
-    # ECOREGION != "OTHER",
-    # COUNTRY != "OTHER") %>%
+    filter(YEAR <= 2005,
+           ECOREGION != "OTHER",
+           COUNTRY != "OTHER") %>%
     left_join(y = species_list_raw, c("Species" = "English_name")) %>% # Merge to add FAO species information
     left_join(y = species_list_raw, c("Species" = "Scientific_name", # Merge to add FAO species information
                                   "X3A_CODE")) %>%

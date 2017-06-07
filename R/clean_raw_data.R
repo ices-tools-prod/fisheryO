@@ -1202,9 +1202,7 @@ ices_catch_data <- function() {
     bind_rows(catch_dat_1950) %>%
     mutate(GUILD = ifelse(is.na(GUILD),
                           "undefined",
-                          GUILD)) %>%
-    filter(!GUILD %in% c("elasmobranch", "crustacean") |
-             ECOREGION != "Baltic Sea")
+                          GUILD))
 
   return(ices_catch_dat)
 }

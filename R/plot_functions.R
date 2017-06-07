@@ -1044,7 +1044,8 @@ ices_catch_plot <- function(ecoregion, #IA = unique(allDat$ECOREGION)[1],
                             line_count = 4,
                             # start_year = 1990,
                             plot_type = c("line", "area")[1],
-                            fig_name = "figure2",
+                            output_path = NULL,
+                            file_name = "figure2",
                             save_plot = FALSE,
                             return_plot = TRUE,
                             fig.width = 174,
@@ -1067,6 +1068,14 @@ ices_catch_plot <- function(ecoregion, #IA = unique(allDat$ECOREGION)[1],
   iaDat <- ices_catch_data() %>%
     filter(ECOREGION == ecoregion) %>%
     rename_(.dots = setNames(type, "type_var"))
+
+  if(type == "GUILD" &
+     ecoregion == "Baltic Sea Ecoregion"){
+    # Get rid of crustacean and elasmobranchs in the Baltic... to appease ADGFO
+    iaDat <- iaDat %>%
+      filter(!type_var %in% c("elasmobranch",
+                              "crustacean"))
+  }
 
   catchPlot <- iaDat %>%
     group_by(type_var) %>%
@@ -1241,6 +1250,7 @@ stecf_plot <- function(ecoregion,
                        plot_type = c("line", "area")[1],
                        file_name = "figure3",
                        save_plot = FALSE,
+                       output_path = NULL,
                        return_plot = TRUE,
                        fig.width = 174,
                        fig.height = 68,
@@ -1269,6 +1279,17 @@ stecf_plot <- function(ecoregion,
 
   if(line_count >= 10) warning("Color scales are hard to see beyond this point... try plotting fewer categories.")
   if(line_count == 14) stop("Color palette only has 14 colors... sorry.")
+
+
+  if(save_plot) {
+    if(is.null(file_name)) {
+      file_name <- gsub("\\s", "_", ecoregion)
+    }
+
+    if(is.null(output_path)) {
+      output_path <- "~/"
+    }
+  }
 
   catchPlot <- allDat %>%
     group_by(ANNEX, type_var) %>%
@@ -1395,7 +1416,7 @@ stecf_plot <- function(ecoregion,
 
 
   if(save_plot) {
-    ggsave(paste0(output_path, file_name, ".png"),
+    ggsave(filename = paste0(output_path, file_name, ".png"),
       # filename = paste0("~/git/ices-dk/fisheryO/output/", fig_name, "_", IA, ".png"),
            plot = pl,
            width = fig.width,

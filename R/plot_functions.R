@@ -1017,8 +1017,8 @@ guild_discards_fun <- function(ecoregion,
   p3_bar_plot <- ggplot(p3_bar,
                         aes(x = FisheriesGuild, y = value, fill = variable)) +
     geom_bar(stat = "identity") +
-    scale_color_brewer(type = "qual", palette = "Set1") +
-    scale_fill_brewer(type = "qual", palette = "Set1") +
+    scale_color_brewer(type = "qual", palette = "Dark2", direction = -1) +
+    scale_fill_brewer(type = "qual", palette = "Dark2", direction = -1) +
     coord_flip() +
     theme_bw(base_size = 9) +
     theme(legend.position = "none",

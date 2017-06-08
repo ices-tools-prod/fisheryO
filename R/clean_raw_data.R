@@ -122,7 +122,7 @@ clean_sag <- function(active_year = 2016){
   data(list = raw_data, envir = environment())
 
   stock_list <- stock_list_raw %>%
-    filter(ActiveYear == active_year) %>% ### This will need to be fixed for BS
+    filter(ActiveYear == active_year) %>%
     select(StockCode = StockKeyLabel,
            Description = StockKeyDescription,
            SpeciesScientificName,

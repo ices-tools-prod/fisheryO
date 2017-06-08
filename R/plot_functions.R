@@ -867,6 +867,13 @@ guild_discards_fun <- function(ecoregion,
   p3_dat_ts <-  stock_catch(active_year) %>%
     filter(grepl(ecoregion, EcoRegion))
 
+  if(ecoregion == "Baltic Sea Ecoregion"){
+    # Get rid of crustacean and elasmobranchs in the Baltic... to appease ADGFO
+    p3_dat_ts <- p3_dat_ts %>%
+      filter(!FisheriesGuild %in% c("elasmobranch",
+                              "crustacean"))
+  }
+
   # If active_year is not yet published.
   if(all(is.na(p3_dat_ts$Year))){
     stop(paste0("The fisheryO package does not have records for ",
@@ -874,8 +881,7 @@ guild_discards_fun <- function(ecoregion,
   }
 
   p3_dat_ts <- p3_dat_ts %>%
-    filter(Year >= active_year - 4,
-           Year <= active_year - 1)
+    filter(Year %in% seq(active_year-4, active_year -1))
 
   p3_dat_na <- p3_dat_ts %>%
     expand(Year, nesting(StockCode, YearOfLastAssessment,
@@ -884,31 +890,65 @@ guild_discards_fun <- function(ecoregion,
               by = c("Year", "StockCode", "YearOfLastAssessment",
                      "Description", "FisheriesGuild", "EcoRegion"))
 
-  p3_dat_dcds <- p3_dat_na %>%
-    select(StockCode, Year, discards, YearOfLastAssessment) %>%
-    group_by(StockCode) %>%
-    spread(Year, discards) %>%
-    mutate(`2015` = ifelse(YearOfLastAssessment == 2015 &
-                             is.na(`2015`) &
-                             !is.na(`2014`),
-                           `2014`,
-                           `2015`)) %>%
-    gather(Year, discards, `2012`:`2015`) %>%
-    mutate(Year = as.numeric(Year),
-           discards = as.numeric(discards))
+  # Once updated to dplyr v0.6, mutate_at and quo() to make this work with SE.
+  # ~~~~~~~~~~~~~~~~~~~~~~~#
+  if(active_year <= 2016){
+    p3_dat_dcds <- p3_dat_na %>%
+      select(StockCode, Year, discards, YearOfLastAssessment) %>%
+      group_by(StockCode) %>%
+      spread(Year, discards) %>%
+      mutate(`2015` = ifelse(YearOfLastAssessment == 2015 &
+                               is.na(`2015`) &
+                               !is.na(`2014`),
+                             `2014`,
+                             `2015`)) %>%
+      gather(Year, discards, `2012`:`2015`) %>%
+      mutate(Year = as.numeric(Year),
+             discards = as.numeric(discards))
 
-  p3_dat_lnding <- p3_dat_na %>%
-    select(StockCode, Year, landings, YearOfLastAssessment) %>%
-    group_by(StockCode) %>%
-    spread(Year, landings) %>%
-    mutate(`2015` = ifelse(YearOfLastAssessment == 2015 &
-                             is.na(`2015`) &
-                             !is.na(`2014`),
-                           `2014`,
-                           `2015`)) %>%
-    gather(Year, landings, `2012`:`2015`) %>%
-    mutate(Year = as.numeric(Year),
-           landings = as.numeric(landings))
+    p3_dat_lnding <- p3_dat_na %>%
+      select(StockCode, Year, landings, YearOfLastAssessment) %>%
+      group_by(StockCode) %>%
+      spread(Year, landings) %>%
+      mutate(`2015` = ifelse(YearOfLastAssessment == 2015 &
+                               is.na(`2015`) &
+                               !is.na(`2014`),
+                             `2014`,
+                             `2015`)) %>%
+      gather(Year, landings, `2012`:`2015`) %>%
+      mutate(Year = as.numeric(Year),
+             landings = as.numeric(landings))
+  }
+
+  if(active_year < 2016){
+    p3_dat_dcds <- p3_dat_na %>%
+      select(StockCode, Year, discards, YearOfLastAssessment) %>%
+      group_by(StockCode) %>%
+      spread(Year, discards) %>%
+      mutate(`2016` = ifelse(YearOfLastAssessment == 2016 &
+                               is.na(`2016`) &
+                               !is.na(`2015`),
+                             `2015`,
+                             `2016`)) %>%
+      gather(Year, discards, `2013`:`2016`) %>%
+      mutate(Year = as.numeric(Year),
+             discards = as.numeric(discards))
+
+    p3_dat_lnding <- p3_dat_na %>%
+      select(StockCode, Year, landings, YearOfLastAssessment) %>%
+      group_by(StockCode) %>%
+      spread(Year, landings) %>%
+      mutate(`2016` = ifelse(YearOfLastAssessment == 2016 &
+                               is.na(`2016`) &
+                               !is.na(`2015`),
+                             `2015`,
+                             `2016`)) %>%
+      gather(Year, landings, `2013`:`2016`) %>%
+      mutate(Year = as.numeric(Year),
+             landings = as.numeric(landings))
+  }
+  # ~~~~~~~~~~~~~~~~~~~~~~~#
+
 
   p3_dat <- p3_dat_na %>%
     select(-discards,
@@ -925,7 +965,7 @@ guild_discards_fun <- function(ecoregion,
     filter(!variable %in% c("guildDiscards", "guildLandings"))
 
   p3_bar <- p3_dat %>%
-    filter(Year == 2015) %>%
+    filter(Year == active_year - 1) %>%
     gather(variable, value, -Year, -FisheriesGuild) %>%
     ungroup() %>%
     select(-Year)
@@ -945,7 +985,7 @@ guild_discards_fun <- function(ecoregion,
                              y = value,
                              color = FisheriesGuild)) +
     geom_line() +
-    geom_label_repel(data = p3_rate %>% filter(Year == 2015),
+    geom_label_repel(data = p3_rate %>% filter(Year == active_year - 1),
                      aes(label = FisheriesGuild,
                          color = FisheriesGuild,
                          fill = FisheriesGuild),
@@ -963,7 +1003,7 @@ guild_discards_fun <- function(ecoregion,
                      y = -Inf, yend = -Inf), color = "grey50") +
     geom_segment(aes(y = -Inf, yend = Inf,
                      x = -Inf, xend = -Inf), color = "grey50")+
-    expand_limits(x = c(min(p3_rate$Year, na.rm = TRUE), 2017)) + # So that we have enough room along x-axis for labels.
+    expand_limits(x = c(min(p3_rate$Year, na.rm = TRUE), active_year + 1)) + # So that we have enough room along x-axis for labels.
     scale_color_brewer(type = "qual", palette = "Set2") +
     scale_fill_brewer(type = "qual", palette = "Set2") +
     theme_bw(base_size = 9) +

@@ -122,7 +122,7 @@ clean_sag <- function(active_year = 2016){
   data(list = raw_data, envir = environment())
 
   stock_list <- stock_list_raw %>%
-    filter(ActiveYear == active_year) %>%
+    filter(ActiveYear == active_year) %>% ### This will need to be fixed for BS
     select(StockCode = StockKeyLabel,
            Description = StockKeyDescription,
            SpeciesScientificName,
@@ -527,12 +527,12 @@ frmt_summary_tbl <- function(active_year = 2016,
                                                                           "SSB_2014", "SSB_2015", "SSB_2016",
                                                                           "D3C1", "D3C2", "GES")])] <- "GREY"
 
-  summary_table_frmt[summary_table_frmt == "GREEN"] <- "<i class=\"glyphicon glyphicon-ok-sign\" style=\"color:green; font-size:2.2em\"></i>"
-  summary_table_frmt[summary_table_frmt == "RED"] <- "<i class=\"glyphicon glyphicon-remove-sign\" style=\"color:red; font-size:2.2em\"></i>"
-  summary_table_frmt[summary_table_frmt == "GREY"] <- "<i class=\"glyphicon glyphicon-question-sign\" style=\"color:grey; font-size:2.2em\"></i>"
-  summary_table_frmt[summary_table_frmt == "ORANGE"] <- "<i class=\"glyphicon glyphicon-record\" style=\"color:#FAB700; font-size:2.2em\"></i>"
-
-  summary_table_frmt <- data.frame(lapply(summary_table_frmt, factor))
+  # summary_table_frmt[summary_table_frmt == "GREEN"] <- "<i class=\"glyphicon glyphicon-ok-sign\" style=\"color:green; font-size:2.2em\"></i>"
+  # summary_table_frmt[summary_table_frmt == "RED"] <- "<i class=\"glyphicon glyphicon-remove-sign\" style=\"color:red; font-size:2.2em\"></i>"
+  # summary_table_frmt[summary_table_frmt == "GREY"] <- "<i class=\"glyphicon glyphicon-question-sign\" style=\"color:grey; font-size:2.2em\"></i>"
+  # summary_table_frmt[summary_table_frmt == "ORANGE"] <- "<i class=\"glyphicon glyphicon-record\" style=\"color:#FAB700; font-size:2.2em\"></i>"
+  #
+  # summary_table_frmt <- data.frame(lapply(summary_table_frmt, factor))
 
   if(return_clean_sag){
     return(list("summary_table_frmt" = summary_table_frmt,
@@ -1090,21 +1090,12 @@ ices_catch_data <- function() {
   data(list = raw_data, envir = environment())
 
   fish_category <- stock_list_raw %>%
-    filter(ActiveYear >= 2016,
+    filter(YearOfLastAssessment == 2016,
            !is.na(FisheriesGuild)) %>%
     mutate(X3A_CODE = gsub("-.*$", "", StockKeyLabel),
            X3A_CODE = gsub("\\..*", "", X3A_CODE),
            X3A_CODE = toupper(X3A_CODE),
            FisheriesGuild = tolower(FisheriesGuild)) %>%
-    mutate(
-           FisheriesGuild = case_when(
-             .$X3A_CODE %in% c("SMN", "REB") ~ "pelagic",
-             .$X3A_CODE %in% c("ANF") ~ "benthic",
-             .$X3A_CODE %in% c("SMR", "ARG", "GUG", "RNG") ~ "demersal",
-             .$X3A_CODE %in% c("SHO") ~ "elasmobranch",
-             TRUE ~ .$FisheriesGuild
-           )
-    ) %>%
     select(X3A_CODE, FisheriesGuild) %>%
     distinct(.keep_all = TRUE)
 
@@ -1133,6 +1124,7 @@ ices_catch_data <- function() {
   catch_dat_1950 <- ices_catch_historical_raw %>%
     gather(YEAR, VALUE, -Country, -Species, -Division) %>%
     mutate(YEAR = as.numeric(gsub("X", "", YEAR)),
+           Division = gsub("  ", " ", Division),
            VALUE = ifelse(VALUE == "<0.5",
                           as.numeric(0),
                           VALUE),
@@ -1149,12 +1141,12 @@ ices_catch_data <- function() {
            ),
            ISO3 = countrycode::countrycode(COUNTRY, "country.name", "iso3c", warn = FALSE),
            ECOREGION = case_when(
-             .$Division %in% historic_bs ~ "Baltic Sea Ecoregion",
-             .$Division %in% historic_ns ~ "Greater North Sea Ecoregion",
+             .$Division %in% gsub("  ", " ", historic_bs) ~ "Baltic Sea Ecoregion",
+             .$Division %in% gsub("  ", " ", historic_ns) ~ "Greater North Sea Ecoregion",
              TRUE ~ "OTHER")) %>%
     filter(YEAR <= 2005) %>%  #,
-           # ECOREGION != "OTHER",
-           # COUNTRY != "OTHER") %>%
+    # ECOREGION != "OTHER",
+    # COUNTRY != "OTHER") %>%
     left_join(y = species_list_raw, c("Species" = "English_name")) %>% # Merge to add FAO species information
     left_join(y = species_list_raw, c("Species" = "Scientific_name", # Merge to add FAO species information
                                   "X3A_CODE")) %>%
@@ -1202,7 +1194,9 @@ ices_catch_data <- function() {
     bind_rows(catch_dat_1950) %>%
     mutate(GUILD = ifelse(is.na(GUILD),
                           "undefined",
-                          GUILD))
+                          GUILD)) %>%
+    filter(!GUILD %in% c("elasmobranch", "crustacean") |
+             ECOREGION != "Baltic Sea")
 
   return(ices_catch_dat)
 }

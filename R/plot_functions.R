@@ -865,9 +865,17 @@ guild_discards_fun <- function(ecoregion,
   # The whole bit here is to make the assumption that discard rates for biannual stocks and
   # and are consistent over the years that we don't provide new advice.
   p3_dat_ts <-  stock_catch(active_year) %>%
-    filter(grepl(ecoregion, EcoRegion),
-           Year >= 2012,
-           Year <= 2015)
+    filter(grepl(ecoregion, EcoRegion))
+
+  # If active_year is not yet published.
+  if(all(is.na(p3_dat_ts$Year))){
+    stop(paste0("The fisheryO package does not have records for ",
+                active_year, ". If these data exist in SAG, please update the raw data with load_raw_data.R."))
+  }
+
+  p3_dat_ts <- p3_dat_ts %>%
+    filter(Year >= active_year - 4,
+           Year <= active_year - 1)
 
   p3_dat_na <- p3_dat_ts %>%
     expand(Year, nesting(StockCode, YearOfLastAssessment,

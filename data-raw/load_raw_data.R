@@ -3,7 +3,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 stock_list_raw <- jsonlite::fromJSON("http://sd.ices.dk/services/odata3/StockListDWs3",
                                      simplifyDataFrame = TRUE)$value
-devtools::use_data(stock_list_raw)
+devtools::use_data(stock_list_raw, overwrite = TRUE)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # DATA SOURCE: ICES Stock Assessment Graphs Database #
@@ -12,7 +12,7 @@ sag_summary_raw <- icesSAG::getSAG(stock = NULL,
                                    year = 2014:2017,
                                    data = "summary",
                                    combine = TRUE)
-devtools::use_data(sag_summary_raw)
+devtools::use_data(sag_summary_raw, overwrite = TRUE)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # DATA SOURCE: ICES Stock Assessment Graphs Database #
@@ -22,7 +22,7 @@ sag_refpts_raw <- icesSAG::getSAG(stock = NULL,
                                   year = 2014:2017,
                                   data = "refpts",
                                   combine = TRUE)
-devtools::use_data(sag_refpts_raw)
+devtools::use_data(sag_refpts_raw, overwrite = TRUE)
 
 
 sag_keys_raw <- do.call("rbind", lapply(2014:2017,
@@ -31,7 +31,7 @@ sag_keys_raw <- do.call("rbind", lapply(2014:2017,
                                                                            full = TRUE)[, c("AssessmentYear",
                                                                                             "AssessmentKey",
                                                                                             "StockKeyLabel")]))
-devtools::use_data(sag_keys_raw)
+devtools::use_data(sag_keys_raw, overwrite = TRUE)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # DATA SOURCE: ICES official catch statistics (1950-2010) #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
@@ -59,7 +59,7 @@ ices_catch_official_raw <- read.csv(unz(tmpFileCatch, "ICESCatchDataset2006-2014
 # remove columns with all NA
 ices_catch_official_raw <- Filter(function(x)!all(is.na(x)), ices_catch_official_raw)
 
-devtools::use_data(ices_catch_official_raw)
+devtools::use_data(ices_catch_official_raw, overwrite = TRUE)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # DATA SOURCE: FAO species names and labels #
@@ -73,7 +73,7 @@ species_list_raw <- read.delim(unz(tmpFileSp, "ASFIS_sp_Feb_2016.txt"),
                            stringsAsFactors = FALSE,
                            header = TRUE,
                            na.strings = "")
-devtools::use_data(species_list_raw)
+devtools::use_data(species_list_raw, overwrite = TRUE)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # DATA SOURCE: STECF Effort and Catch tables #

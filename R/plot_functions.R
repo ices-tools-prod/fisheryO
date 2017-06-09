@@ -4,6 +4,7 @@
 #' \code{area_definition_map}} returns a map describing potential mismatches between ICES Ecoregions and ICES Areas
 #'
 #' @param ecoregion ecoregion name, e.g. Greater North Sea Ecoregion
+#' @param data_caption print the data source as a caption, boolean.
 #'
 #' @note
 #'
@@ -25,6 +26,7 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
 area_definition_map <- function(ecoregion,
+                                data_caption = TRUE,
                                 save_plot = FALSE,
                                 return_plot = TRUE,
                                 output_path = NULL,
@@ -36,6 +38,16 @@ area_definition_map <- function(ecoregion,
 
   if(is.null(output_path)) {
     output_path <- "~/"
+  }
+
+  if(data_caption) {
+    cap_lab <- labs(caption = "Made with Natural Earth and ICES Marine Data",
+                    x = "",
+                    y = "")
+  }
+  if(!data_caption) {
+    cap_lab <- labs(x = "",
+                    y = "")
   }
 
   dat <- area_definition(ecoregion)
@@ -62,10 +74,7 @@ area_definition_map <- function(ecoregion,
     theme(plot.caption = element_text(size = 6),
           plot.subtitle = element_text(size = 7)) +
     coord_sf(crs = crs, xlim = xlims, ylim = ylims) +
-    labs(#title = "Area definitions",
-         x = "", y = "")#,
-         #subtitle = paste0("ICES areas (dark lines) and ", ecoregion, " (yellow shading)"),
-         #caption = "Made with Natural Earth and ICES Marine Data")
+    cap_lab
 
 
   if(return_plot) {
@@ -165,6 +174,7 @@ stockSummaryTable_fun <- function(ecoregion,
 #' relative to reference points for fish categories in an ecoregion.
 #'
 #' @param ecoregion ecoregion name, e.g. Greater North Sea
+#' @param data_caption print the data source as a caption, boolean.
 #' @param output_path path for output to live.
 #' @param active_year numeric of the stock database version (year). e.g., 2016
 #' @param file_name name for the output.
@@ -192,6 +202,7 @@ stockSummaryTable_fun <- function(ecoregion,
 # Stock Summary Pie chart  #
 # ~~~~~~~~~~~~~~~~~~~~~~~~ #
 stockPie_fun <- function(ecoregion,
+                         data_caption = TRUE,
                          file_name,
                          active_year = 2016,
                          save_plot = FALSE,
@@ -206,6 +217,17 @@ stockPie_fun <- function(ecoregion,
     if(is.null(output_path)) {
       output_path <- "~/"
     }
+  }
+
+  if(data_caption) {
+    cap_lab <- labs(title = "", x = "", y = "",
+                    caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
+                                      "2017",
+                                      "June"))
+  }
+  if(!data_caption) {
+    cap_lab <- labs(x = "",
+                    y = "")
   }
 
   colList <- c("GREEN" = "#00B26D",
@@ -246,10 +268,7 @@ stockPie_fun <- function(ecoregion,
           axis.ticks=element_blank(),
           strip.background = element_blank(),
           plot.caption = element_text(size = 6)) +
-    labs(title = "", x = "", y = "",
-         caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
-                           lubridate::year(Sys.time()),
-                           lubridate::month(Sys.time(), label = TRUE, abbr = FALSE))) +
+    cap_lab +
     coord_polar(theta = "y", direction = 1) +
     facet_grid(FisheriesGuild ~ VARIABLE)
 
@@ -273,6 +292,7 @@ stockPie_fun <- function(ecoregion,
 #' relative to GES reference points in an ecoregion.
 #'
 #' @param ecoregion ecoregion name, e.g. Greater North Sea
+#' @param data_caption print the data source as a caption, boolean.
 #' @param output_path path for output to live.
 #' @param active_year numeric of the stock database version (year). e.g., 2016
 #' @param file_name name for the output.
@@ -299,7 +319,8 @@ stockPie_fun <- function(ecoregion,
 # GES Pie Charts #
 #~~~~~~~~~~~~~~~~#
 gesPie_fun <- function(ecoregion,
-                       file_name,
+                       data_caption = TRUE,
+                       file_name = NULL,
                        active_year = 2016,
                        save_plot = FALSE,
                        return_plot = TRUE,
@@ -313,6 +334,17 @@ gesPie_fun <- function(ecoregion,
     if(is.null(output_path)) {
       output_path <- "~/"
     }
+  }
+
+  if(data_caption) {
+    cap_lab <- labs(title = "", x = "", y = "",
+                    caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
+                                      "2017",
+                                      "June"))
+  }
+  if(!data_caption) {
+    cap_lab <- labs(x = "",
+                    y = "")
   }
 
   colList <- c("GREEN" = "#00B26D",
@@ -358,10 +390,7 @@ gesPie_fun <- function(ecoregion,
           axis.ticks = element_blank(),
           strip.background = element_blank(),
           plot.caption = element_text(size = 6)) +
-    labs(title = "", x = "", y = "",
-         caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
-                           lubridate::year(Sys.time()),
-                           lubridate::month(Sys.time(), label = TRUE, abbr = FALSE))) +
+    cap_lab +
     coord_polar(theta = "y") +
     facet_grid(METRIC ~ VARIABLE)
 
@@ -385,6 +414,7 @@ gesPie_fun <- function(ecoregion,
 #' reference points for stocks of a fish category for an ecoregion.
 #'
 #' @param EcoGuild combined ecoregion name and fish category, e.g. Greater North Sea Ecoregion
+#' @param data_caption print the data source as a caption, boolean.
 #' @param active_year numeric of the stock database version (year). e.g., 2016
 #' @param dynamic logical to generate html output with dynamic features.
 #' @param output_path path for output to live.
@@ -415,6 +445,7 @@ gesPie_fun <- function(ecoregion,
 stock_trends_fun <- function(EcoGuild,
                              active_year = 2016,
                              dynamic = TRUE,
+                             data_caption = TRUE,
                              file_name = NULL,
                              save_plot = FALSE,
                              return_plot = TRUE,
@@ -475,8 +506,21 @@ stock_trends_fun <- function(EcoGuild,
     }
   }
 
-  plot_title <- gsub(".*\\s-\\s", "\\1", EcoGuild)
+    plot_title <- gsub(".*\\s-\\s", "\\1", EcoGuild)
   plot_title <- gsub(" stocks", "", plot_title)
+
+  if(data_caption) {
+    cap_lab <- labs(title = plot_title, x = "Year", y = "", color = "Stock code",
+                        caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
+                                          "2017",
+                                          "June"))
+  }
+  if(!data_caption) {
+    cap_lab <- labs(title = plot_title,
+                    x = "Year", y = "",
+                    color = "Stock code")
+  }
+
 
   p1_plot <- ggplot(p1_dat %>% filter(lineGroup != "MEAN"),
                     aes(x = Year, y = plotValue,
@@ -498,10 +542,7 @@ stock_trends_fun <- function(EcoGuild,
           panel.grid.minor = element_blank(),
           legend.key = element_rect(colour = NA),
           plot.caption = element_text(size = 6)) +
-    labs(title = plot_title, x = "Year", y = "", color = "Stock code",
-         caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
-                           lubridate::year(Sys.time()),
-                           lubridate::month(Sys.time(), label = TRUE, abbr = FALSE))) +
+    cap_lab +
     facet_wrap(~ plotGroup, labeller = label_parsed, strip.position = "left", ncol = 1, nrow = 2)
 
   if(dynamic) {
@@ -560,6 +601,7 @@ stock_trends_fun <- function(EcoGuild,
 #' @param guild fish category (options: "all", "benthic", "demersal", "pelagic", "crustacean", "elasmobranch", "large-scale stocks"), e.g. demersal
 #' @param active_year numeric of the stock database version (year). e.g., 2016
 #' @param dynamic logical to generate html output with dynamic features.
+#' @param data_caption print the data source as a caption, boolean.
 #' @param output_path path for output to live.
 #' @param file_name name for the output.
 #' @param save_plot logical to save plot.
@@ -599,6 +641,7 @@ plot_kobe <- function(ecoregion,
                                 "elasmobranch",
                                 "large-scale stocks")[1],
                       active_year = 2016,
+                      data_caption = TRUE,
                       output_path = NULL,
                       return_plot = TRUE,
                       save_plot = FALSE,
@@ -624,6 +667,18 @@ plot_kobe <- function(ecoregion,
   if(any(guild %in% "all")) {
     guild <- c("benthic", "demersal", "pelagic", "crustacean", "elasmobranch")
     labTitle <- "All stocks"
+  }
+
+  if(data_caption) {
+    cap_lab <- labs(x = "Stock",
+                    y = "Catch and landings (tonnes)",
+                    caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
+                                      "2017",
+                                      "June"))
+  }
+  if(!data_caption) {
+    cap_lab <- labs(x = "Stock",
+                    y = "Catch and landings (tonnes)")
   }
 
   stock_status_full <- stock_status(active_year)
@@ -708,7 +763,7 @@ plot_kobe <- function(ecoregion,
       coord_equal(xlim = range(labs), ylim = range(labs)) +
       labs(x = expression(F/F[MSY]),
            y = expression(SSB/MSY~B[trigger]),
-           caption ="") +
+           caption = "") +
       theme_bw(base_size = 7) +
       theme(legend.position = 'none',
             panel.grid.minor = element_blank(),
@@ -750,11 +805,7 @@ plot_kobe <- function(ecoregion,
       scale_color_manual(values = c("GREEN" = "#4daf4a",
                                     "RED" = "#e41a1c",
                                     "GREY" = "#d3d3d3")) +
-      labs(x = "Stock",
-           y = "Catch and landings (tonnes)",
-           caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
-                             lubridate::year(Sys.time()),
-                             lubridate::month(Sys.time(), label = TRUE, abbr = FALSE))) +
+      cap_lab +
       coord_equal() +
       coord_flip() +
       theme_bw(base_size = 7) +
@@ -816,6 +867,7 @@ plot_kobe <- function(ecoregion,
 #'
 #' @param ecoregion ecoregion name, e.g. Greater North Sea Ecoregion
 #' @param active_year numeric of the stock database version (year). e.g., 2016
+#' @param data_caption print the data source as a caption, boolean.
 #' @param output_path path for output to live.
 #' @param file_name name for the output.
 #' @param save_plot logical to save plot.
@@ -847,6 +899,7 @@ plot_kobe <- function(ecoregion,
 # Landings and discards disaggregated by guild
 guild_discards_fun <- function(ecoregion,
                                active_year = 2016,
+                               data_caption = TRUE,
                                output_path = NULL,
                                save_plot = FALSE,
                                return_plot = TRUE,
@@ -860,6 +913,18 @@ guild_discards_fun <- function(ecoregion,
     if(is.null(output_path)) {
       output_path <- "~/"
     }
+  }
+
+  if(data_caption) {
+    cap_lab <- labs(x = "", y = "Discards and landings (thousand tonnes)",
+                    title = "b)",
+                    caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
+                                      "2017",
+                                      "June"))
+  }
+  if(!data_caption) {
+    cap_lab <- labs(x = "", y = "Discards and landings (thousand tonnes)",
+                    title = "b)")
   }
 
   # The whole bit here is to make the assumption that discard rates for biannual stocks and
@@ -1025,11 +1090,7 @@ guild_discards_fun <- function(ecoregion,
           plot.caption = element_text(size = 6),
           panel.grid.major = element_blank(),
           legend.key = element_rect(colour = NA)) +
-    labs(x = "", y = "Discards and landings (thousand tonnes)",
-         title = "b)",
-         caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
-                           lubridate::year(Sys.time()),
-                           lubridate::month(Sys.time(), label = TRUE, abbr = FALSE)))
+    cap_lab
 
   if(return_plot){
     return(gridExtra::grid.arrange(p3_rate_plot,
@@ -1061,6 +1122,7 @@ guild_discards_fun <- function(ecoregion,
 #' @param type the variable that will be used to group and display data: COMMON_NAME, GUILD, or COUNTRY
 #' @param line_count number of lines to display
 #' @param plot_type area or line plot
+#' @param data_caption print the data source as a caption, boolean.
 #' @param output_path path for output to live.
 #' @param file_name name for the output.
 #' @param save_plot logical to save plot.
@@ -1092,6 +1154,7 @@ ices_catch_plot <- function(ecoregion, #IA = unique(allDat$ECOREGION)[1],
                             line_count = 4,
                             # start_year = 1990,
                             plot_type = c("line", "area")[1],
+                            data_caption = TRUE,
                             output_path = NULL,
                             file_name = "figure2",
                             save_plot = FALSE,
@@ -1111,6 +1174,18 @@ ices_catch_plot <- function(ecoregion, #IA = unique(allDat$ECOREGION)[1],
     if(is.null(output_path)) {
       output_path <- "~/"
     }
+  }
+
+  if(data_caption) {
+    cap_lab <-  labs(x = "",
+                     y = "Landings (thousand tonnes)",
+                     caption = sprintf("Historical Nominal Catches 1950-2010, \nOfficial Nominal Catches 2006-2014. Accessed %s/%s. ICES, Copenhagen.",
+                                       "2017",
+                                       "June"))
+  }
+  if(!data_caption) {
+    cap_lab <- labs(x = "",
+                    y = "Landings (thousand tonnes)")
   }
 
   iaDat <- ices_catch_data() %>%
@@ -1153,10 +1228,6 @@ ices_catch_plot <- function(ecoregion, #IA = unique(allDat$ECOREGION)[1],
       )
   }
 
-  my_caption <- sprintf("Historical Nominal Catches 1950-2010, \nOfficial Nominal Catches 2006-2014. Accessed %s/%s. ICES, Copenhagen.",
-                        lubridate::year(Sys.time()),
-                        lubridate::month(Sys.time(), label = TRUE, abbr = FALSE))
-
   catchPlot <- rbind(catchPlot[!catchPlot$type_var == "other",],
                      catchPlot[catchPlot$type_var == "other",])
 
@@ -1184,9 +1255,7 @@ ices_catch_plot <- function(ecoregion, #IA = unique(allDat$ECOREGION)[1],
     geom_segment(aes(x = -Inf, xend = 2014, y = -Inf, yend = -Inf), color = "grey50")+
     geom_segment(aes(y = -Inf, yend = Inf, x = -Inf, xend = -Inf), color = "grey50")+
     expand_limits(x = c(min(catchPlot$YEAR), 2035)) + # So that we have enough room along x-axis for labels.
-    labs(x = "",
-         y = "Landings (thousand tonnes)",
-         caption = my_caption) +
+    cap_lab +
     theme_bw(base_size = text.size) +
     theme(legend.position = 'none',
           plot.caption = element_text(size = 6),
@@ -1265,6 +1334,7 @@ ices_catch_plot <- function(ecoregion, #IA = unique(allDat$ECOREGION)[1],
 #' @param type the variable that will be used to group and display data: COMMON_NAME, GUILD, or COUNTRY
 #' @param line_count number of lines to display
 #' @param plot_type area or line plot
+#' @param data_caption print the data source as a caption, boolean.
 #' @param output_path path for output to live.
 #' @param file_name name for the output.
 #' @param save_plot logical to save plot.
@@ -1296,7 +1366,8 @@ stecf_plot <- function(ecoregion,
                        type = c("GEAR", "COUNTRY")[1],
                        line_count = 4,
                        plot_type = c("line", "area")[1],
-                       file_name = "figure3",
+                       data_caption = TRUE,
+                       file_name = NULL,
                        save_plot = FALSE,
                        output_path = NULL,
                        return_plot = TRUE,
@@ -1306,7 +1377,6 @@ stecf_plot <- function(ecoregion,
                        ...) {
 
   if(metric == "EFFORT"){
-    # data("stecf_effort_clean")
 
     allDat <- stecf_data()$stecf_effort_clean %>%
       filter(ECOREGION == ecoregion) %>%
@@ -1380,6 +1450,15 @@ stecf_plot <- function(ecoregion,
                         lubridate::year(Sys.time()),
                         lubridate::month(Sys.time(), label = TRUE, abbr = FALSE))
 
+  if(data_caption) {
+    cap_lab <- labs(title = "", x = "", y = catchLabel,
+                        caption = my_caption)
+  }
+  if(!data_caption) {
+    cap_lab <- labs(x = "",
+                    y = catchLabel)
+  }
+
   colList <- tableau_color_pal('tableau20')(line_count + 1)
 
   catch_order <- catchPlot %>%
@@ -1406,8 +1485,7 @@ stecf_plot <- function(ecoregion,
     geom_segment(aes(x = -Inf, xend = 2015, y = -Inf, yend = -Inf), color = "grey50")+
     geom_segment(aes(y = -Inf, yend = Inf, x = -Inf, xend = -Inf), color = "grey50")+
     expand_limits(x = c(min(catchPlot$YEAR, na.rm = TRUE), 2022)) + # So that we have enough room along x-axis for labels.
-    labs(title = "", x = "", y = catchLabel,
-         caption = my_caption) +
+    cap_lab +
     theme_bw(base_size = text.size) +
     theme(legend.position = 'none',
           panel.grid.minor = element_blank(),

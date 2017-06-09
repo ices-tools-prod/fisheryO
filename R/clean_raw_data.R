@@ -1124,7 +1124,6 @@ ices_catch_data <- function() {
   catch_dat_1950 <- ices_catch_historical_raw %>%
     gather(YEAR, VALUE, -Country, -Species, -Division) %>%
     mutate(YEAR = as.numeric(gsub("X", "", YEAR)),
-           Division = gsub("  ", " ", Division),
            VALUE = ifelse(VALUE == "<0.5",
                           as.numeric(0),
                           VALUE),
@@ -1141,8 +1140,8 @@ ices_catch_data <- function() {
            ),
            ISO3 = countrycode::countrycode(COUNTRY, "country.name", "iso3c", warn = FALSE),
            ECOREGION = case_when(
-             .$Division %in% gsub("  ", " ", historic_bs) ~ "Baltic Sea Ecoregion",
-             .$Division %in% gsub("  ", " ", historic_ns) ~ "Greater North Sea Ecoregion",
+             .$Division %in% historic_bs ~ "Baltic Sea Ecoregion",
+             .$Division %in% historic_ns ~ "Greater North Sea Ecoregion",
              TRUE ~ "OTHER")) %>%
     filter(YEAR <= 2005) %>%  #,
     # ECOREGION != "OTHER",

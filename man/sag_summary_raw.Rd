@@ -12,7 +12,7 @@
 sag_summary_raw
 }
 \description{
-Data from published ICES advice from 2014-2017. "ICES Stock Assessment Database, 2017/May. ICES, Copenhagen"
+Data from published ICES advice from 2014-2017. Accessed 9 June 2017. "ICES Stock Assessment Database, 2017/June. ICES, Copenhagen"
 }
 \details{
 \itemize{

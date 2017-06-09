@@ -4,11 +4,13 @@
 \alias{area_definition_map}
 \title{ICES Area and Ecoregion map}
 \usage{
-area_definition_map(ecoregion, save_plot = FALSE, return_plot = TRUE,
-  output_path = NULL, file_name = NULL)
+area_definition_map(ecoregion, data_caption = TRUE, save_plot = FALSE,
+  return_plot = TRUE, output_path = NULL, file_name = NULL)
 }
 \arguments{
 \item{ecoregion}{ecoregion name, e.g. Greater North Sea Ecoregion}
+
+\item{data_caption}{print the data source as a caption, boolean.}
 }
 \value{
 A png or ggplot plot

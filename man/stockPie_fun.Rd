@@ -4,11 +4,13 @@
 \alias{stockPie_fun}
 \title{Pie chart of proportion of stocks relative to reference points}
 \usage{
-stockPie_fun(ecoregion, file_name, active_year = 2016, save_plot = FALSE,
-  return_plot = TRUE, output_path = NULL)
+stockPie_fun(ecoregion, data_caption = TRUE, file_name, active_year = 2016,
+  save_plot = FALSE, return_plot = TRUE, output_path = NULL)
 }
 \arguments{
 \item{ecoregion}{ecoregion name, e.g. Greater North Sea}
+
+\item{data_caption}{print the data source as a caption, boolean.}
 
 \item{file_name}{name for the output.}
 

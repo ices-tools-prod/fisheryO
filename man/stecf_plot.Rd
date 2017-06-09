@@ -6,8 +6,9 @@
 \usage{
 stecf_plot(ecoregion, metric = c("EFFORT", "LANDINGS")[1], type = c("GEAR",
   "COUNTRY")[1], line_count = 4, plot_type = c("line", "area")[1],
-  file_name = "figure3", save_plot = FALSE, return_plot = TRUE,
-  fig.width = 174, fig.height = 68, text.size = 9, ...)
+  data_caption = TRUE, file_name = NULL, save_plot = FALSE,
+  output_path = NULL, return_plot = TRUE, fig.width = 174,
+  fig.height = 68, text.size = 9, ...)
 }
 \arguments{
 \item{ecoregion}{ecoregion name, e.g. Greater North Sea Ecoregion}
@@ -20,9 +21,13 @@ stecf_plot(ecoregion, metric = c("EFFORT", "LANDINGS")[1], type = c("GEAR",
 
 \item{plot_type}{area or line plot}
 
+\item{data_caption}{print the data source as a caption, boolean.}
+
 \item{file_name}{name for the output.}
 
 \item{save_plot}{logical to save plot.}
+
+\item{output_path}{path for output to live.}
 
 \item{return_plot}{logical to return plot to current environment.}
 
@@ -31,8 +36,6 @@ stecf_plot(ecoregion, metric = c("EFFORT", "LANDINGS")[1], type = c("GEAR",
 \item{fig.height}{height of combined set of plots}
 
 \item{text.size}{= size of text in plots}
-
-\item{output_path}{path for output to live.}
 }
 \value{
 A ggplot2 object when \code{return_plot} is \code{TRUE} or .png when \code{save_plot} is \code{TRUE}.

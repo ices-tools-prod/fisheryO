@@ -5,9 +5,9 @@
 \title{Landings over time by country, guild, or species}
 \usage{
 ices_catch_plot(ecoregion, type = c("COMMON_NAME", "COUNTRY", "GUILD")[1],
-  line_count = 4, plot_type = c("line", "area")[1], fig_name = "figure2",
-  save_plot = FALSE, return_plot = TRUE, fig.width = 174,
-  fig.height = 68, text.size = 9)
+  line_count = 4, plot_type = c("line", "area")[1], data_caption = TRUE,
+  output_path = NULL, file_name = "figure2", save_plot = FALSE,
+  return_plot = TRUE, fig.width = 174, fig.height = 68, text.size = 9)
 }
 \arguments{
 \item{ecoregion}{ecoregion name, e.g. Greater North Sea Ecoregion}
@@ -18,6 +18,12 @@ ices_catch_plot(ecoregion, type = c("COMMON_NAME", "COUNTRY", "GUILD")[1],
 
 \item{plot_type}{area or line plot}
 
+\item{data_caption}{print the data source as a caption, boolean.}
+
+\item{output_path}{path for output to live.}
+
+\item{file_name}{name for the output.}
+
 \item{save_plot}{logical to save plot.}
 
 \item{return_plot}{logical to return plot to current environment.}
@@ -27,10 +33,6 @@ ices_catch_plot(ecoregion, type = c("COMMON_NAME", "COUNTRY", "GUILD")[1],
 \item{fig.height}{height of combined set of plots}
 
 \item{text.size}{= size of text in plots}
-
-\item{output_path}{path for output to live.}
-
-\item{file_name}{name for the output.}
 }
 \value{
 A ggplot2 object when \code{return_plot} is \code{TRUE} or .png when \code{save_plot} is \code{TRUE}.

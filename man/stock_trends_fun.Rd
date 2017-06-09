@@ -5,8 +5,8 @@
 \title{Stock status over time}
 \usage{
 stock_trends_fun(EcoGuild, active_year = 2016, dynamic = TRUE,
-  file_name = NULL, save_plot = FALSE, return_plot = TRUE,
-  output_path = NULL, stackable = FALSE)
+  data_caption = TRUE, file_name = NULL, save_plot = FALSE,
+  return_plot = TRUE, output_path = NULL, stackable = FALSE)
 }
 \arguments{
 \item{EcoGuild}{combined ecoregion name and fish category, e.g. Greater North Sea Ecoregion}
@@ -14,6 +14,8 @@ stock_trends_fun(EcoGuild, active_year = 2016, dynamic = TRUE,
 \item{active_year}{numeric of the stock database version (year). e.g., 2016}
 
 \item{dynamic}{logical to generate html output with dynamic features.}
+
+\item{data_caption}{print the data source as a caption, boolean.}
 
 \item{file_name}{name for the output.}
 

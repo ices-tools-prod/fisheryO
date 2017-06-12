@@ -117,8 +117,8 @@
 #'
 #' Catches in FAO area 27 by country, species, area and year as provided
 #' by the national authorities.
-#' Source: Eurostat/ICES data compilation of catch statistics - ICES 2016, Copenhagen.
-#' Version: 12-05-2016
+#' Source: Eurostat/ICES data compilation of catch statistics - ICES 2011, Copenhagen.
+#' Version: 30-11-2011
 #'
 #' \itemize{
 #'	\item{Country}{Add text}
@@ -134,17 +134,18 @@
 "ices_catch_historical_raw"
 
 
-#' @title Official Nominal Catches 2006-2014
+#' @title Official Nominal Catches 2006-2015
 #'
 #' @description Catches in FAO area 27 by country, species, area and year.
-#' Source: Eurostat/ICES database on catch statistics - ICES 2011, Copenhagen.
-#' Version 30-11-2011
+#' Source: Eurostat/ICES database on catch statistics - ICES 2017, Copenhagen.
+#' Version 12-06-2017
 #'
 #' \itemize{
 #'	\item{Species}{Add text}
 #'	\item{Area}{Add text}
 #'	\item{Units}{Add text}
 #'	\item{Country}{Add text}
+#'	\item{X2015}{Add text}
 #'	\item{X2014}{Add text}
 #'	\item{X2013}{Add text}
 #'	\item{X2012}{Add text}
@@ -156,7 +157,7 @@
 #'	\item{X2006}{Add text}
 #' }
 #'
-#' @format A data frame with 49182 rows and 13 variables:
+#' @format A data frame with 50203 rows and 14 variables:
 #' @source \url{http://www.ices.dk/marine-data/dataset-collections/Pages/Fish-catch-and-stock-assessment.aspx}
 "ices_catch_official_raw"
 

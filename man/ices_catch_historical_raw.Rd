@@ -14,8 +14,8 @@ ices_catch_historical_raw
 \description{
 Catches in FAO area 27 by country, species, area and year as provided
 by the national authorities.
-Source: Eurostat/ICES data compilation of catch statistics - ICES 2016, Copenhagen.
-Version: 12-05-2016
+Source: Eurostat/ICES data compilation of catch statistics - ICES 2011, Copenhagen.
+Version: 30-11-2011
 }
 \details{
 \itemize{

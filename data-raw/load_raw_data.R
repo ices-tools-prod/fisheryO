@@ -46,13 +46,16 @@ ices_catch_historical_raw <- read.csv(unz(tmpFileHistoric, "ICES_1950-2010.csv")
 devtools::use_data(ices_catch_historical_raw)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-# DATA SOURCE: ICES official catch statistics (2006-2014) #
+# DATA SOURCE: ICES official catch statistics (2006-2015) #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
 catchURL <- "http://ices.dk/marine-data/Documents/CatchStats/OfficialNominalCatches.zip"
 tmpFileCatch <- tempfile(fileext = ".zip")
 download.file(catchURL, destfile = tmpFileCatch, mode = "wb", quiet = TRUE)
-ices_catch_official_raw <- read.csv(unz(tmpFileCatch, "ICESCatchDataset2006-2014.csv"),
+ices_catch_official_raw <- read.csv(unz(tmpFileCatch,
+                                        grep("ICESCatchDataset.*.csv", unzip(tmpFileCatch,
+                                                                             list = TRUE)$Name,
+                                             value = TRUE)),
                                 stringsAsFactors = FALSE,
                                 header = TRUE,
                                 fill = TRUE)

@@ -12,7 +12,7 @@
 stock_list_raw
 }
 \description{
-Data describing ICES Stocks. Accessed 9 June 2017
+Data describing ICES Stocks. Accessed 13 June 2017
 \itemize{
  \item{StockDatabaseID}{Add text}
  \item{StockKey}{Add text}

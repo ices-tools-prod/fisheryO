@@ -5,6 +5,7 @@ stock_list_raw <- jsonlite::fromJSON("http://sd.ices.dk/services/odata3/StockLis
                                      simplifyDataFrame = TRUE)$value
 devtools::use_data(stock_list_raw, overwrite = TRUE)
 
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # DATA SOURCE: ICES Stock Assessment Graphs Database #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #

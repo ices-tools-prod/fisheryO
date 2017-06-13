@@ -121,8 +121,24 @@ clean_sag <- function(active_year = 2016){
 
   data(list = raw_data, envir = environment())
 
+  # Old stock codes
+  if(active_year <= 2016) {
+    filter_stocks <- c("cod-ingr", "cod-wgr",
+                       "sal-nea", "san-scow",
+                       "sal-na", "sal-32",
+                       "sal-2431",
+                       "trt-bal", "sal-wgc")
+  }
+  if(active_year >= 2017){
+    filter_stocks <- c("cod.21.1", "cod.21.1a-e",
+                       "sal.27.nea", "san.27.6a",
+                       "sal.21.2-5", "sal.27.32",
+                       "sal.27.22-31",
+                       "trs.27.22-32", "sal.2127.1a-f14")
+  }
+
   stock_list <- stock_list_raw %>%
-    filter(ActiveYear == active_year) %>% ### This will need to be fixed for BS
+    filter(ActiveYear == active_year) %>%
     select(StockCode = StockKeyLabel,
            Description = StockKeyDescription,
            SpeciesScientificName,
@@ -131,24 +147,19 @@ clean_sag <- function(active_year = 2016){
            YearOfLastAssessment,
            AdviceCategory,
            FisheriesGuild) %>%
-    # check that these stocks are removed from the analysis
-    filter(!StockCode %in% c("cod-ingr", "cod-wgr",
-                             "sal-nea", "san-scow",
-                             "sal-na", "sal-32",
-                             "trt-bal", "sal-wgc")) %>%
+    filter(!StockCode %in% filter_stocks) %>%
     mutate(DataCategory = floor(as.numeric(DataCategory)),
            StockCode = tolower(StockCode),
            FisheriesGuild = tolower(FisheriesGuild),
            Description = gsub(pattern = "\u2013", "-", Description), # remove en dashes in favor of hyphens
            Description = gsub(pattern = "Micromesistius poutasso",
                               "Micromesistius poutassou", Description), # misspelled blue whiting
+           Description = gsub(pattern = "Solea spp.",
+                              "Solea solea", Description), # wrong description for sole
            AdviceCategory = ifelse(AdviceCategory == "MSY/PA",
                                    "MSY", AdviceCategory),
-           SpeciesID = toupper(gsub( "-.*$", "", StockCode)) ,
            SpeciesScientificName = recode(SpeciesScientificName,
                                           "Mustelus asterias" = "Mustelus"),
-           SpeciesScientificName = recode(SpeciesScientificName,
-                                          "Centrophorus squamosus, Centroscymnus coelolepis" = "Centroscymnus coelolepis"),
            EcoRegion = strsplit(EcoRegion, ", ")
     ) %>%
     unnest(EcoRegion) %>%
@@ -156,22 +167,21 @@ clean_sag <- function(active_year = 2016){
                               "Norwegian Sea and Barents Sea Ecoregions",
                               EcoRegion))
 
+  if(active_year <= 2016){
+    stock_list$SpeciesID <- toupper(gsub( "-.*$", "", stock_list$StockCode))
+  }
+  if(active_year >= 2017){
+    stock_list$SpeciesID <- toupper(gsub("\\..*", "", stock_list$StockCode))
+  }
+
   # Format so the species names will be italicized
   stock_list_frmt <- bind_rows(
     # Normal binomial names
     stock_list %>%
-      filter(!grepl(" spp", Description),
-             SpeciesID != "ANG",
-             grepl("[[:space:]]", SpeciesScientificName)) %>%
+      filter(grepl("[[:space:]]", SpeciesScientificName)) %>%
       mutate(Description = stringr::str_replace_all(string = Description,
                                                     pattern = SpeciesScientificName,
                                                     replacement = paste0("<em>", SpeciesScientificName, "</em>"))),
-    # Anglerfish (w/ two species)
-    stock_list %>%
-      filter(SpeciesID == "ANG") %>%
-      mutate(Description = stringr::str_replace_all(string = Description,
-                                                    pattern = "Lophius piscatorius and L. budegassa",
-                                                    replacement = "<em>Lophius piscatorius</em> and <em>L. budegassa</em>")),
     # Groups of species (.spp)
     stock_list %>%
       filter(grepl(" spp.*$", Description)) %>%
@@ -180,17 +190,19 @@ clean_sag <- function(active_year = 2016){
                                                     replacement = paste0("<em>", SpeciesScientificName, "</em>"))),
     # A bit different notation (embedded in 2 sets of parentheses)
     stock_list %>%
-      filter(StockCode == "raj-mar") %>%
+      filter(StockCode %in% c("raj-mar", "raj.27.1012")) %>%
       mutate(Description = stringr::str_replace_all(string = Description,
                                                     pattern = "Raja clavata",
                                                     replacement = "<em>Raja clavata</em>")),
+
     # The "others" with no species name
     stock_list %>%
-      filter(SpeciesID != "ANG") %>%
-      filter(!grepl(" spp", Description)) %>%
-      filter(StockCode != "raj-mar") %>%
+      filter(!grepl(" spp.*$", Description)) %>%
+      filter(!StockCode %in% c("raj-mar", "raj.27.1012")) %>%
       filter(!grepl("[[:space:]]", SpeciesScientificName))
   )
+
+  if(nrow(stock_list) != nrow(stock_list_frmt)) stop("Number of rows different when formatting")
 
   sag_keys_raw$StockKeyLabel <- tolower(sag_keys_raw$StockKeyLabel)
 
@@ -229,15 +241,15 @@ clean_sag <- function(active_year = 2016){
            # ****************** #
            # SSB is not in SAG for meg-4a6a 2015. Added from:
            # http://ices.dk/sites/pub/Publication%20Reports/Expert%20Group%20Report/acom/2015/WGCSE/05.03_Megrim%20IV_VI_2015.pdf#page=22
-           SSB = ifelse(Year == 2015 & StockCode == "meg-4a6a",
+           SSB = ifelse(Year == 2015 & StockCode %in% c("meg-4a6a", "lez.27.4a6a"),
                         1.91,
                         SSB),
            # discards are erroneously uploaded to SAG for nep-5 2015.
-           discards = ifelse(Year == 2015 & StockCode == "nep-5",
+           discards = ifelse(Year == 2015 & StockCode %in% c("nep-5", "nep.fu.5"),
                              NA,
                              discards),
            # Real value is 0.201. before rounding rules and ADG erred towards green
-           F = ifelse(Year == 2015 & StockCode == "sol-nsea",
+           F = ifelse(Year == 2015 & StockCode %in% c("sol-nsea", "sol.27.4"),
                       0.20,
                       F),
            # ****************** #
@@ -405,7 +417,7 @@ frmt_summary_tbl <- function(active_year = 2016,
                          "RED",
                          ifelse(SSB >= MSYBtrigger, # if SSB is greater than Blim and greater than MSY, BPA is
                                 "GREEN",
-                                if_else(SSB >= Bpa , # If SSB is less than MSY Btrigger but greater than Bpa, BPA is
+                                if_else(SSB >= Bpa, # If SSB is less than MSY Btrigger but greater than Bpa, BPA is
                                         "GREEN",
                                         "ORANGE", # if SSB is less than Bpa, BPA is orange
                                         if_else(SSB >= Blim, # if Bpa is NA but Blim is available, BPA is
@@ -415,33 +427,63 @@ frmt_summary_tbl <- function(active_year = 2016,
     select(Year, BPA, StockCode) %>%
     spread(Year, BPA)
 
-  summary_sbl <- sag_sum %>%
-    select(StockCode,
-           YearOfLastAssessment) %>%
-    distinct(.keep_all = TRUE) %>%
-    left_join(summary_bpa, by = "StockCode") %>%
-    left_join(summary_fpa, by = "StockCode")
+  summary_sbl <- left_join(
+    sag_sum %>%
+      group_by(StockCode) %>%
+      filter(Year >= YearOfLastAssessment -3,
+             Year <= YearOfLastAssessment) %>%
+      ungroup() %>%
+      mutate(BPA = ifelse(SSB >= Bpa,
+                          "GREEN",
+                          ifelse(SSB < Bpa,
+                                 "RED",
+                                 NA)),
+             Year = paste0("BPA", Year)) %>%
+      select(Year, BPA, StockCode) %>%
+      spread(Year, BPA),
+    sag_sum %>%
+      group_by(StockCode) %>%
+      filter(Year >= YearOfLastAssessment -3,
+             Year <= YearOfLastAssessment) %>%
+      ungroup() %>%
+      mutate(FPA = ifelse(F <= Fpa,
+                          "GREEN",
+                          ifelse(F > Fpa,
+                                 "RED",
+                                 NA)),
+             Year = paste0("FPA", Year)) %>%
+      select(Year, FPA, StockCode, YearOfLastAssessment) %>%
+      spread(Year, FPA),
+    by = "StockCode"
+    )
 
   summary_sbl <- bind_rows(
     summary_sbl %>%
       filter(YearOfLastAssessment == 2014) %>%
       mutate(SBL = ifelse(FPA2013 == "GREEN"  &  BPA2014 == "GREEN",
                           "GREEN",
-                          ifelse(FPA2013 == "RED"  &  BPA2014 == "RED",
+                          ifelse(FPA2013 == "RED"  |  BPA2014 == "RED",
                                  "RED",
                                  NA))),
     summary_sbl %>%
       filter(YearOfLastAssessment == 2015) %>%
       mutate(SBL = ifelse(FPA2014 == "GREEN"  &  BPA2015 == "GREEN",
                           "GREEN",
-                          ifelse(FPA2014 == "RED"  &  BPA2015 == "RED",
+                          ifelse(FPA2014 == "RED"  |  BPA2015 == "RED",
                                  "RED",
                                  NA))),
     summary_sbl %>%
       filter(YearOfLastAssessment == 2016) %>%
       mutate(SBL = ifelse(FPA2015 == "GREEN"  &  BPA2016 == "GREEN",
                           "GREEN",
-                          ifelse(FPA2015 == "RED"  &  BPA2016 == "RED",
+                          ifelse(FPA2015 == "RED"  |  BPA2016 == "RED",
+                                 "RED",
+                                 NA))),
+    summary_sbl %>%
+      filter(YearOfLastAssessment == 2017) %>%
+      mutate(SBL = ifelse(FPA2016 == "GREEN"  &  BPA2017 == "GREEN",
+                          "GREEN",
+                          ifelse(FPA2016 == "RED"  |  BPA2017 == "RED",
                                  "RED",
                                  NA)))
   )[, c("StockCode", "SBL")]

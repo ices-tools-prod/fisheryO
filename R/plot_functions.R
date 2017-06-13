@@ -1179,7 +1179,7 @@ ices_catch_plot <- function(ecoregion, #IA = unique(allDat$ECOREGION)[1],
   if(data_caption) {
     cap_lab <-  labs(x = "",
                      y = "Landings (thousand tonnes)",
-                     caption = sprintf("Historical Nominal Catches 1950-2010, \nOfficial Nominal Catches 2006-2014. Accessed %s/%s. ICES, Copenhagen.",
+                     caption = sprintf("Historical Nominal Catches 1950-2010, \nOfficial Nominal Catches 2006-2015. Accessed %s/%s. ICES, Copenhagen.",
                                        "2017",
                                        "June"))
   }
@@ -1252,9 +1252,9 @@ ices_catch_plot <- function(ecoregion, #IA = unique(allDat$ECOREGION)[1],
     scale_color_manual(values = myColors) +
     scale_x_continuous(breaks = seq(min(catchPlot$YEAR),
                                     max(catchPlot$YEAR), by = 10)) +
-    geom_segment(aes(x = -Inf, xend = 2014, y = -Inf, yend = -Inf), color = "grey50")+
+    geom_segment(aes(x = -Inf, xend = max(catchPlot$YEAR), y = -Inf, yend = -Inf), color = "grey50")+
     geom_segment(aes(y = -Inf, yend = Inf, x = -Inf, xend = -Inf), color = "grey50")+
-    expand_limits(x = c(min(catchPlot$YEAR), 2035)) + # So that we have enough room along x-axis for labels.
+    expand_limits(x = c(min(catchPlot$YEAR), max(catchPlot$YEAR) + 20)) + # So that we have enough room along x-axis for labels.
     cap_lab +
     theme_bw(base_size = text.size) +
     theme(legend.position = 'none',
@@ -1266,7 +1266,7 @@ ices_catch_plot <- function(ecoregion, #IA = unique(allDat$ECOREGION)[1],
 
   if(plot_type == "area") {
     cumPlot <- catchPlot %>%
-      filter(YEAR == 2014) %>%
+      filter(YEAR == max(YEAR, na.rm = TRUE)) %>%
       ungroup() %>%
       arrange(desc(type_var)) %>%
       mutate(cs = cumsum(as.numeric(typeTotal)), # cumulative sum
@@ -1295,7 +1295,7 @@ ices_catch_plot <- function(ecoregion, #IA = unique(allDat$ECOREGION)[1],
   if(plot_type == "line") {
     pl <- pl + geom_line(aes(color = type_var),
                          alpha = .8, position = "identity")
-    pl <- pl + geom_label_repel(data = catchPlot %>% filter(YEAR == 2014),
+    pl <- pl + geom_label_repel(data = catchPlot %>% filter(YEAR == max(YEAR, na.rm = TRUE)),
                                 aes(label = type_var,
                                     fill = type_var),
                                 nudge_x = 10,
@@ -1497,7 +1497,7 @@ stecf_plot <- function(ecoregion,
 
   if(plot_type == "area"){
     cumPlot <- catchPlot %>%
-      filter(YEAR == 2015) %>%
+      filter(YEAR == max(YEAR, na.rm = TRUE)) %>%
       ungroup() %>%
       arrange(desc(type_var)) %>%
       mutate(cs = cumsum(as.numeric(typeTotal)), # cumulative sum
@@ -1528,7 +1528,7 @@ stecf_plot <- function(ecoregion,
   if(plot_type == "line"){
     pl <- pl + geom_line(aes(color = type_var),
                          alpha = .9, position = "identity")
-    pl <- pl + geom_label_repel(data = catchPlot %>% filter(YEAR == 2015),
+    pl <- pl + geom_label_repel(data = catchPlot %>% filter(YEAR == max(YEAR, na.rm = TRUE)),
                                 aes(label = type_var,
                                     fill = type_var),
                                 nudge_x = 3,

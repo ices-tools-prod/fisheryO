@@ -4,10 +4,14 @@
 \alias{stock_props}
 \title{Proportion of stocks relative to reference points}
 \usage{
-stock_props(active_year, return_clean_sag = FALSE)
+stock_props(active_year, ecoregion, fisheries_guild, return_clean_sag = FALSE)
 }
 \arguments{
 \item{active_year}{numeric of the stock database version (year). e.g., 2016}
+
+\item{ecoregion}{vector of ecoregions to include}
+
+\item{fisheries_guild}{vector of fisheries guilds to include}
 
 \item{return_clean_sag}{logical to return objects from clean_sag()}
 }

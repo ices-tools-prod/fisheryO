@@ -609,6 +609,8 @@ frmt_summary_tbl <- function(active_year = 2016,
 #'  relative to reference points for fish categories in ecoregions.
 #'
 #' @param active_year numeric of the stock database version (year). e.g., 2016
+#' @param ecoregion vector of ecoregions to include
+#' @param fisheries_guild vector of fisheries guilds to include
 #' @param return_clean_sag logical to return objects from clean_sag()
 #'
 #' @note Periodically, ICES adds or removes stocks from the advisory process. The function returns
@@ -634,6 +636,8 @@ frmt_summary_tbl <- function(active_year = 2016,
 # Data for pie graphs #
 #~~~~~~~~~~~~~~~~~~~~~#
 stock_props <- function(active_year,
+                        ecoregion,
+                        fisheries_guild,
                         return_clean_sag = FALSE) {
 
   dat <- frmt_summary_tbl(active_year,
@@ -647,6 +651,8 @@ stock_props <- function(active_year,
            FisheriesGuild,
            YearOfLastAssessment) %>%
     left_join(summary_tbl, by = "StockCode") %>%
+    filter(EcoRegion %in% ecoregion,
+           FisheriesGuild %in% fisheries_guild) %>%
     mutate(FMSY = ifelse(YearOfLastAssessment == 2014,
                          FMSY2013,
                          ifelse(YearOfLastAssessment == 2015,
@@ -705,6 +711,8 @@ stock_props <- function(active_year,
 #'  relative to ICES reference points for fish categories in ecoregions.
 #'
 #' @param active_year numeric of the stock database version (year). e.g., 2016
+#' @param ecoregion vector of ecoregions to include
+#' @param fisheries_guild vector of fisheries guilds to include
 #'
 #' @note Periodically, ICES adds or removes stocks from the advisory process. The function returns
 #' the SAG reference points and summary table for all published (in SAG) and active stocks for a given year.
@@ -728,9 +736,13 @@ stock_props <- function(active_year,
 # Data for ICES pie graphs #
 # ~~~~~~~~~~~~~~~~~~~~~~~~ #
 
-ices_stock_props <- function(active_year) {
+ices_stock_props <- function(active_year,
+                             ecoregion,
+                             fisheries_guild) {
 
   pie_tbl <- stock_props(active_year,
+                         ecoregion,
+                         fisheries_guild,
                          return_clean_sag = FALSE)$stock_props
 
   pie_table_stock <- pie_tbl %>%
@@ -788,6 +800,8 @@ ices_stock_props <- function(active_year) {
 #'  relative to GES reference points for all ecoregion.
 #'
 #' @param active_year numeric of the stock database version (year). e.g., 2016
+#' @param ecoregion vector of ecoregions to include
+#' @param fisheries_guild vector of fisheries guilds to include
 #'
 #' @note Periodically, ICES adds or removes stocks from the advisory process. The function returns
 #' the SAG reference points and summary table for all published (in SAG) and active stocks for a given year.
@@ -811,10 +825,15 @@ ices_stock_props <- function(active_year) {
 #~~~~~~~~~~~~~~~~~~~~~#
 # GES Pie charts data #
 #~~~~~~~~~~~~~~~~~~~~~#
-ges_stock_props <- function(active_year){
+ges_stock_props <- function(active_year,
+                            ecoregion,
+                            fisheries_guild){
 
   # Split and count by variable and color
-  dat <- stock_props(active_year, return_clean_sag = TRUE)
+  dat <- stock_props(active_year,
+                     ecoregion,
+                     fisheries_guild,
+                     return_clean_sag = TRUE)
   pie_tbl <- dat$stock_props
   sag_complete_smmry <- dat$sag_complete_summary
 
@@ -833,8 +852,11 @@ ges_stock_props <- function(active_year){
 # Take last year of catch data. If catch is not available, use landings.
 # Remove stocks without quantified catch or landings
 ges_catch_stock <-  sag_complete_smmry %>%
+  unnest(data) %>%
   group_by(StockCode) %>%
-  filter(Year == YearOfLastAssessment - 1) %>%
+  filter(Year == YearOfLastAssessment - 1,
+         EcoRegion %in% ecoregion,
+         FisheriesGuild %in% fisheries_guild) %>%
   ungroup() %>%
   mutate(CATCH = ifelse(is.na(catches) & !is.na(landings),
                         landings,

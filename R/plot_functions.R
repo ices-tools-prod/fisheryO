@@ -514,7 +514,7 @@ stock_trends_fun <- function(EcoGuild,
     }
   }
 
-    plot_title <- gsub(".*\\s-\\s", "\\1", EcoGuild)
+  plot_title <- gsub(".*\\s-\\s", "\\1", EcoGuild)
   plot_title <- gsub(" stocks", "", plot_title)
 
   if(data_caption) {
@@ -656,8 +656,8 @@ plot_kobe <- function(ecoregion,
                       catch_limit = 0,
                       file_name = NULL,
                       plotTitle = NULL,
-                      fig.width = 110,
-                      fig.height = 75,
+                      fig.width = 170,
+                      fig.height = 100.5,
                       units = "mm",
                       res = 300,
                       dynamic = FALSE) {
@@ -675,6 +675,8 @@ plot_kobe <- function(ecoregion,
   if(any(guild %in% "all")) {
     guild <- c("benthic", "demersal", "pelagic", "crustacean", "elasmobranch")
     labTitle <- "All stocks"
+  } else {
+    labTitle <- guild
   }
 
   if(data_caption) {
@@ -827,17 +829,17 @@ plot_kobe <- function(ecoregion,
       if(return_plot) {
         return(grid.arrange(kobe_plot,
                      bar_plot, ncol = 2,
-                     respect = TRUE, top = guild))
+                     respect = TRUE, top = labTitle))
       }
       if(save_plot) {
-        png(paste0(output_path, file_name, "-", guild, ".png"),
+        png(paste0(output_path, file_name, ".png"),
             width = fig.width,
             height = fig.height,
             units = units,
             res = res)
         grid.arrange(kobe_plot,
                      bar_plot, ncol = 2,
-                     respect = TRUE, top = guild)
+                     respect = TRUE, top = labTitle)
         dev.off()
       }
     }

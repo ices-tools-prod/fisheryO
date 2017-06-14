@@ -252,7 +252,7 @@ stockPie_fun <- function(ecoregion,
                                     "BMSY" = "Stock size\n MSY",
                                     "FPA" = "Fishing pressure\n PA",
                                     "BPA" = "Stock size \n PA",
-                                    "SBL" = "Within safe\n biological limits"),
+                                    "SBL" = "Safe biological limits"),
            FisheriesGuild = factor(FisheriesGuild,
                                    levels = c("total", "benthic", "crustacean", "elasmobranch", "demersal", "pelagic"))
     )

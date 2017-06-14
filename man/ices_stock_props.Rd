@@ -4,10 +4,14 @@
 \alias{ices_stock_props}
 \title{Proportion of stocks relative to ICES reference points}
 \usage{
-ices_stock_props(active_year)
+ices_stock_props(active_year, ecoregion, fisheries_guild)
 }
 \arguments{
 \item{active_year}{numeric of the stock database version (year). e.g., 2016}
+
+\item{ecoregion}{vector of ecoregions to include}
+
+\item{fisheries_guild}{vector of fisheries guilds to include}
 }
 \value{
 returns a data frame of the proportion of stocks relative

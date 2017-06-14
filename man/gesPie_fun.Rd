@@ -4,12 +4,15 @@
 \alias{gesPie_fun}
 \title{Pie chart of proportion of stocks relative to GES reference points}
 \usage{
-gesPie_fun(ecoregion, data_caption = TRUE, file_name = NULL,
+gesPie_fun(ecoregion, fisheries_guild = c("pelagic", "demersal", "crustacean",
+  "elasmobranch", "benthic"), data_caption = TRUE, file_name = NULL,
   active_year = 2016, save_plot = FALSE, return_plot = TRUE,
   output_path = NULL)
 }
 \arguments{
 \item{ecoregion}{ecoregion name, e.g. Greater North Sea}
+
+\item{fisheries_guild}{fisheries guild to include in proportions}
 
 \item{data_caption}{print the data source as a caption, boolean.}
 

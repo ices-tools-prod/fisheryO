@@ -8,7 +8,7 @@ plot_kobe(ecoregion, guild = c("all", "benthic", "demersal", "pelagic",
   "crustacean", "elasmobranch", "large-scale stocks")[1], active_year = 2016,
   data_caption = TRUE, output_path = NULL, return_plot = TRUE,
   save_plot = FALSE, catch_limit = 0, file_name = NULL,
-  plotTitle = NULL, fig.width = 110, fig.height = 75, units = "mm",
+  plotTitle = NULL, fig.width = 170, fig.height = 100.5, units = "mm",
   res = 300, dynamic = FALSE)
 }
 \arguments{

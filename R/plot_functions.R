@@ -174,6 +174,7 @@ stockSummaryTable_fun <- function(ecoregion,
 #' relative to reference points for fish categories in an ecoregion.
 #'
 #' @param ecoregion ecoregion name, e.g. Greater North Sea
+#' @param fisheries_guild fisheries guild to include in proportions
 #' @param data_caption print the data source as a caption, boolean.
 #' @param output_path path for output to live.
 #' @param active_year numeric of the stock database version (year). e.g., 2016
@@ -202,6 +203,7 @@ stockSummaryTable_fun <- function(ecoregion,
 # Stock Summary Pie chart  #
 # ~~~~~~~~~~~~~~~~~~~~~~~~ #
 stockPie_fun <- function(ecoregion,
+                         fisheries_guild = c("pelagic", "demersal", "crustacean", "elasmobranch", "benthic"),
                          data_caption = TRUE,
                          file_name,
                          active_year = 2016,
@@ -235,8 +237,10 @@ stockPie_fun <- function(ecoregion,
                "ORANGE" = "#ff7f00",
                "RED" = "#d93b1c")
 
-  rowDat <- ices_stock_props(active_year) %>%
-    filter(grepl(pattern = ecoregion, EcoRegion)) %>%
+  rowDat <- ices_stock_props(active_year,
+                             ecoregion,
+                             fisheries_guild) %>%
+    # filter(grepl(pattern = ecoregion, EcoRegion)) %>%
     ungroup() %>%
     select(-EcoRegion) %>%
     group_by(FisheriesGuild, VARIABLE) %>%
@@ -292,6 +296,7 @@ stockPie_fun <- function(ecoregion,
 #' relative to GES reference points in an ecoregion.
 #'
 #' @param ecoregion ecoregion name, e.g. Greater North Sea
+#' @param fisheries_guild fisheries guild to include in proportions
 #' @param data_caption print the data source as a caption, boolean.
 #' @param output_path path for output to live.
 #' @param active_year numeric of the stock database version (year). e.g., 2016
@@ -319,6 +324,7 @@ stockPie_fun <- function(ecoregion,
 # GES Pie Charts #
 #~~~~~~~~~~~~~~~~#
 gesPie_fun <- function(ecoregion,
+                       fisheries_guild = c("pelagic", "demersal", "crustacean", "elasmobranch", "benthic"),
                        data_caption = TRUE,
                        file_name = NULL,
                        active_year = 2016,
@@ -351,8 +357,10 @@ gesPie_fun <- function(ecoregion,
                "GREY" = "#d3d3d3",
                "RED" = "#d93b1c")
 
-  rowDat <- ges_stock_props(active_year) %>%
-    filter(grepl(pattern = ecoregion, EcoRegion)) %>%
+  rowDat <- ges_stock_props(active_year,
+                            ecoregion,
+                            fisheries_guild) %>%
+    # filter(grepl(pattern = ecoregion, EcoRegion)) %>%
     ungroup() %>%
     select(-EcoRegion) %>%
     group_by(VARIABLE, METRIC) %>%

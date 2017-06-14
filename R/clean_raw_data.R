@@ -65,6 +65,26 @@ area_definition <- function(ecoregion = "Greater North Sea Ecoregion"){
 
   colnames(centroids) <- c("Area_27", "ECOREGION", "X", "Y")
 
+  if(ecoregion == "Baltic Sea Ecoregion") {
+  baltic_3a <- ices_areas %>%
+    filter(SubArea == "3",
+           Division == "a") %>%
+    summarize(Area_27 = "3.a",
+              ECOREGION = "Baltic Sea Ecoregion",
+              geometry = st_union(geometry)) %>%
+    sf::st_centroid()
+
+  baltic_3a <- data.frame(baltic_3a$Area_27,
+                          baltic_3a$ECOREGION,
+                          matrix(unlist(baltic_3a$geometry),
+                                 ncol = 2,
+                                 byrow = TRUE))
+
+  colnames(baltic_3a) <- c("Area_27", "ECOREGION", "X", "Y")
+
+  centroids <- bind_rows(centroids, baltic_3a)
+  }
+
   centroids <- centroids %>%
     mutate(Area_27 = case_when(
       .$ECOREGION == "Baltic Sea Ecoregion" ~ sub("3.b.|3.c.|3.d.", "", .$Area_27),

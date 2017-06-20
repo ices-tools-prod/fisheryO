@@ -98,7 +98,8 @@ area_definition <- function(ecoregion = "Greater North Sea Ecoregion"){
     ))
 
   ices_areas <- ices_areas %>%
-    filter(grepl(ecoregion, ECOREGION))
+    filter(grepl(ecoregion, ECOREGION)) %>%
+    sf::st_sf()
 
   centroids <- centroids %>%
     filter(grepl(ecoregion, ECOREGION))
@@ -186,7 +187,7 @@ clean_sag <- function(active_year = 2016){
                                           "Mustelus asterias" = "Mustelus"),
            EcoRegion = strsplit(EcoRegion, ", ")
     ) %>%
-    unnest(EcoRegion) %>%
+    tidyr::unnest(EcoRegion) %>%
     mutate(EcoRegion = ifelse(grepl("Norwegian|Barents", EcoRegion),
                               "Norwegian Sea and Barents Sea Ecoregions",
                               EcoRegion))
@@ -323,7 +324,7 @@ clean_sag <- function(active_year = 2016){
   sag_ref_summary <- stock_list_frmt %>%
     left_join(sag_ref_pts , by = "StockCode") %>%
     left_join(sag_summary_clean, by = "StockCode") %>%
-    nest(EcoRegion)
+    tidyr::nest(EcoRegion)
 
   sag_complete_summary <- sag_ref_summary %>%
     mutate(MSYBtrigger = ifelse(stockSizeDescription %in% relative_SSB,
@@ -778,7 +779,7 @@ ices_stock_props <- function(active_year,
            FPA,
            BPA,
            SBL) %>%
-    gather(VARIABLE, VALUE, -EcoRegion, -StockCode, -FisheriesGuild) %>%
+    tidyr::gather(VARIABLE, VALUE, -EcoRegion, -StockCode, -FisheriesGuild) %>%
     mutate(VALUE = ifelse(is.na(VALUE),
                           "GREY",
                           VALUE)) %>%
@@ -792,7 +793,7 @@ ices_stock_props <- function(active_year,
            FPA,
            BPA,
            SBL) %>%
-    gather(VARIABLE, VALUE, -EcoRegion, -FisheriesGuild) %>%
+    tidyr::gather(VARIABLE, VALUE, -EcoRegion, -FisheriesGuild) %>%
     mutate(VALUE = ifelse(is.na(VALUE),
                           "GREY",
                           VALUE)) %>%
@@ -802,7 +803,7 @@ ices_stock_props <- function(active_year,
   # Make sure that all possible combinations are provided
   pie_table_count <- bind_rows(
     pie_table_count %>%
-      expand(VALUE = c("GREY", "GREEN", "RED", "ORANGE")) %>%
+      tidyr::expand(VALUE = c("GREY", "GREEN", "RED", "ORANGE")) %>%
       left_join(pie_table_count, by = c("EcoRegion", "FisheriesGuild", "VARIABLE", "VALUE")) %>%
       arrange(EcoRegion, FisheriesGuild, VARIABLE, VALUE) %>%
       mutate(COUNT = ifelse(is.na(COUNT),
@@ -865,7 +866,7 @@ ges_stock_props <- function(active_year,
     select(EcoRegion,
            D3C2 = FMSY,
            D3C1 = BMSY) %>%
-    gather(VARIABLE, COLOR, -EcoRegion) %>%
+    tidyr::gather(VARIABLE, COLOR, -EcoRegion) %>%
     mutate(COLOR = ifelse(is.na(COLOR),
                           "GREY",
                           COLOR)) %>%
@@ -876,7 +877,7 @@ ges_stock_props <- function(active_year,
 # Take last year of catch data. If catch is not available, use landings.
 # Remove stocks without quantified catch or landings
 ges_catch_stock <-  sag_complete_smmry %>%
-  unnest(data) %>%
+  tidyr::unnest(data) %>%
   group_by(StockCode) %>%
   filter(Year == YearOfLastAssessment - 1,
          EcoRegion %in% ecoregion,
@@ -897,7 +898,7 @@ ges_table_catch <- ges_catch_stock %>%
          CATCH,
          D3C2 = FMSY,
          D3C1 = BMSY) %>%
-  gather(VARIABLE, COLOR, -EcoRegion, -CATCH) %>%
+  tidyr::gather(VARIABLE, COLOR, -EcoRegion, -CATCH) %>%
   mutate(COLOR = ifelse(is.na(COLOR),
                         "GREY",
                         COLOR),
@@ -952,7 +953,7 @@ clean_stock_trends <- function(active_year = 2016) {
   sag_complete_smmry <- dat$sag_complete_summary
 
   stock_trends <- sag_complete_smmry %>%
-    unnest(data) %>%
+    tidyr::unnest(data) %>%
     mutate(F_FMSY = ifelse(!is.na(FMSY),
                            F / FMSY,
                            NA),
@@ -965,7 +966,7 @@ clean_stock_trends <- function(active_year = 2016) {
            EcoRegion,
            F_FMSY,
            SSB_MSYBtrigger) %>%
-    gather(METRIC, stockValue, -Year, -StockCode, -FisheriesGuild, -EcoRegion) %>%
+    tidyr::gather(METRIC, stockValue, -Year, -StockCode, -FisheriesGuild, -EcoRegion) %>%
     group_by(EcoRegion, FisheriesGuild, METRIC, Year) %>%
     mutate(ecoGuildMean = mean(stockValue, na.rm = TRUE))
 
@@ -1026,7 +1027,7 @@ clean_stock_trends <- function(active_year = 2016) {
 stock_catch <- function(active_year = 2016) {
 
   stock_catch <- clean_sag(active_year)$sag_complete_summary %>%
-    unnest(data) %>%
+    tidyr::unnest(data) %>%
     select(Year,
            YearOfLastAssessment,
            StockCode,
@@ -1233,7 +1234,7 @@ ices_catch_data <- function() {
                         collapse = "|")
 
   catch_dat_1950 <- ices_catch_historical_raw %>%
-    gather(YEAR, VALUE, -Country, -Species, -Division) %>%
+    tidyr::gather(YEAR, VALUE, -Country, -Species, -Division) %>%
     mutate(YEAR = as.numeric(gsub("X", "", YEAR)),
            VALUE = ifelse(VALUE == "<0.5",
                           as.numeric(0),
@@ -1272,7 +1273,7 @@ ices_catch_data <- function() {
            VALUE)
 
   catch_dat_2010 <- ices_catch_official_raw %>%
-    gather(YEAR, VALUE, -Country, -Species, -Area, -Units) %>%
+    tidyr::gather(YEAR, VALUE, -Country, -Species, -Area, -Units) %>%
     filter(Country != "") %>%
     mutate(YEAR = as.numeric(gsub("X", "", YEAR)),
            VALUE = as.numeric(VALUE),

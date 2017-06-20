@@ -1429,7 +1429,7 @@ stecf_plot <- function(ecoregion,
     inner_join(allDat, c("ANNEX", "type_var")) %>%
     ungroup() %>%
     mutate(type_var = replace(type_var, RANK > line_count, "other"),
-           ANNEX = str_wrap(ANNEX, width = 26)) %>%
+           ANNEX = stringr::str_wrap(ANNEX, width = 26)) %>%
     group_by(ANNEX, type_var, YEAR) %>%
     summarize(typeTotal = sum(VALUE, na.rm = TRUE)) %>%
     filter(!is.na(YEAR))

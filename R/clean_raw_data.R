@@ -30,13 +30,14 @@ area_definition <- function(ecoregion = "Greater North Sea Ecoregion"){
   crs <- "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
 
   eco_areas <- eco_shape %>%
-    st_transform(crs = crs) %>%
+    sf::st_transform(crs = crs) %>%
     mutate(Ecoregion = case_when(
       grepl("Baltic Sea", .$Ecoregion) ~ "Baltic Sea Ecoregion",
       grepl("Greater North Sea", .$Ecoregion) ~ "Greater North Sea Ecoregion",
       # ... add remaining ecoregions
       TRUE ~ "OTHER")) %>%
-    filter(Ecoregion == ecoregion)
+    filter(Ecoregion == ecoregion) %>%
+    sf::st_sf()
 
   Area_27_baltic <- c("3.d.27", "3.d.25", "3.d.24",
                       "3.b.23", "3.c.22", "3.d.31",
@@ -48,20 +49,22 @@ area_definition <- function(ecoregion = "Greater North Sea Ecoregion"){
                   "7.d", "7.e")
 
   ices_areas <- ices_shape %>%
+    sf::st_transform(crs = crs) %>%
     mutate(ECOREGION = case_when(
       .$Area_27 %in% Area_27_baltic ~ "Baltic Sea Ecoregion",
       .$Area_27 %in%  Area_27_ns ~ "Greater North Sea Ecoregion",
       # ... add remaining ecoregions
       TRUE ~ "OTHER")) %>%
-    st_transform(crs = crs)
+    sf::st_sf()
 
   # Centroids for labels
   ices_area_centroids <- sf::st_centroid(ices_areas)
-  centroids <- data.frame(ices_area_centroids$Area_27,
+  centroids <- data.frame(as.character(ices_area_centroids$Area_27),
                           ices_area_centroids$ECOREGION,
                           matrix(unlist(ices_area_centroids$geometry),
                                  ncol = 2,
-                                 byrow = TRUE))
+                                 byrow = TRUE),
+                          stringsAsFactors = FALSE)
 
   colnames(centroids) <- c("Area_27", "ECOREGION", "X", "Y")
 
@@ -71,14 +74,16 @@ area_definition <- function(ecoregion = "Greater North Sea Ecoregion"){
            Division == "a") %>%
     summarize(Area_27 = "3.a",
               ECOREGION = "Baltic Sea Ecoregion",
-              geometry = st_union(geometry)) %>%
+              geometry = sf::st_union(geometry)) %>%
+    sf::st_sf() %>%
     sf::st_centroid()
 
   baltic_3a <- data.frame(baltic_3a$Area_27,
                           baltic_3a$ECOREGION,
                           matrix(unlist(baltic_3a$geometry),
                                  ncol = 2,
-                                 byrow = TRUE))
+                                 byrow = TRUE),
+                          stringsAsFactors = FALSE)
 
   colnames(baltic_3a) <- c("Area_27", "ECOREGION", "X", "Y")
 
@@ -103,7 +108,6 @@ area_definition <- function(ecoregion = "Greater North Sea Ecoregion"){
               "europe_shape" = europe_shape,
               "centroids" = centroids,
               "crs" = crs))
-
 
 }
 #' Clean SAG reference points and summary table

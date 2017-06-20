@@ -761,10 +761,10 @@ plot_kobe <- function(ecoregion,
                  alpha = 0.7, na.rm = TRUE) +
       geom_hline(yintercept = 1, color = "grey60", linetype = "dashed") +
       geom_vline(xintercept = 1, color = "grey60", linetype = "dashed") +
-      geom_text_repel(aes(label = StockCode),
-                      segment.size = .25,
-                      force = 5,
-                      size = 2) +
+      ggrepel::geom_text_repel(aes(label = StockCode),
+                               segment.size = .25,
+                               force = 5,
+                               size = 2) +
       scale_color_manual(values = c("GREEN" = "#4daf4a",
                                     "RED" = "#e41a1c",
                                     "GREY" = "#d3d3d3")) +
@@ -1060,7 +1060,7 @@ guild_discards_fun <- function(ecoregion,
                              y = value,
                              color = FisheriesGuild)) +
     geom_line() +
-    geom_label_repel(data = p3_rate %>% filter(Year == active_year - 1),
+    ggrepel::geom_label_repel(data = p3_rate %>% filter(Year == active_year - 1),
                      aes(label = FisheriesGuild,
                          color = FisheriesGuild,
                          fill = FisheriesGuild),
@@ -1289,32 +1289,32 @@ ices_catch_plot <- function(ecoregion, #IA = unique(allDat$ECOREGION)[1],
     pl <- pl + geom_area(aes(fill = type_var, color = type_var),
                          alpha = .8,
                          position = "stack")
-    pl <- pl + geom_label_repel(data = cumPlot,
-                                aes(y = td,
-                                    fill = type_var,
-                                    label = type_var),
-                                nudge_x = 10,
-                                label.size = 0.2,
-                                segment.size = 0.25,
-                                size = 2,
-                                color = 'white',
-                                force = 3,
-                                segment.color = 'grey60')
+    pl <- pl + ggrepel::geom_label_repel(data = cumPlot,
+                                         aes(y = td,
+                                             fill = type_var,
+                                             label = type_var),
+                                         nudge_x = 10,
+                                         label.size = 0.2,
+                                         segment.size = 0.25,
+                                         size = 2,
+                                         color = 'white',
+                                         force = 3,
+                                         segment.color = 'grey60')
   }
 
   if(plot_type == "line") {
     pl <- pl + geom_line(aes(color = type_var),
                          alpha = .8, position = "identity")
-    pl <- pl + geom_label_repel(data = catchPlot %>% filter(YEAR == max(YEAR, na.rm = TRUE)),
-                                aes(label = type_var,
-                                    fill = type_var),
-                                nudge_x = 10,
-                                label.size = 0.2,
-                                segment.size = 0.25,
-                                size = 2,
-                                color = 'white',
-                                force = 3,
-                                segment.color = 'grey60')
+    pl <- pl + ggrepel::geom_label_repel(data = catchPlot %>% filter(YEAR == max(YEAR, na.rm = TRUE)),
+                                         aes(label = type_var,
+                                             fill = type_var),
+                                         nudge_x = 10,
+                                         label.size = 0.2,
+                                         segment.size = 0.25,
+                                         size = 2,
+                                         color = 'white',
+                                         force = 3,
+                                         segment.color = 'grey60')
   }
   #
   if(return_plot) {
@@ -1521,33 +1521,32 @@ stecf_plot <- function(ecoregion,
                          alpha = .9,
                          position = "stack")
 
-    pl <- pl + geom_label_repel(
-      data = cumPlot,
-      aes(y = td,
-          fill = type_var,
-          label = type_var),
-      nudge_x = 3,
-      label.size = 0.2,
-      segment.size = 0.25,
-      size = 2,
-      color = 'white',
-      force = 3,
-      segment.color = 'grey60')
+    pl <- pl + ggrepel::geom_label_repel(data = cumPlot,
+                                         aes(y = td,
+                                             fill = type_var,
+                                             label = type_var),
+                                         nudge_x = 3,
+                                         label.size = 0.2,
+                                         segment.size = 0.25,
+                                         size = 2,
+                                         color = 'white',
+                                         force = 3,
+                                         segment.color = 'grey60')
   }
 
   if(plot_type == "line"){
     pl <- pl + geom_line(aes(color = type_var),
                          alpha = .9, position = "identity")
-    pl <- pl + geom_label_repel(data = catchPlot %>% filter(YEAR == max(YEAR, na.rm = TRUE)),
-                                aes(label = type_var,
-                                    fill = type_var),
-                                nudge_x = 3,
-                                label.size = 0.2,
-                                segment.size = 0.25,
-                                size = 2,
-                                color = 'white',
-                                force = 3,
-                                segment.color = 'grey60')
+    pl <- pl + ggrepel::geom_label_repel(data = catchPlot %>% filter(YEAR == max(YEAR, na.rm = TRUE)),
+                                         aes(label = type_var,
+                                             fill = type_var),
+                                         nudge_x = 3,
+                                         label.size = 0.2,
+                                         segment.size = 0.25,
+                                         size = 2,
+                                         color = 'white',
+                                         force = 3,
+                                         segment.color = 'grey60')
   }
 
 

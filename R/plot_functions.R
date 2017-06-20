@@ -57,10 +57,10 @@ area_definition_map <- function(ecoregion,
   centroids <- dat$centroids
   crs <- dat$crs
 
-  xmin <- min(st_bbox(eco_areas)[1], st_bbox(ices_areas)[1])
-  xmax <- max(st_bbox(eco_areas)[3], st_bbox(ices_areas)[3])
-  ymin <- min(st_bbox(eco_areas)[2], st_bbox(ices_areas)[2])
-  ymax <- max(st_bbox(eco_areas)[4], st_bbox(ices_areas)[4])
+  xmin <- min(sf::st_bbox(eco_areas)[1], sf::st_bbox(ices_areas)[1])
+  xmax <- max(sf::st_bbox(eco_areas)[3], sf::st_bbox(ices_areas)[3])
+  ymin <- min(sf::st_bbox(eco_areas)[2], sf::st_bbox(ices_areas)[2])
+  ymax <- max(sf::st_bbox(eco_areas)[4], sf::st_bbox(ices_areas)[4])
 
   xlims <- c(xmin, xmax)
   ylims <- c(ymin, ymax)
@@ -158,9 +158,9 @@ stockSummaryTable_fun <- function(ecoregion,
 
   if(table_type %in% c("dynamic", "both")) {
     suppressWarnings(
-      rmarkdown::render(system.file("rmd/stockSummaryTable-dynamic.Rmd", package = "fisheryO"),
-                        # "~/git/ices-dk/fisheryO/vignettes/stockSummaryTable-dynamic.rmd",
-                        output_file = paste0(output_path, file_name, "-dynamic.html"),
+      rmarkdown::render(#system.file("rmd/stockSummaryTable-dynamic.R", package = "fisheryO"),
+                        "~/git/ices-dk/fisheryO/inst/rmd/stockSummaryTable-dynamic.R",
+                        output_file = "~/test.html",#paste0(output_path, file_name, "-dynamic.html"),
                         # output_file = paste0("~/git/ices-dk/fisheryO/output/", fileName, "-dynamic.html"),
                         rmarkdown::html_document(template = NULL),
                         envir = new.env())
@@ -995,7 +995,7 @@ guild_discards_fun <- function(ecoregion,
              landings = as.numeric(landings))
   }
 
-  if(active_year < 2016){
+  if(active_year > 2016){
     p3_dat_dcds <- p3_dat_na %>%
       select(StockCode, Year, discards, YearOfLastAssessment) %>%
       group_by(StockCode) %>%

@@ -1469,7 +1469,7 @@ stecf_plot <- function(ecoregion,
                     y = catchLabel)
   }
 
-  colList <- tableau_color_pal('tableau20')(line_count + 1)
+  colList <- ggthemes::tableau_color_pal('tableau20')(line_count + 1)
 
   catch_order <- catchPlot %>%
     group_by(type_var) %>%

@@ -9,10 +9,10 @@ Description: Functions that work with International Council for the Exploration
              and plot Fisheries Overview products.
 Depends:
     R (>= 3.3.1),
-    dplyr,
-    tidyr,
-    ggplot2,
-    devtools,
+    dplyr (>= 0.7),
+    ggplot2
+Imports: 
+    tidyr (>= 0.6.3),
     ggrepel,
     stringr,
     icesSAG,
@@ -22,9 +22,9 @@ Depends:
     gridExtra,
     countrycode,
     rnaturalearth,
-    sf,
-    flextable
-Imports: 
+    flextable,
+    sf (>= 0.5),
+    devtools,
     htmltools,
     DT
 Suggests:

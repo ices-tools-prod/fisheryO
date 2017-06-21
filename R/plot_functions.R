@@ -959,7 +959,7 @@ guild_discards_fun <- function(ecoregion,
     filter(Year %in% seq(active_year-4, active_year -1))
 
   p3_dat_na <- p3_dat_ts %>%
-    expand(Year, nesting(StockCode, YearOfLastAssessment,
+    tidyr::expand(Year, tidyr::nesting(StockCode, YearOfLastAssessment,
                          Description, FisheriesGuild, EcoRegion)) %>%
     left_join(p3_dat_ts,
               by = c("Year", "StockCode", "YearOfLastAssessment",
@@ -971,26 +971,26 @@ guild_discards_fun <- function(ecoregion,
     p3_dat_dcds <- p3_dat_na %>%
       select(StockCode, Year, discards, YearOfLastAssessment) %>%
       group_by(StockCode) %>%
-      spread(Year, discards) %>%
+      tidyr::spread(Year, discards) %>%
       mutate(`2015` = ifelse(YearOfLastAssessment == 2015 &
                                is.na(`2015`) &
                                !is.na(`2014`),
                              `2014`,
                              `2015`)) %>%
-      gather(Year, discards, `2012`:`2015`) %>%
+      tidyr::gather(Year, discards, `2012`:`2015`) %>%
       mutate(Year = as.numeric(Year),
              discards = as.numeric(discards))
 
     p3_dat_lnding <- p3_dat_na %>%
       select(StockCode, Year, landings, YearOfLastAssessment) %>%
       group_by(StockCode) %>%
-      spread(Year, landings) %>%
+      tidyr::spread(Year, landings) %>%
       mutate(`2015` = ifelse(YearOfLastAssessment == 2015 &
                                is.na(`2015`) &
                                !is.na(`2014`),
                              `2014`,
                              `2015`)) %>%
-      gather(Year, landings, `2012`:`2015`) %>%
+      tidyr::gather(Year, landings, `2012`:`2015`) %>%
       mutate(Year = as.numeric(Year),
              landings = as.numeric(landings))
   }
@@ -999,26 +999,26 @@ guild_discards_fun <- function(ecoregion,
     p3_dat_dcds <- p3_dat_na %>%
       select(StockCode, Year, discards, YearOfLastAssessment) %>%
       group_by(StockCode) %>%
-      spread(Year, discards) %>%
+      tidyr::spread(Year, discards) %>%
       mutate(`2016` = ifelse(YearOfLastAssessment == 2016 &
                                is.na(`2016`) &
                                !is.na(`2015`),
                              `2015`,
                              `2016`)) %>%
-      gather(Year, discards, `2013`:`2016`) %>%
+      tidyr::gather(Year, discards, `2013`:`2016`) %>%
       mutate(Year = as.numeric(Year),
              discards = as.numeric(discards))
 
     p3_dat_lnding <- p3_dat_na %>%
       select(StockCode, Year, landings, YearOfLastAssessment) %>%
       group_by(StockCode) %>%
-      spread(Year, landings) %>%
+      tidyr::spread(Year, landings) %>%
       mutate(`2016` = ifelse(YearOfLastAssessment == 2016 &
                                is.na(`2016`) &
                                !is.na(`2015`),
                              `2015`,
                              `2016`)) %>%
-      gather(Year, landings, `2013`:`2016`) %>%
+      tidyr::gather(Year, landings, `2013`:`2016`) %>%
       mutate(Year = as.numeric(Year),
              landings = as.numeric(landings))
   }
@@ -1036,12 +1036,12 @@ guild_discards_fun <- function(ecoregion,
 
   p3_rate <- p3_dat %>%
     mutate(guildRate = guildDiscards/ (guildLandings + guildDiscards)) %>%
-    gather(variable, value, -Year, -FisheriesGuild) %>%
+    tidyr::gather(variable, value, -Year, -FisheriesGuild) %>%
     filter(!variable %in% c("guildDiscards", "guildLandings"))
 
   p3_bar <- p3_dat %>%
     filter(Year == active_year - 1) %>%
-    gather(variable, value, -Year, -FisheriesGuild) %>%
+    tidyr::gather(variable, value, -Year, -FisheriesGuild) %>%
     ungroup() %>%
     select(-Year)
 

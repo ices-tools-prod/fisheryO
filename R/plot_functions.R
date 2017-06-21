@@ -959,7 +959,7 @@ guild_discards_fun <- function(ecoregion,
     filter(Year %in% seq(active_year-4, active_year -1))
 
   p3_dat_na <- p3_dat_ts %>%
-    expand(Year, nesting(StockCode, YearOfLastAssessment,
+    tidyr::expand(Year, nesting(StockCode, YearOfLastAssessment,
                          Description, FisheriesGuild, EcoRegion)) %>%
     left_join(p3_dat_ts,
               by = c("Year", "StockCode", "YearOfLastAssessment",

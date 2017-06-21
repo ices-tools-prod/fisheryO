@@ -398,7 +398,7 @@ frmt_summary_tbl <- function(active_year = 2016,
     mutate(BMSY = ifelse(SSB >= MSYBtrigger, "GREEN", "RED"),
            Year = paste0("BMSY", Year)) %>%
     select(Year, BMSY, StockCode) %>%
-    spread(Year, BMSY) %>%
+    tidyr::spread(Year, BMSY) %>%
     # ****************** #
     # Nep-9 doesn't provide data for BMSY2016, so we'll make the tick marks consistent with advice
     mutate(BMSY2013 = ifelse(StockCode == "nep-9",

@@ -6,8 +6,13 @@
 #' ---
 #'
 #'
-library(htmltools)
-library(DT)
+# library(htmltools)
+# library(DT)
+
+f_range <- seq(active_year - 3,
+               active_year - 1)
+ssb_range <- seq(active_year - 2,
+                 active_year)
 
 colContainer <- htmltools::withTags(table(
   class = 'display',
@@ -15,19 +20,19 @@ colContainer <- htmltools::withTags(table(
     tr(
       th(rowspan = 2, 'Stock code'),
       th(rowspan = 2, 'Stock name'),
-      th(rowspan = 2, 'Fishery guild'),
+      th(rowspan = 2, 'Fish category'),
       # th(rowspan = 2, 'Ecoregion'),
       th(rowspan = 2, 'Advice type'),
       th(rowspan = 2, 'Data category'),
-      th(rowspan = 2, 'Within Safe Biological Limits'),
+      th(rowspan = 2, 'Safe Biological Limits'),
       th(colspan = 3, 'F reference point'),
       th(colspan = 3, 'SSB reference point'),
-      th(colspan = 3, 'MSFD GES')
+      th(colspan = 3, 'MSFD descriptor')
     ),
     tr(
-      lapply(c(seq(2013, 2015),
-               seq(2014, 2016),
-               'D3C1', 'D3C2', 'GES <sub>stock</sub>'), th)
+      lapply(c(f_range,
+               ssb_range,
+               'D3C1', 'D3C2', 'GES'), th)
     )
   )
 ))
@@ -50,7 +55,7 @@ fullTable <- DT::datatable(stockPlot,
                        extensions = 'Buttons',
                        options = list(
                          # dom = 'Bfrtip',
-                         # buttons = c('copy', 'csv', 'excel', 'pdf', 'print'), # need to work on formatting
+                         # buttons = c('csv', 'excel', 'pdf'), # need to work on formatting
                          pageWidth = '100%',
                          autoWidth = TRUE,
                          columnDefs = list(list(className = 'dt-center', targets = 4:14),

@@ -554,8 +554,8 @@ stock_trends_fun <- function(EcoGuild,
     facet_wrap(~ plotGroup, labeller = label_parsed, strip.position = "left", ncol = 1, nrow = 2)
 
   if(dynamic) {
-    p1_plot <- p1_plot + geom_line_interactive(alpha = 0.8)
-    p1_plot <- p1_plot + geom_line_interactive(data = p1_dat %>% filter(lineGroup == "MEAN"),
+    p1_plot <- p1_plot + ggiraph::geom_line_interactive(alpha = 0.8)
+    p1_plot <- p1_plot + ggiraph::geom_line_interactive(data = p1_dat %>% filter(lineGroup == "MEAN"),
                                                alpha = 0.9, size = 1.15)
 
     if(return_plot){
@@ -845,7 +845,7 @@ plot_kobe <- function(ecoregion,
     }
 
     if(dynamic) {
-      kobe_plot <- kobe_plot +  geom_point_interactive(color = "white",
+      kobe_plot <- kobe_plot +  ggiraph::geom_point_interactive(color = "white",
                                                        fill = "white",
                                                        shape = 21,
                                                        size = 2,

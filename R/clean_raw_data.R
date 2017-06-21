@@ -389,7 +389,7 @@ frmt_summary_tbl <- function(active_year = 2016,
     mutate(FMSY = ifelse(F <= FMSY, "GREEN", "RED"),
            Year = paste0("FMSY", Year)) %>%
     select(Year, FMSY, StockCode) %>%
-    spread(Year, FMSY)
+    tidyr::spread(Year, FMSY)
 
   summary_bmsy <- sag_sum %>%
     group_by(StockCode) %>%
@@ -427,7 +427,7 @@ frmt_summary_tbl <- function(active_year = 2016,
                                                NA_character_)))), # If none of this fits the bill, NA.
            Year = paste0("FPA", Year)) %>%
     select(Year, FPA, StockCode) %>%
-    spread(Year, FPA)
+    tidyr::spread(Year, FPA)
 
   summary_bpa <- sag_sum %>%
     group_by(StockCode) %>%
@@ -450,7 +450,7 @@ frmt_summary_tbl <- function(active_year = 2016,
                                                 NA_character_)))), # If none of this fits the bill, NA.
            Year = paste0("BPA", Year)) %>%
     select(Year, BPA, StockCode) %>%
-    spread(Year, BPA)
+    tidyr::spread(Year, BPA)
 
   summary_sbl <- left_join(
     sag_sum %>%
@@ -465,7 +465,7 @@ frmt_summary_tbl <- function(active_year = 2016,
                                  NA)),
              Year = paste0("BPA", Year)) %>%
       select(Year, BPA, StockCode) %>%
-      spread(Year, BPA),
+      tidyr::spread(Year, BPA),
     sag_sum %>%
       group_by(StockCode) %>%
       filter(Year >= YearOfLastAssessment -3,
@@ -478,7 +478,7 @@ frmt_summary_tbl <- function(active_year = 2016,
                                  NA)),
              Year = paste0("FPA", Year)) %>%
       select(Year, FPA, StockCode, YearOfLastAssessment) %>%
-      spread(Year, FPA),
+      tidyr::spread(Year, FPA),
     by = "StockCode"
     )
 

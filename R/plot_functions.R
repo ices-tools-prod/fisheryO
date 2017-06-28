@@ -160,7 +160,7 @@ stockSummaryTable_fun <- function(ecoregion,
     # orange.path <- "~/git/ices-dk/fisheryO/inst/symbols/orange_oh.png"
     #
 
-    grey.path <- system.file("symbols", "grey_q.png", package = "fisheryO", mustWork = TRUE)
+    grey.path <- system.file("symbols", "grey_q.png", package = "fisheryO")
     red.path <- system.file("symbols", "red_cross.png", package = "fisheryO")
     green.path <- system.file("symbols", "green_check.png", package = "fisheryO")
     orange.path <- system.file("symbols", "orange_oh.png", package = "fisheryO")
@@ -751,6 +751,7 @@ stock_trends_fun <- function(EcoGuild,
     theme_bw(base_size = 9) +
     scale_color_manual(values = values) +
     scale_fill_manual(values = values) +
+    scale_x_continuous(breaks = scales::pretty_breaks(n = 5)) +
     guides(fill = FALSE) +
     theme(legend.position = legend_pos,
           strip.text = element_text(size = 9, angle = 0, hjust = 0),

@@ -5,14 +5,16 @@
 \title{Pie chart of proportion of stocks relative to reference points}
 \usage{
 stockPie_fun(ecoregion, fisheries_guild = c("pelagic", "demersal",
-  "crustacean", "elasmobranch", "benthic"), data_caption = TRUE, file_name,
-  active_year = 2016, save_plot = FALSE, return_plot = TRUE,
-  output_path = NULL)
+  "crustacean", "elasmobranch", "benthic"), calculate_status = FALSE,
+  data_caption = TRUE, file_name, active_year = 2016, save_plot = FALSE,
+  return_plot = TRUE, output_path = NULL)
 }
 \arguments{
 \item{ecoregion}{ecoregion name, e.g. Greater North Sea}
 
 \item{fisheries_guild}{fisheries guild to include in proportions}
+
+\item{calculate_status}{logical on whether to use raw SAG output to calculate stock status or to use the hard-coded values from stock summary table}
 
 \item{data_caption}{print the data source as a caption, boolean.}
 
@@ -39,7 +41,9 @@ relative to reference points for fish categories in an ecoregion.
 Stocks are linked to ecoregions and fish categories via the ICES Stock database.
 Reference points are as published in ICES Stock Assessment Graphs database. In some cases,
 status relative to reference points may vary from published ICES advice
- when reported F or SSB are very close to reference points (e.g., F = 0.201 > F<sub>MSY</sub> = 0.20).
+ when reported F or SSB are very close to reference points (e.g., F = 0.201 > F<sub>MSY</sub> = 0.20). \code{calculate_status = TRUE} calculates stock status
+relative to published reference points. This will represent PA and SBL for ecoregions with proxy reference points. \code{calculate_status = TRUE} takes the
+raw icons from published advice. Note, before 2017 not all stocks status tables have been added to the SAG database and only few stocks had MSY proxy reference points.
 }
 \examples{
 \dontrun{

@@ -350,15 +350,60 @@ clean_sag <- function(active_year = 2016){
               "sag_complete_summary" = sag_complete_summary))
 }
 
+
+#' Convert FPA to SBL
+#'
+#' \code{pa_maker} helper function that takes FPA and BPA and converts to SB.
+#'
+#' @param df numeric of the stock database version. e.g., 2016
+#' @param assessment_year logical to return objects from clean_sag()
+#'
+#' @note internal function
+#'
+#' @return data frame
+#'
+#' @author Scott Large
+#'
+#' @seealso Used in \code{\link{frmt_summary_tbl}} to create the "Status of stock summary relative to reference points"
+#' table for all stocks for an ecoregion.
+#' @keywords internal
+
+
+pa_maker <- function(df,
+                     assessment_year){
+
+  FPA_val = rlang::sym(paste0("FPA", assessment_year - 1))
+  BPA_val = rlang::sym(paste0("BPA", assessment_year))
+  BPA_val2 = rlang::sym(paste0("BPA", assessment_year - 1))
+
+
+  if(!any(df$YearOfLastAssessment %in% assessment_year)) stop("No cases meet this condition.")
+
+  df %>%
+    select(StockCode,
+           YearOfLastAssessment,
+           contains("PA")) %>%
+    filter(YearOfLastAssessment == assessment_year) %>%
+    mutate(SBL = case_when(rlang::UQ(FPA_val) == "GREEN" & rlang::UQ(BPA_val) == "GREEN" ~ "GREEN",
+                           rlang::UQ(FPA_val) == "GREEN" & rlang::UQ(BPA_val2) == "GREEN" & is.na(rlang::UQ(BPA_val)) ~ "GREEN",
+                           rlang::UQ(FPA_val) == "RED" | rlang::UQ(BPA_val) == "RED" ~ "RED",
+                           rlang::UQ(FPA_val) == "ORANGE"  |  rlang::UQ(BPA_val) == "ORANGE" ~ "RED",
+                           TRUE ~ "GREY"))
+}
+
+
 #' Format stock summary table
 #'
 #' \code{frmt_summary_tbl} returns the stock summary table plain and formatted with html (e.g., glyphicons and italics)
 #'
 #' @param active_year numeric of the stock database version. e.g., 2016
 #' @param return_clean_sag logical to return objects from clean_sag()
+#' @param calculate_status logical on whether to use raw SAG output to calculate stock status or to use the hard-coded values from stock summary table
 #'
-#' @note Periodically, ICES adds or removes stocks from the advisory process. The function returns
-#' the stock summary table for all published (in SAG) and active stocks for a given year.
+#' @note Periodically, ICES adds or removes stocks from the advisory process. The function returns the stock summary table for all published (in SAG) and active stocks for a given year.
+#' \code{calculate_status = TRUE} calculates stock status
+#' relative to published reference points. This will represent PA and SBL for ecoregions with proxy reference points. \code{calculate_status = TRUE} takes the
+#' raw icons from published advice. Note, before 2017 not all stocks status tables have been added to the SAG database and only few stocks had MSY proxy reference points.
 #'
 #' @return data frame
 #'
@@ -374,7 +419,8 @@ clean_sag <- function(active_year = 2016){
 # Recreate Status of stock summary relative to reference points table #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
-frmt_summary_tbl <- function(active_year = 2016,
+frmt_summary_tbl <- function(active_year = active_year,
+                             calculate_status = calculate_status,
                              return_clean_sag = FALSE) {
 
   dat <- clean_sag(active_year)
@@ -382,6 +428,7 @@ frmt_summary_tbl <- function(active_year = 2016,
   stck_frmt <- dat$stock_list_frmt
   rm(dat,  envir = environment())
 
+  if(calculate_status) {
   summary_fmsy <- sag_sum %>%
     group_by(StockCode) %>%
     filter(Year >= YearOfLastAssessment - 3,
@@ -518,6 +565,84 @@ frmt_summary_tbl <- function(active_year = 2016,
     full_join(summary_fpa, by = "StockCode") %>%
     full_join(summary_bpa, by = "StockCode") %>%
     full_join(summary_sbl, by = "StockCode")
+  }
+
+  if(!calculate_status) {
+    raw_data <- c("sag_stock_status_raw")
+    data(list = raw_data)
+
+    # Clean up the SAG output
+    sag_stock_status <- sag_stock_status_raw %>%
+      mutate(status = case_when(status == 0 ~ "UNDEFINED",
+                                status == 1 ~ "GREEN",
+                                status == 2 ~ "qual_GREEN", #qualitative green
+                                status == 3 ~ "ORANGE",
+                                status == 4 ~ "RED",
+                                status == 5 ~ "qual_RED", #qualitative red
+                                status == 6 ~ "GREY",
+                                status == 7 ~ "qual_UP",
+                                status == 8 ~ "qual_STEADY",
+                                status == 9 ~ "qual_DOWN",
+                                TRUE ~ "OTHER"),
+             year = gsub("2023", "2016", year),
+             fishingPressure = case_when(fishingPressure == "-" &
+                                           type == "Fishing pressure" ~ "FQual",
+                                         TRUE ~ fishingPressure),
+             stockSize = case_when(stockSize == "-" &
+                                     type == "Stock Size" ~ "SSBQual",
+                                   TRUE ~ stockSize),
+             stockSize = gsub("MSY BT*|MSY Bt*|MSYBT|MSYBt", "MSYBt", stockSize),
+             variable = case_when(type == "Fishing pressure" ~ fishingPressure,
+                                  type == "Stock Size" ~ stockSize,
+                                  TRUE ~ type),
+             variable = case_when(lineDescription == "Management plan" &
+                                    type == "Fishing pressure" ~ "FMGT",
+                                  lineDescription == "Management plan" &
+                                    type == "Stock Size" ~ "SSBMGT",
+                                  TRUE ~ variable),
+             variable = case_when(
+               grepl("Fpa", variable) ~ "FPA",
+               grepl("Bpa", variable) ~ "BPA",
+               grepl("^Qual*", variable) ~ "SSBQual",
+               grepl("-", variable) ~ "FQual",
+               grepl("^BMGT", variable) ~ "SSBMGT",
+               grepl("MSYBtrigger", variable) ~ "BMSY",
+               grepl("FMSY", variable) ~ "FMSY",
+               TRUE ~ variable
+             )) %>%
+      filter(variable != "-") %>%
+      arrange(variable, year) %>%
+      mutate(year = paste0(variable, year),
+             year = factor(year, levels = unique(year))) %>%
+      select(-AssessmentKey1)
+
+    # ID the list of stocks
+    stock_summary_table <-  stck_frmt %>%
+      select(-EcoRegion) %>%
+      distinct(.keep_all = TRUE) %>%
+      left_join(sag_stock_status, by = c("StockCode" = "StockKeyLabel",
+                                         "YearOfLastAssessment" = "AssessmentYear")) %>%
+      filter(!is.na(variable)) %>%
+      select(StockCode,
+             YearOfLastAssessment,
+             year, status) %>%
+      tidyr::spread(year, status)
+
+
+    summary_table <- stock_summary_table %>%
+      left_join(do.call("rbind",
+                        lapply(unique(stock_summary_table$YearOfLastAssessment),
+                               function(x) pa_maker(df = stock_summary_table,
+                                                    assessment_year = x)))[, c("StockCode", "SBL")],
+                by = "StockCode")%>%
+      select(StockCode,
+             contains("MSY"),
+             contains("PA"),
+             contains("SBL"),
+             -contains("proxy"),
+             -contains("escapement"))
+
+  }
 
   # stockDat
   summary_table_frmt <- stck_frmt %>%  #slFull
@@ -587,6 +712,7 @@ frmt_summary_tbl <- function(active_year = 2016,
   ) %>%
     select(StockCode,
            Description,
+           SpeciesScientificName,
            FisheriesGuild,
            EcoRegion,
            AdviceCategory,
@@ -637,9 +763,12 @@ frmt_summary_tbl <- function(active_year = 2016,
 #' @param ecoregion vector of ecoregions to include
 #' @param fisheries_guild vector of fisheries guilds to include
 #' @param return_clean_sag logical to return objects from clean_sag()
+#' @param calculate_status logical on whether to use raw SAG output to calculate stock status or to use the hard-coded values from stock summary table
 #'
 #' @note Periodically, ICES adds or removes stocks from the advisory process. The function returns
-#' the SAG reference points and summary table for all published (in SAG) and active stocks for a given year.
+#' the SAG reference points and summary table for all published (in SAG) and active stocks for a given year.\code{calculate_status = TRUE} calculates stock status
+#' relative to published reference points. This will represent PA and SBL for ecoregions with proxy reference points. \code{calculate_status = TRUE} takes the
+#' raw icons from published advice. Note, before 2017 not all stocks status tables have been added to the SAG database and only few stocks had MSY proxy reference points.
 #'
 #' @return returns a list with the data frame \code{stock_props} of the proportion of stocks relative
 #' to reference points for all ecoregions. When \code{return_clean_sag = TRUE}, \code{sag_complete_summary} and \code{stock_list_frmt}
@@ -660,13 +789,16 @@ frmt_summary_tbl <- function(active_year = 2016,
 #~~~~~~~~~~~~~~~~~~~~~#
 # Data for pie graphs #
 #~~~~~~~~~~~~~~~~~~~~~#
-stock_props <- function(active_year,
-                        ecoregion,
-                        fisheries_guild,
+stock_props <- function(active_year = active_year,
+                        ecoregion = ecoregion,
+                        calculate_status = calculate_status,
+                        fisheries_guild = fisheries_guild,
                         return_clean_sag = FALSE) {
 
-  dat <- frmt_summary_tbl(active_year,
+  dat <- frmt_summary_tbl(active_year = active_year,
+                          calculate_status = calculate_status,
                           return_clean_sag = TRUE)
+
   stck_frmt <- dat$stock_list_frmt
   summary_tbl <- dat$summary_table
 
@@ -738,9 +870,12 @@ stock_props <- function(active_year,
 #' @param active_year numeric of the stock database version (year). e.g., 2016
 #' @param ecoregion vector of ecoregions to include
 #' @param fisheries_guild vector of fisheries guilds to include
+#' @param calculate_status logical on whether to use raw SAG output to calculate stock status or to use the hard-coded values from stock summary table
 #'
 #' @note Periodically, ICES adds or removes stocks from the advisory process. The function returns
-#' the SAG reference points and summary table for all published (in SAG) and active stocks for a given year.
+#' the SAG reference points and summary table for all published (in SAG) and active stocks for a given year. \code{calculate_status = TRUE} calculates stock status
+#' relative to published reference points. This will represent PA and SBL for ecoregions with proxy reference points. \code{calculate_status = TRUE} takes the
+#' raw icons from published advice. Note, before 2017 not all stocks status tables have been added to the SAG database and only few stocks had MSY proxy reference points.
 #'
 #' @return returns a data frame of the proportion of stocks relative
 #' to ICES reference points for fish categories in ecoregions.
@@ -761,13 +896,15 @@ stock_props <- function(active_year,
 # Data for ICES pie graphs #
 # ~~~~~~~~~~~~~~~~~~~~~~~~ #
 
-ices_stock_props <- function(active_year,
-                             ecoregion,
-                             fisheries_guild) {
+ices_stock_props <- function(active_year = active_year,
+                             ecoregion = ecoregion,
+                             calculate_status = calculate_status,
+                             fisheries_guild = fisheries_guild) {
 
-  pie_tbl <- stock_props(active_year,
-                         ecoregion,
-                         fisheries_guild,
+  pie_tbl <- stock_props(active_year = active_year,
+                         ecoregion = ecoregion,
+                         calculate_status = calculate_status,
+                         fisheries_guild = fisheries_guild,
                          return_clean_sag = FALSE)$stock_props
 
   pie_table_stock <- pie_tbl %>%
@@ -827,9 +964,12 @@ ices_stock_props <- function(active_year,
 #' @param active_year numeric of the stock database version (year). e.g., 2016
 #' @param ecoregion vector of ecoregions to include
 #' @param fisheries_guild vector of fisheries guilds to include
+#' @param calculate_status logical on whether to use raw SAG output to calculate stock status or to use the hard-coded values from stock summary table
 #'
 #' @note Periodically, ICES adds or removes stocks from the advisory process. The function returns
-#' the SAG reference points and summary table for all published (in SAG) and active stocks for a given year.
+#' the SAG reference points and summary table for all published (in SAG) and active stocks for a given year.\code{calculate_status = TRUE} calculates stock status
+#' relative to published reference points. This will represent PA and SBL for ecoregions with proxy reference points. \code{calculate_status = TRUE} takes the
+#' raw icons from published advice. Note, before 2017 not all stocks status tables have been added to the SAG database and only few stocks had MSY proxy reference points.
 #'
 #' @return returns a data frame of the proportion of stocks relative
 #' to ICES reference points for fish categories in ecoregions.
@@ -850,15 +990,18 @@ ices_stock_props <- function(active_year,
 #~~~~~~~~~~~~~~~~~~~~~#
 # GES Pie charts data #
 #~~~~~~~~~~~~~~~~~~~~~#
-ges_stock_props <- function(active_year,
-                            ecoregion,
-                            fisheries_guild){
+ges_stock_props <- function(active_year = active_year,
+                            ecoregion = ecoregion,
+                            calculate_status = calculate_status,
+                            fisheries_guild = fisheries_guild){
 
   # Split and count by variable and color
-  dat <- stock_props(active_year,
-                     ecoregion,
-                     fisheries_guild,
+  dat <- stock_props(active_year = active_year,
+                     ecoregion = ecoregion,
+                     calculate_status = calculate_status,
+                     fisheries_guild = fisheries_guild,
                      return_clean_sag = TRUE)
+
   pie_tbl <- dat$stock_props
   sag_complete_smmry <- dat$sag_complete_summary
 
@@ -874,40 +1017,40 @@ ges_stock_props <- function(active_year,
     summarize(VALUE = n(),
               METRIC = "count")
 
-# Take last year of catch data. If catch is not available, use landings.
-# Remove stocks without quantified catch or landings
-ges_catch_stock <-  sag_complete_smmry %>%
-  tidyr::unnest(data) %>%
-  group_by(StockCode) %>%
-  filter(Year == YearOfLastAssessment - 1,
-         EcoRegion %in% ecoregion,
-         FisheriesGuild %in% fisheries_guild) %>%
-  ungroup() %>%
-  mutate(CATCH = ifelse(is.na(catches) & !is.na(landings),
-                        landings,
-                        catches)) %>%
-  filter(!is.na(CATCH)) %>%
-  select(StockCode,
-         CATCH) %>%
-  distinct(.keep_all = TRUE)
+  # Take last year of catch data. If catch is not available, use landings.
+  # Remove stocks without quantified catch or landings
+  ges_catch_stock <-  sag_complete_smmry %>%
+    tidyr::unnest(data) %>%
+    group_by(StockCode) %>%
+    filter(Year == YearOfLastAssessment - 1,
+           EcoRegion %in% ecoregion,
+           FisheriesGuild %in% fisheries_guild) %>%
+    ungroup() %>%
+    mutate(CATCH = ifelse(is.na(catches) & !is.na(landings),
+                          landings,
+                          catches)) %>%
+    filter(!is.na(CATCH)) %>%
+    select(StockCode,
+           CATCH) %>%
+    distinct(.keep_all = TRUE)
 
 # Split and sum catch by variable and color
-ges_table_catch <- ges_catch_stock %>%
-  left_join(pie_tbl, by = "StockCode") %>%
-  select(EcoRegion,
-         CATCH,
-         D3C2 = FMSY,
-         D3C1 = BMSY) %>%
-  tidyr::gather(VARIABLE, COLOR, -EcoRegion, -CATCH) %>%
-  mutate(COLOR = ifelse(is.na(COLOR),
-                        "GREY",
-                        COLOR),
-         CATCH = ifelse(is.na(CATCH),
-                        0,
-                        CATCH)) %>%
-  group_by(EcoRegion, VARIABLE, COLOR) %>%
-  summarize(VALUE = sum(CATCH),
-            METRIC = "total_sum")
+  ges_table_catch <- ges_catch_stock %>%
+    left_join(pie_tbl, by = "StockCode") %>%
+    select(EcoRegion,
+           CATCH,
+           D3C2 = FMSY,
+           D3C1 = BMSY) %>%
+    tidyr::gather(VARIABLE, COLOR, -EcoRegion, -CATCH) %>%
+    mutate(COLOR = ifelse(is.na(COLOR),
+                          "GREY",
+                          COLOR),
+           CATCH = ifelse(is.na(CATCH),
+                          0,
+                          CATCH)) %>%
+    group_by(EcoRegion, VARIABLE, COLOR) %>%
+    summarize(VALUE = sum(CATCH),
+              METRIC = "total_sum")
 
 ges_table <- rbind(ges_table_count, ges_table_catch)
 

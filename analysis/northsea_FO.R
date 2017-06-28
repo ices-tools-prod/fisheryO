@@ -1,17 +1,15 @@
-# library(fisheryO)
+library(fisheryO)
 rm(list = ls())
-ecoregion = "Baltic Sea Ecoregion"
-active_year = 2017
-calculate_status = FALSE
-fisheries_guild = c("benthic", "demersal", "pelagic")
+ecoregion = "Greater North Sea Ecoregion"
+
 
 ## Figure 1.
 area_definition_map(ecoregion,
                     data_caption = FALSE,
-                    return_plot = TRUE,
-                    save_plot = FALSE,
+                    return_plot = FALSE,
+                    save_plot = TRUE,
                     output_path = "output/",
-                    file_name = "baltic_figure1")
+                    file_name = "ns_figure1")
 
 ## Figure 2.
 ices_catch_plot(ecoregion,
@@ -19,10 +17,10 @@ ices_catch_plot(ecoregion,
                 type = "COUNTRY",
                 line_count = 9,
                 plot_type = "area",
-                file_name = "baltic_figure2",
-                save_plot = FALSE,
+                file_name = "ns_figure2",
+                save_plot = TRUE,
                 output_path = "output/",
-                return_plot = TRUE,
+                return_plot = FALSE,
                 fig.width = 174,
                 fig.height = 68,
                 text.size = 9)
@@ -34,7 +32,7 @@ stecf_plot(ecoregion,
            type = "COUNTRY",
            line_count = 6,
            plot_type = "line",
-           file_name = "baltic_figure3",
+           file_name = "ns_figure3",
            save_plot = FALSE,
            output_path = "output/",
            return_plot = TRUE,
@@ -131,7 +129,7 @@ gesPie_fun(ecoregion,
            fisheries_guild = c("benthic", "demersal", "pelagic"),
            data_caption = FALSE,
            file_name = "baltic_figure11",
-           calculate_status = FALSE,
+           calculate_status = TRUE,
            active_year = 2017,
            save_plot = TRUE,
            return_plot = FALSE,
@@ -206,5 +204,5 @@ stockSummaryTable_fun(ecoregion,
                       active_year = 2017,
                       table_type = "static_docx",
                       output_path = "output/",
-                      file_name = "baltic_annex")
+                      file_name = "ns_annex")
 

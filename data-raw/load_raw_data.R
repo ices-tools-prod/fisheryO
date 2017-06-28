@@ -33,6 +33,19 @@ sag_keys_raw <- do.call("rbind", lapply(2014:2017,
                                                                                             "AssessmentKey",
                                                                                             "StockKeyLabel")]))
 devtools::use_data(sag_keys_raw, overwrite = TRUE)
+
+get_stock_status <- function(assessmentKey) {
+  dat <- icesSAG::getStockStatusValues(assessmentKey)[[1]]
+  if(is.null(dat)) stop(paste0("NULL value returned for assessmentKey = ", assessmentKey))
+  dat
+}
+
+sag_stock_status_raw <- sag_keys_raw %>%
+  mutate(stock_status = purrr::map(.x = AssessmentKey, purrr::possibly(get_stock_status, otherwise = NA_real_))) %>%
+  filter(!is.na(stock_status)) %>%
+  tidyr::unnest(stock_status)
+
+devtools::use_data(sag_stock_status_raw, overwrite = TRUE)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # DATA SOURCE: ICES official catch statistics (1950-2010) #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #

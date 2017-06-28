@@ -6,48 +6,240 @@ output: html_document
 ---
 
 ```{r flextable, include=FALSE}
+library(fisheryO)
 
-FT <- stockPlot %>% 
-  flextable() %>% 
-  display(SBL = fpar(SBL),
-                     F_2013 = fpar(F_2013),
-                     F_2014 = fpar(F_2014),
-                     F_2015 = fpar(F_2015),
-                     SSB_2014 = fpar(SSB_2014),
-                     SSB_2015 = fpar(SSB_2015),
-                     SSB_2016 = fpar(SSB_2016),
-                     D3C1 = fpar(D3C1),
-                     D3C2 = fpar(D3C2),
-                     GES = fpar(GES)) %>% 
-  add_header(StockCode = "",
+active_year = 2017
+ecoregion = "Baltic Sea Ecoregion"
+
+
+stockPlot <- frmt_summary_tbl(active_year)$summary_table_frmt %>%
+  filter(grepl(pattern = ecoregion, EcoRegion)) %>%
+  select(-EcoRegion) %>%
+  distinct(.keep_all = TRUE) %>%
+  arrange(StockCode)
+
+grey.path <- "~/git/ices-dk/fisheryO/inst/symbols/grey_q.png"
+red.path <- "~/git/ices-dk/fisheryO/inst/symbols/red_cross.png"
+green.path <- "~/git/ices-dk/fisheryO/inst/symbols/green_check.png"
+orange.path <- "~/git/ices-dk/fisheryO/inst/symbols/orange_oh.png"
+
+if(!all(unlist(lapply(c(grey.path, red.path, green.path, orange.path), file.exists)))) {
+  stop("Check path for stock status icons")
+}
+
+FT <- stockPlot %>%
+  mutate(Description = gsub("<em>|</em>", "", stockPlot$Description)) %>% 
+  flextable::flextable() %>%
+
+  flextable::display(i = ~ SBL == "RED", col_key = "SBL", pattern = "{{add_icon}}",
+                     formatters = list(add_icon ~ flextable::as_image(SBL, src = red.path, width = .15, height = .15))) %>%
+  flextable::display(i = ~ SBL == "GREY", col_key = "SBL", pattern = "{{add_icon}}",
+                     formatters = list(add_icon ~ flextable::as_image(SBL, src = grey.path, width = .15, height = .15))) %>%
+  flextable::display(i = ~ SBL == "GREEN", col_key = "SBL", pattern = "{{add_icon}}",
+                     formatters = list(add_icon ~ flextable::as_image(SBL, src = green.path, width = .15, height = .15))) %>%
+  flextable::display(i = ~ SBL == "ORANGE", col_key = "SBL", pattern = "{{add_icon}}",
+                     formatters = list(add_icon ~ flextable::as_image(SBL, src = orange.path, width = .15, height = .15))) %>%
+# F_2013
+flextable::display(i = ~ F_2013 == "RED", col_key = "F_2013", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(F_2013, src = red.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ F_2013 == "GREY", col_key = "F_2013", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(F_2013, src = grey.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ F_2013 == "GREEN", col_key = "F_2013", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(F_2013, src = green.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ F_2013 == "ORANGE", col_key = "F_2013", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(F_2013, src = orange.path, width = .15, height = .15))) %>%
+# F_2015
+flextable::display(i = ~ F_2014 == "RED", col_key = "F_2014", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(F_2014, src = red.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ F_2014 == "GREY", col_key = "F_2014", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(F_2014, src = grey.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ F_2014 == "GREEN", col_key = "F_2014", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(F_2014, src = green.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ F_2014 == "ORANGE", col_key = "F_2014", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(F_2014, src = orange.path, width = .15, height = .15)))%>%
+# F_2015
+flextable::display(i = ~ F_2015 == "RED", col_key = "F_2015", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(F_2015, src = red.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ F_2015 == "GREY", col_key = "F_2015", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(F_2015, src = grey.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ F_2015 == "GREEN", col_key = "F_2015", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(F_2015, src = green.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ F_2015 == "ORANGE", col_key = "F_2015", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(F_2015, src = orange.path, width = .15, height = .15)))%>%
+# F_2016
+flextable::display(i = ~ F_2016 == "RED", col_key = "F_2016", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(F_2016, src = red.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ F_2016 == "GREY", col_key = "F_2016", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(F_2016, src = grey.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ F_2016 == "GREEN", col_key = "F_2016", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(F_2016, src = green.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ F_2016 == "ORANGE", col_key = "F_2016", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(F_2016, src = orange.path, width = .15, height = .15)))%>%
+# SSB_2014
+flextable::display(i = ~ SSB_2014 == "RED", col_key = "SSB_2014", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(SSB_2014, src = red.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ SSB_2014 == "GREY", col_key = "SSB_2014", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(SSB_2014, src = grey.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ SSB_2014 == "GREEN", col_key = "SSB_2014", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(SSB_2014, src = green.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ SSB_2014 == "ORANGE", col_key = "SSB_2014", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(SSB_2014, src = orange.path, width = .15, height = .15)))%>%
+# SSB_2015
+flextable::display(i = ~ SSB_2015 == "RED", col_key = "SSB_2015", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(SSB_2015, src = red.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ SSB_2015 == "GREY", col_key = "SSB_2015", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(SSB_2015, src = grey.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ SSB_2015 == "GREEN", col_key = "SSB_2015", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(SSB_2015, src = green.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ SSB_2015 == "ORANGE", col_key = "SSB_2015", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(SSB_2015, src = orange.path, width = .15, height = .15)))%>%
+# SSB_2016
+flextable::display(i = ~ SSB_2016 == "RED", col_key = "SSB_2016", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(SSB_2016, src = red.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ SSB_2016 == "GREY", col_key = "SSB_2016", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(SSB_2016, src = grey.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ SSB_2016 == "GREEN", col_key = "SSB_2016", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(SSB_2016, src = green.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ SSB_2016 == "ORANGE", col_key = "SSB_2016", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(SSB_2016, src = orange.path, width = .15, height = .15)))%>%
+# SSB_2017
+flextable::display(i = ~ SSB_2017 == "RED", col_key = "SSB_2017", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(SSB_2017, src = red.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ SSB_2017 == "GREY", col_key = "SSB_2017", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(SSB_2017, src = grey.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ SSB_2017 == "GREEN", col_key = "SSB_2017", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(SSB_2017, src = green.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ SSB_2017 == "ORANGE", col_key = "SSB_2017", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(SSB_2017, src = orange.path, width = .15, height = .15)))%>%
+# D3C1
+flextable::display(i = ~ D3C1 == "RED", col_key = "D3C1", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(D3C1, src = red.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ D3C1 == "GREY", col_key = "D3C1", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(D3C1, src = grey.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ D3C1 == "GREEN", col_key = "D3C1", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(D3C1, src = green.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ D3C1 == "ORANGE", col_key = "D3C1", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(D3C1, src = orange.path, width = .15, height = .15)))%>%
+# D3C2
+flextable::display(i = ~ D3C2 == "RED", col_key = "D3C2", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(D3C2, src = red.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ D3C2 == "GREY", col_key = "D3C2", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(D3C2, src = grey.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ D3C2 == "GREEN", col_key = "D3C2", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(D3C2, src = green.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ D3C2 == "ORANGE", col_key = "D3C2", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(D3C2, src = orange.path, width = .15, height = .15)))%>%
+# GES
+flextable::display(i = ~ GES == "RED", col_key = "GES", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(GES, src = red.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ GES == "GREY", col_key = "GES", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(GES, src = grey.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ GES == "GREEN", col_key = "GES", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(GES, src = green.path, width = .15, height = .15))) %>%
+flextable::display(i = ~ GES == "ORANGE", col_key = "GES", pattern = "{{add_icon}}",
+                   formatters = list(add_icon ~ flextable::as_image(GES, src = orange.path, width = .15, height = .15)))%>%
+  flextable::fontsize(size = 9, part = "all") %>% 
+  flextable::add_header(StockCode = "",
              Description = "",
              FisheriesGuild = "",
              AdviceCategory = "",
              DataCategory = "",
              SBL = "",
-             F_2013 = "F reference points",
-             F_2014 = "F reference points",
-             F_2015 = "F reference points",
-             SSB_2014 = "SSB reference points",
-             SSB_2015 = "SSB reference points",
-             SSB_2016 = "SSB reference points",
-             D3C1 = "MSFD descriptors",
-             D3C2 = "MSFD descriptors",
-             GES = "MSFD descriptors", 
-             top = TRUE ) %>% 
-  set_header_labels(StockCode = "Stock code",
+             F_2013 = "F reference point",
+             F_2014 = "F reference point",
+             F_2015 = "F reference point",
+             F_2016 = "F reference point",
+             SSB_2014 = "SSB reference point",
+             SSB_2015 = "SSB reference point",
+             SSB_2016 = "SSB reference point",
+             SSB_2017 = "SSB reference point",
+             D3C1 = "MSFD descriptor",
+             D3C2 = "MSFD descriptor",
+             GES = "MSFD descriptor", top = TRUE) %>%
+  flextable::merge_h(part = "header") %>% 
+  flextable::set_header_labels(StockCode = "Stock code",
+                    Description = "Stock name",
                     FisheriesGuild = "Fish category",
-                    AdviceCategory = "Data category",
+                    AdviceCategory = "Advice type",
+                    DataCategory = "Data category",
+                    SBL = "Safe biological limits",
                     F_2013 = "2013",
                     F_2014 = "2014",
                     F_2015 = "2015",
+                    F_2016 = "2016",
                     SSB_2014 = "2014",
                     SSB_2015 = "2015",
-                    SSB_2016 = "2016") %>% 
-  align(align = "center", part = "all") %>% 
-  align(j = c(1:5), align = "left", part = "body") %>% 
-  theme_zebra(odd_header = "transparent", even_header = "transparent") %>% 
-  autofit()
+                    SSB_2016 = "2016",
+                    SSB_2017 = "2017",
+                    D3C1 = "D3C1",
+                    D3C2 = "D3C2",
+                    GES = "GES") %>%
+    flextable::align(j = c("StockCode", 
+                         "Description",
+                         "FisheriesGuild",
+                         "AdviceCategory",
+                         "DataCategory"), align = "left", part = "all") %>% 
+  flextable::align(j = c("SBL",
+                         "F_2013", 
+                         "F_2014",
+                         "F_2015",
+                         "F_2016",
+                         "SSB_2014",
+                         "SSB_2015",
+                         "SSB_2016",
+                         "SSB_2017",
+                         "D3C1",
+                         "D3C2", 
+                         "GES"), align = "center", part = "all") %>% 
+  flextable::autofit() 
+
+
+officer::read_docx() %>% 
+  flextable::body_add_flextable(FT) %>% 
+  print(target = "~/tester.docx") %>% 
+  invisible()
+
+
+
+  #   SBL = fpar(SBL),
+  #                    F_2013 = fpar(F_2013),
+  #                    F_2014 = fpar(F_2014),
+  #                    F_2015 = fpar(F_2015),
+  #                    SSB_2014 = fpar(SSB_2014),
+  #                    SSB_2015 = fpar(SSB_2015),
+  #                    SSB_2016 = fpar(SSB_2016),
+  #                    D3C1 = fpar(D3C1),
+  #                    D3C2 = fpar(D3C2),
+  #                    GES = fpar(GES)) %>% 
+  # add_header(StockCode = "",
+  #            Description = "",
+  #            FisheriesGuild = "",
+  #            AdviceCategory = "",
+  #            DataCategory = "",
+  #            SBL = "",
+  #            F_2013 = "F reference points",
+  #            F_2014 = "F reference points",
+  #            F_2015 = "F reference points",
+  #            SSB_2014 = "SSB reference points",
+  #            SSB_2015 = "SSB reference points",
+  #            SSB_2016 = "SSB reference points",
+  #            D3C1 = "MSFD descriptors",
+  #            D3C2 = "MSFD descriptors",
+  #            GES = "MSFD descriptors", 
+  #            top = TRUE ) %>% 
+  # set_header_labels(StockCode = "Stock code",
+  #                   FisheriesGuild = "Fish category",
+  #                   AdviceCategory = "Data category",
+  #                   F_2013 = "2013",
+  #                   F_2014 = "2014",
+  #                   F_2015 = "2015",
+  #                   SSB_2014 = "2014",
+  #                   SSB_2015 = "2015",
+  #                   SSB_2016 = "2016") %>% 
+  # align(align = "center", part = "all") %>% 
+  # align(j = c(1:5), align = "left", part = "body") %>% 
+  # theme_zebra(odd_header = "transparent", even_header = "transparent") %>% 
+  # autofit()
 
 # 
 # base_text_prop <- textProperties(font.size = 10, color = "black", font.family = "Calibri")
@@ -81,6 +273,6 @@ FT <- stockPlot %>%
 ```
 
 ```{r, results = "asis", echo = FALSE}
-tabwid(FT)
+flextable::tabwid(FT)
 ```
 

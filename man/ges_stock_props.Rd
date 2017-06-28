@@ -4,12 +4,15 @@
 \alias{ges_stock_props}
 \title{Proportion of stocks relative to GES reference points}
 \usage{
-ges_stock_props(active_year, ecoregion, fisheries_guild)
+ges_stock_props(active_year = active_year, ecoregion = ecoregion,
+  calculate_status = calculate_status, fisheries_guild = fisheries_guild)
 }
 \arguments{
 \item{active_year}{numeric of the stock database version (year). e.g., 2016}
 
 \item{ecoregion}{vector of ecoregions to include}
+
+\item{calculate_status}{logical on whether to use raw SAG output to calculate stock status or to use the hard-coded values from stock summary table}
 
 \item{fisheries_guild}{vector of fisheries guilds to include}
 }
@@ -23,7 +26,9 @@ to ICES reference points for fish categories in ecoregions.
 }
 \note{
 Periodically, ICES adds or removes stocks from the advisory process. The function returns
-the SAG reference points and summary table for all published (in SAG) and active stocks for a given year.
+the SAG reference points and summary table for all published (in SAG) and active stocks for a given year.\code{calculate_status = TRUE} calculates stock status
+relative to published reference points. This will represent PA and SBL for ecoregions with proxy reference points. \code{calculate_status = TRUE} takes the
+raw icons from published advice. Note, before 2017 not all stocks status tables have been added to the SAG database and only few stocks had MSY proxy reference points.
 }
 \examples{
 \dontrun{

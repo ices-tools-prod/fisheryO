@@ -5,7 +5,7 @@
 \title{Render html stock summary table}
 \usage{
 stockSummaryTable_fun(ecoregion, active_year = 2016,
-  table_type = c("static", "dynamic", "both")[2], output_path = NULL,
+  table_type = c("static_docx", "dynamic_html")[1], output_path = NULL,
   file_name = NULL)
 }
 \arguments{
@@ -13,7 +13,7 @@ stockSummaryTable_fun(ecoregion, active_year = 2016,
 
 \item{active_year}{numeric of the stock database version (year). e.g., 2016}
 
-\item{table_type}{type of table, "both" returns both "dynamic" (using DT) and "static" (using ReporteRs) html tables.}
+\item{table_type}{type of table, "dynamic_html" (using DT) and "static_docx" (using \code{flextable} and \code{officer}) .docx tables.}
 
 \item{output_path}{path for output to live.}
 

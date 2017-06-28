@@ -762,7 +762,7 @@ stock_trends_fun <- function(EcoGuild,
           legend.key = element_rect(colour = NA),
           plot.caption = element_text(size = 6)) +
     cap_lab +
-    facet_wrap(~ plotGroup, labeller = label_parsed, strip.position = "left", ncol = 1, nrow = 2)
+    facet_wrap(~ plotGroup, scales = "free_y", labeller = label_parsed, strip.position = "left", ncol = 1, nrow = 2)
 
   if(dynamic) {
     p1_plot <- p1_plot + ggiraph::geom_line_interactive(alpha = 0.8)
@@ -800,7 +800,7 @@ stock_trends_fun <- function(EcoGuild,
     }
 
     if(save_plot) {
-    ggsave(filename = paste0(output_path, file_name, "_", EcoGuild, "-static.png"),
+    ggsave(filename = paste0(output_path, file_name, ".png"),
            plot = p1_plot,
            width = 170,
            height = 100.5,
@@ -867,8 +867,8 @@ plot_kobe <- function(ecoregion,
                       catch_limit = 0,
                       file_name = NULL,
                       plotTitle = NULL,
-                      fig.width = 170,
-                      fig.height = 100.5,
+                      fig.width = 131.32,
+                      fig.height = 88.9,
                       units = "mm",
                       res = 300,
                       dynamic = FALSE) {
@@ -1038,7 +1038,7 @@ plot_kobe <- function(ecoregion,
 
     if(!dynamic) {
       if(return_plot) {
-        return(grid.arrange(kobe_plot,
+        return(gridExtra::grid.arrange(kobe_plot,
                      bar_plot, ncol = 2,
                      respect = TRUE, top = labTitle))
       }
@@ -1048,7 +1048,7 @@ plot_kobe <- function(ecoregion,
             height = fig.height,
             units = units,
             res = res)
-        grid.arrange(kobe_plot,
+        gridExtra::grid.arrange(kobe_plot,
                      bar_plot, ncol = 2,
                      respect = TRUE, top = labTitle)
         dev.off()

@@ -181,6 +181,10 @@ clean_sag <- function(active_year = 2016){
                               "Micromesistius poutassou", Description), # misspelled blue whiting
            Description = gsub(pattern = "Solea spp.",
                               "Solea solea", Description), # wrong description for sole
+           Description = gsub(pattern = "Platichtys flesus",
+                              "Platichthys flesus", Description),
+           Description = gsub(pattern = "Lophius piscatorius and L. budegassa",
+                              "Lophius piscatorius and Lophius budegassa", Description),
            AdviceCategory = ifelse(AdviceCategory == "MSY/PA",
                                    "MSY", AdviceCategory),
            SpeciesScientificName = recode(SpeciesScientificName,
@@ -1485,7 +1489,10 @@ stecf_effort_df <- stecf_effort_raw %>%
   mutate(ISO3c = ifelse(grepl("SCO|ENG|GBG|GBJ|IOM|NIR", country),
                                 "GBR",
                                 country),
-         COUNTRY = countrycode::countrycode(ISO3c, "iso3c", "country.name")) %>%
+         COUNTRY = countrycode::countrycode(ISO3c, "iso3c", "country.name"),
+         COUNTRY = ifelse(grepl("United Kingdom", COUNTRY),
+                          "United Kingdom",
+                          COUNTRY)) %>%
   mutate(YEAR = as.numeric(year),
          EFFORT = as.numeric(nominal_effort)) %>%
   select(YEAR,
@@ -1499,7 +1506,10 @@ stecf_landings_df <- stecf_landings_raw %>%
   mutate(ISO3c = ifelse(grepl("SCO|ENG|GBG|GBJ|IOM|NIR", country),
                         "GBR",
                         country),
-         COUNTRY = countrycode::countrycode(ISO3c, "iso3c", "country.name")) %>%
+         COUNTRY = countrycode::countrycode(ISO3c, "iso3c", "country.name"),
+         COUNTRY = ifelse(grepl("United Kingdom", COUNTRY),
+                          "United Kingdom",
+                          COUNTRY)) %>%
   mutate(YEAR = as.numeric(year),
          LANDINGS = as.numeric(sum_landings),
          LANDINGS = ifelse(COUNTRY == "Germany" &

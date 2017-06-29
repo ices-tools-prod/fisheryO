@@ -1,7 +1,7 @@
 
 #' ICES Area and Ecoregion map
 #'
-#' \code{area_definition_map}} returns a map describing potential mismatches between ICES Ecoregions and ICES Areas
+#' \code{area_definition_map} returns a map describing potential mismatches between ICES Ecoregions and ICES Areas
 #'
 #' @param ecoregion ecoregion name, e.g. Greater North Sea Ecoregion
 #' @param data_caption print the data source as a caption, boolean.
@@ -370,7 +370,7 @@ stockSummaryTable_fun <- function(ecoregion,
 
 #' Pie chart of proportion of stocks relative to reference points
 #'
-#' This function returns pie charts of the proportion of stocks
+#' The \code{stockPie_fun} function returns pie charts of the proportion of stocks
 #' relative to reference points for fish categories in an ecoregion.
 #'
 #' @param ecoregion ecoregion name, e.g. Greater North Sea
@@ -497,7 +497,7 @@ stockPie_fun <- function(ecoregion,
 
 #' Pie chart of proportion of stocks relative to GES reference points
 #'
-#' This function returns pie charts of the proportion of stocks
+#' The \code{gesPie_fun} function returns pie charts of the proportion of stocks
 #' relative to GES reference points in an ecoregion.
 #'
 #' @param ecoregion ecoregion name, e.g. Greater North Sea
@@ -628,7 +628,7 @@ gesPie_fun <- function(ecoregion,
 
 #' Stock status over time
 #'
-#' This function returns a series of line plots of F and SSB relative to F<sub>MSY</sub> and MSY B<sub>trigger</sub>
+#' The \code{stock_trends_fun} function returns a series of line plots of F and SSB relative to F<sub>MSY</sub> and MSY B<sub>trigger</sub>
 #' reference points for stocks of a fish category for an ecoregion.
 #'
 #' @param EcoGuild combined ecoregion name and fish category, e.g. Greater North Sea Ecoregion
@@ -813,7 +813,7 @@ stock_trends_fun <- function(EcoGuild,
 
 #' Kobe plot of stock status
 #'
-#' This function returns a 2 plots: a scatter plot of F/F<sub>MSY</sub> and SSB/MSY B<sub>trigger</sub>
+#' The \code{plot_kobe} function returns a 2 plots: a scatter plot of F/F<sub>MSY</sub> and SSB/MSY B<sub>trigger</sub>
 #' by fish category and ecoregion and a "lollipop" plot of total catch (divided into discards and landings) by stock.
 #'
 #' @param ecoregion ecoregion name, e.g. Greater North Sea Ecoregion
@@ -1084,7 +1084,7 @@ plot_kobe <- function(ecoregion,
 
 #' Discard rate over time
 #'
-#' This function returns a series of plots of discard rate and landings by fish category for an ecoregion.
+#' The \code{guild_discards_fun} function returns a series of plots of discard rate and landings by fish category for an ecoregion.
 #'
 #' @param ecoregion ecoregion name, e.g. Greater North Sea Ecoregion
 #' @param active_year numeric of the stock database version (year). e.g., 2016
@@ -1336,7 +1336,7 @@ guild_discards_fun <- function(ecoregion,
 
 #' Landings over time by country, guild, or species
 #'
-#' This function returns an area or line plot of landings (historic and official catch) for an ecoregion by country,
+#' The \code{ices_catch_plot} function returns an area or line plot of landings (historic and official catch) for an ecoregion by country,
 #' guild, or species.
 #'
 #' @param ecoregion ecoregion name, e.g. Greater North Sea Ecoregion
@@ -1547,7 +1547,7 @@ ices_catch_plot <- function(ecoregion, #IA = unique(allDat$ECOREGION)[1],
 
 #' STECF Landings over time by country, guild, or species
 #'
-#' This function returns an area or line plot of landings (historic and official catch) for an ecoregion by country
+#' The \code{stecf_plot} function returns an area or line plot of landings (historic and official catch) for an ecoregion by country
 #' guild, or species.
 #'
 #' @param ecoregion ecoregion name, e.g. Greater North Sea Ecoregion

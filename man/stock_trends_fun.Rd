@@ -32,7 +32,7 @@ When \code{file_name} is \code{NULL}, the file name is the ecoregion.
 When \code{output_path} is \code{NULL}, the file is saved to "~/".
 }
 \description{
-This function returns a series of line plots of F and SSB relative to F<sub>MSY</sub> and MSY B<sub>trigger</sub>
+The \code{stock_trends_fun} function returns a series of line plots of F and SSB relative to F<sub>MSY</sub> and MSY B<sub>trigger</sub>
 reference points for stocks of a fish category for an ecoregion.
 }
 \note{

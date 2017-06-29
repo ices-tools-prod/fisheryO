@@ -44,7 +44,7 @@ When \code{file_name} is \code{NULL}, the file name is the ecoregion.
 When \code{output_path} is \code{NULL}, the file is saved to "~/".
 }
 \description{
-This function returns an area or line plot of landings (historic and official catch) for an ecoregion by country
+The \code{stecf_plot} function returns an area or line plot of landings (historic and official catch) for an ecoregion by country
 guild, or species.
 }
 \note{

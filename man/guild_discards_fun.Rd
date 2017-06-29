@@ -30,7 +30,7 @@ When \code{file_name} is \code{NULL}, the file name is the ecoregion.
 When \code{output_path} is \code{NULL}, the file is saved to "~/".
 }
 \description{
-This function returns a series of plots of discard rate and landings by fish category for an ecoregion.
+The \code{guild_discards_fun} function returns a series of plots of discard rate and landings by fish category for an ecoregion.
 }
 \note{
 Stocks are linked to ecoregions and fish categories via the ICES Stock database.

@@ -1,6 +1,8 @@
+
 #' ICES Stock database
 #'
 #' Data describing ICES Stocks. Accessed 13 June 2017
+#'
 #' \itemize{
 #'  \item{StockDatabaseID}{Add text}
 #'  \item{StockKey}{Add text}

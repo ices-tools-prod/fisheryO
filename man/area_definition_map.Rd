@@ -15,6 +15,9 @@ area_definition_map(ecoregion, data_caption = TRUE, save_plot = FALSE,
 \value{
 A png or ggplot plot
 }
+\description{
+\code{area_definition_map} returns a map describing potential mismatches between ICES Ecoregions and ICES Areas
+}
 \note{
 
 }

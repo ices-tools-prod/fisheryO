@@ -34,7 +34,7 @@ When \code{file_name} is \code{NULL}, the file name is the ecoregion.
 When \code{output_path} is \code{NULL}, the file is saved to "~/".
 }
 \description{
-This function returns pie charts of the proportion of stocks
+The \code{gesPie_fun} function returns pie charts of the proportion of stocks
 relative to GES reference points in an ecoregion.
 }
 \note{

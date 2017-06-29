@@ -43,7 +43,8 @@ get_stock_status <- function(assessmentKey) {
 sag_stock_status_raw <- sag_keys_raw %>%
   mutate(stock_status = purrr::map(.x = AssessmentKey, purrr::possibly(get_stock_status, otherwise = NA_real_))) %>%
   filter(!is.na(stock_status)) %>%
-  tidyr::unnest(stock_status)
+  tidyr::unnest(stock_status) %>%
+  select(-AssessmentKey1)
 
 devtools::use_data(sag_stock_status_raw, overwrite = TRUE)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #

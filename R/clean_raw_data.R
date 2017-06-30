@@ -617,8 +617,7 @@ frmt_summary_tbl <- function(active_year = active_year,
       filter(variable != "-") %>%
       arrange(variable, year) %>%
       mutate(year = paste0(variable, year),
-             year = factor(year, levels = unique(year))) %>%
-      select(-AssessmentKey1)
+             year = factor(year, levels = unique(year)))
 
     # ID the list of stocks
     stock_summary_table <-  stck_frmt %>%

@@ -22,22 +22,10 @@ library(dplyr)
 
 The fisheryO package is offered to provide documentation of the processes used to download, aggregate, and analyze data for ICES Fisheries Overviews. Further, the package contains R functions to facilitate the standard plotting of these data.
 
-In 2017, ICES will provide Fisheries Overviews for the following ecoregions:
+ICES Fisheries Overviews are available for the following ecoregions:
 
-* [Fisheries Overview of Baltic Sea Ecoregion](https://community.ices.dk/Advice/Advice2017/BalticSea/Draft_advice/BalticSeaEcoregion_FisheriesOverviews.docx?Web=1)
-* [Fisheries Overview including mixed fisheries considerations of Celtic Seas Ecoregion](https://community.ices.dk/Advice/Advice2017/CelticSea/Draft_advice/CelticSeasEcoregion_FisheriesOverviews.docx?Web=1)
-* [Fisheries Overview including mixed fisheries considerations of Greater North Sea Ecoregion](https://community.ices.dk/Advice/Advice2017/NorthSea/Draft_advice/GreaterNorthSeaEcoregion_FisheriesOverviews.docx?Web=1)
-* [Fisheries Overview of Norwegian Sea and Barents Sea Ecoregions](https://community.ices.dk/Advice/Advice2017/BarentsSea/Draft_advice/NorwegianSeaBarentsSeaEcoregions_FisheriesOverviews.docx?Web=1)
-
-
-Ultimately, the following Fisheries Overviews will also be produced:
-
-* [Fisheries Overview of Azores Ecoregion](https://community.ices.dk/Advice/Advice2016/Widely/Draft_advice/AzoresEcoregion_FisheriesOverviews.docx?Web=1)
-* [Fisheries overviews of Oceanic north-east Atlantic Ecoregion](https://community.ices.dk/Advice/Advice2016/Widely/Draft_advice/OceanicNortheastAtlanticEcoregion_FisheriesOverviews.docx?Web=1)
-* [Fisheries Overview including mixed fisheries considerations of Bay of Biscay and the Iberian Coast Ecoregion](https://community.ices.dk/Advice/Advice2016/Biscay/Draft_advice/BayofBiscayandtheIberianCoastEcoregion_FisheriesOverviews.docx?Web=1)
-* [Fisheries Overview of Faroes Ecoregion](https://community.ices.dk/Advice/Advice2016/Faroes/Draft_advice/FaroesEcoregion_FisheriesOverviews.docx?Web=1)
-* [Fisheries Overview of Icelandic Ecoregion](https://community.ices.dk/Advice/Advice2016/Iceland/Draft_advice/IcelandicEcoregion_FisheriesOverviews.docx?Web=1)
-* [Fisheries Overview of Greenland Sea Ecoregion](https://community.ices.dk/Advice/Advice2016/Iceland/Draft_advice/GreenlandSeaEcoregion_FisheriesOverviews.docx?Web=1)
+* [Fisheries Overview of Baltic Sea Ecoregion](https://community.ices.dk/Advice/Advice2017/BalticSea/Released_advice/BalticSeaEcoregion_FisheriesOverviews.pdf?Web=1)
+* [Fisheries Overview of the Greater North Sea Ecoregion](https://community.ices.dk/Advice/Advice2017/NorthSea/Released_advice/GreaterNorthSeaEcoregion_FisheriesOverviews.pdf?Web=1)
 
 ## Installation
 
@@ -146,25 +134,7 @@ fisheryO::plot_kobe("Greater North Sea Ecoregion",
                     save_plot = FALSE)
 ```
 
-Plot functions also have a `return_data` argument that will save a .csv of the modified data used for each plot. For now, units and labels can be inferred from the function arguments.
-
-```{r kobe_example, echo = TRUE, fig.caption = "Status of Greater North Sea finfish stocks. Left panels: Kobe plots relative to the joint distribution of exploitation (F/FMSY) and stock size (SSB/ MSY Btrigger), by individual stocks. Right panels: Catches/landings of these stocks in 2015. The left panels only include stocks for which MSY reference points have been defined. Stocks in green are exploited below FMSY and the stock size is also above MSY Btrigger. Stocks in red are either exploited above FMSY or the stock size is below MSY Btrigger, or both. Stocks in grey have unknown/undefined status in relation to reference points. For full stock names, see Annex 1. "}
-
-out_path <- tempdir()
-
-ices_catch_plot("Greater North Sea Ecoregion",
-                          type = "COUNTRY",
-                          line_count = 9,
-                          plot_type = "area",
-                          file_name = "test_figure2",
-                          save_plot = FALSE,
-                          output_path = paste0(out_path, "/"),
-                          return_data = FALSE,
-                          return_plot = FALSE)
-
-head(read.csv(paste0(out_path, "/test_figure2.csv")))
-
-```
+Plot functions also have a `return_data` argument that will save a .csv of the modified data used for each plot. For now, units and labels can be inferred from the function arguments. `return_data = TRUE` will save a .csv with the same `file_name` and `out_path` as the .png plot.
 
 
 Notes

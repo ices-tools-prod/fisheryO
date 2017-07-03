@@ -1,17 +1,16 @@
 devtools::install_github("slarge/fisheryO")
-
 library(fisheryO)
 rm(list = ls())
 ecoregion = "Baltic Sea Ecoregion"
 active_year = 2017
-output_path <- "~/git/ices-dk/fisheryO/output/"
+output_dir <- "XYZ"
 
 ## Figure 1.
 area_definition_map(ecoregion,
                     data_caption = FALSE,
                     return_plot = TRUE,
                     save_plot = FALSE,
-                    output_path = "output/",
+                    output_path = output_path,
                     file_name = "baltic_figure1")
 
 ## Figure 2.
@@ -22,7 +21,8 @@ ices_catch_plot(ecoregion,
                 plot_type = "area",
                 file_name = "baltic_figure2",
                 save_plot = FALSE,
-                output_path = "output/",
+                output_path = output_path,
+                return_data = TRUE,
                 return_plot = TRUE,
                 fig.width = 174,
                 fig.height = 68,
@@ -37,7 +37,8 @@ stecf_plot(ecoregion,
            plot_type = "line",
            file_name = "baltic_figure3",
            save_plot = FALSE,
-           output_path = "output/",
+           output_path = output_path,
+           return_data = TRUE,
            return_plot = TRUE,
            fig.width = 174,
            fig.height = 68,
@@ -53,6 +54,7 @@ ices_catch_plot(ecoregion,
                 file_name = "baltic_figure4",
                 save_plot = TRUE,
                 output_path = output_path,
+                return_data = TRUE,
                 return_plot = FALSE,
                 fig.width = 174,
                 fig.height = 68,
@@ -204,7 +206,7 @@ plot_kobe(ecoregion,
           return_plot = FALSE,
           save_plot = TRUE)
 
-# 
+#
 # stockSummaryTable_fun(ecoregion,
 #                       active_year = 2017,
 #                       table_type = "static_docx",
@@ -213,14 +215,14 @@ plot_kobe(ecoregion,
 
 dat <- clean_stock_trends(active_year)
 clicks <- dat$sag_complete_summary %>%
-  tidyr::unnest() %>% 
-  filter(EcoRegion == "Baltic Sea Ecoregion") %>% 
+  tidyr::unnest() %>%
+  filter(EcoRegion == "Baltic Sea Ecoregion") %>%
   select(StockCode,
-         YearOfLastAssessment) %>% 
-  distinct(.keep_all = TRUE) %>% 
+         YearOfLastAssessment) %>%
+  distinct(.keep_all = TRUE) %>%
   mutate(onclick = sprintf("%s%i/%i/%s.pdf",
                            "http://ices.dk/sites/pub/Publication%20Reports/Advice/",
                            YearOfLastAssessment,
                            YearOfLastAssessment,
-                           StockCode)) %>% 
+                           StockCode)) %>%
   write.csv(file = paste0(output_path, "baltic_links.csv"), row.names = FALSE)

@@ -7,8 +7,8 @@
 stecf_plot(ecoregion, metric = c("EFFORT", "LANDINGS")[1], type = c("GEAR",
   "COUNTRY")[1], line_count = 4, plot_type = c("line", "area")[1],
   data_caption = TRUE, file_name = NULL, save_plot = FALSE,
-  output_path = NULL, return_plot = TRUE, fig.width = 174,
-  fig.height = 68, text.size = 9, ...)
+  output_path = NULL, return_plot = TRUE, return_data = FALSE,
+  fig.width = 174, fig.height = 68, text.size = 9, ...)
 }
 \arguments{
 \item{ecoregion}{ecoregion name, e.g. Greater North Sea Ecoregion}
@@ -30,6 +30,8 @@ stecf_plot(ecoregion, metric = c("EFFORT", "LANDINGS")[1], type = c("GEAR",
 \item{output_path}{path for output to live.}
 
 \item{return_plot}{logical to return plot to current environment.}
+
+\item{return_data}{logical on returning a .csv of plotted data}
 
 \item{fig.width}{width pf combined set of plots}
 

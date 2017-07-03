@@ -7,7 +7,8 @@
 ices_catch_plot(ecoregion, type = c("COMMON_NAME", "COUNTRY", "GUILD")[1],
   line_count = 4, plot_type = c("line", "area")[1], data_caption = TRUE,
   output_path = NULL, file_name = "figure2", save_plot = FALSE,
-  return_plot = TRUE, fig.width = 174, fig.height = 68, text.size = 9)
+  return_plot = TRUE, return_data = FALSE, fig.width = 174,
+  fig.height = 68, text.size = 9)
 }
 \arguments{
 \item{ecoregion}{ecoregion name, e.g. Greater North Sea Ecoregion}
@@ -27,6 +28,8 @@ ices_catch_plot(ecoregion, type = c("COMMON_NAME", "COUNTRY", "GUILD")[1],
 \item{save_plot}{logical to save plot.}
 
 \item{return_plot}{logical to return plot to current environment.}
+
+\item{return_data}{logical on returning a .csv of plotted data}
 
 \item{fig.width}{width pf combined set of plots}
 

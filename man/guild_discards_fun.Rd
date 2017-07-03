@@ -6,7 +6,7 @@
 \usage{
 guild_discards_fun(ecoregion, active_year = 2016, data_caption = TRUE,
   output_path = NULL, save_plot = FALSE, return_plot = TRUE,
-  file_name = NULL)
+  return_data = FALSE, file_name = NULL)
 }
 \arguments{
 \item{ecoregion}{ecoregion name, e.g. Greater North Sea Ecoregion}
@@ -20,6 +20,8 @@ guild_discards_fun(ecoregion, active_year = 2016, data_caption = TRUE,
 \item{save_plot}{logical to save plot.}
 
 \item{return_plot}{logical to return plot to current environment.}
+
+\item{return_data}{logical on returning a .csv of plotted data}
 
 \item{file_name}{name for the output.}
 }

@@ -7,9 +7,9 @@
 plot_kobe(ecoregion, guild = c("all", "benthic", "demersal", "pelagic",
   "crustacean", "elasmobranch", "large-scale stocks")[1], active_year = 2016,
   data_caption = TRUE, output_path = NULL, return_plot = TRUE,
-  save_plot = FALSE, catch_limit = 0, file_name = NULL,
-  plotTitle = NULL, fig.width = 131.32, fig.height = 88.9, units = "mm",
-  res = 300, dynamic = FALSE)
+  return_data = FALSE, save_plot = FALSE, catch_limit = 0,
+  file_name = NULL, plotTitle = NULL, fig.width = 131.32,
+  fig.height = 88.9, units = "mm", res = 300, dynamic = FALSE)
 }
 \arguments{
 \item{ecoregion}{ecoregion name, e.g. Greater North Sea Ecoregion}
@@ -23,6 +23,8 @@ plot_kobe(ecoregion, guild = c("all", "benthic", "demersal", "pelagic",
 \item{output_path}{path for output to live.}
 
 \item{return_plot}{logical to return plot to current environment.}
+
+\item{return_data}{logical on returning a .csv of plotted data}
 
 \item{save_plot}{logical to save plot.}
 

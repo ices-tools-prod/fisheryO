@@ -6,7 +6,7 @@
 \usage{
 stockSummaryTable_fun(ecoregion, active_year = 2016,
   table_type = c("static_docx", "dynamic_html")[1], output_path = NULL,
-  file_name = NULL)
+  file_name = NULL, return_data = FALSE)
 }
 \arguments{
 \item{ecoregion}{ecoregion name, e.g. Greater North Sea}
@@ -18,6 +18,8 @@ stockSummaryTable_fun(ecoregion, active_year = 2016,
 \item{output_path}{path for output to live.}
 
 \item{file_name}{name for the output.}
+
+\item{return_data}{logical on returning a .csv of plotted data}
 }
 \value{
 A html file. When \code{file_name} is \code{NULL}, the file name is the ecoregion.

@@ -101,6 +101,7 @@ area_definition_map <- function(ecoregion,
 #' @param output_path path for output to live.
 #' @param file_name name for the output.
 #' @param active_year numeric of the stock database version (year). e.g., 2016
+#' @param return_data logical on returning a .csv of plotted data
 #'
 #' @note Stocks are linked to ecoregions via the ICES Stock database. Reference points are as published in ICES Stock Assessment
 #' Graphs database. In some cases, status relative to reference points may vary from
@@ -130,7 +131,8 @@ stockSummaryTable_fun <- function(ecoregion,
                                   active_year = 2016,
                                   table_type = c("static_docx", "dynamic_html")[1],
                                   output_path = NULL,
-                                  file_name = NULL) {
+                                  file_name = NULL,
+                                  return_data = FALSE) {
 
   if(is.null(file_name)) {
     file_name <- gsub("\\s", "_", ecoregion)
@@ -140,12 +142,28 @@ stockSummaryTable_fun <- function(ecoregion,
     output_path <- "~/"
   }
 
+  data(list = "sag_stock_status_raw", envir = environment())
+  proxy_stocks <-  sag_stock_status_raw %>%
+    filter(grepl("proxy", fishingPressure) | grepl("proxy", stockSize)) %>%
+    select(StockKeyLabel) %>%
+    distinct %>%
+    pull(StockKeyLabel)
+
+
   stockPlot <- frmt_summary_tbl(active_year,
                                 calculate_status = FALSE)$summary_table_frmt %>%
     filter(grepl(pattern = ecoregion, EcoRegion)) %>%
     select(-EcoRegion) %>%
     distinct(.keep_all = TRUE) %>%
-    arrange(StockCode)
+    arrange(StockCode) %>%
+    mutate(AdviceCategory = gsub("MSY|MP", "MSY", AdviceCategory),
+           AdviceCategory = ifelse(StockCode %in% proxy_stocks,
+                            "MSY",
+                            AdviceCategory))
+
+  if(return_data) {
+    write.csv(x = stockPlot, file = paste0(output_path, file_name, ".csv"), row.names = FALSE)
+  }
 
   if(table_type %in% c("static_docx")) {
 
@@ -175,8 +193,7 @@ stockSummaryTable_fun <- function(ecoregion,
     FT <- stockPlot %>%
       mutate(cname = gsub("<em>", "", stringr::str_extract(Description, ".*?<em>")),
              sname = gsub("<em>|</em>", "", stringr::str_extract(Description, "<em>.*?</em>")),
-             rest = gsub("</em>", "", stringr::str_extract(Description, "</em>.*")),
-             AdviceCategory = gsub("MSY|MP", "MSY", AdviceCategory)) %>%
+             rest = gsub("</em>", "", stringr::str_extract(Description, "</em>.*"))) %>%
       flextable::flextable(col_keys = colkeys) %>%
       flextable::display(col_key = "Description", pattern = "{{cname}}{{sname}}{{rest}}",
                          formatters = list(cname ~ cname,
@@ -382,6 +399,7 @@ stockSummaryTable_fun <- function(ecoregion,
 #' @param file_name name for the output.
 #' @param save_plot logical to save plot.
 #' @param return_plot logical to return plot to current environment.
+#' @param return_data logical on returning a .csv of plotted data
 #'
 #' @note Stocks are linked to ecoregions and fish categories via the ICES Stock database.
 #' Reference points are as published in ICES Stock Assessment Graphs database. In some cases,
@@ -413,6 +431,7 @@ stockPie_fun <- function(ecoregion,
                          active_year = 2016,
                          save_plot = FALSE,
                          return_plot = TRUE,
+                         return_data = FALSE,
                          output_path = NULL) {
 
   if(save_plot) {
@@ -429,7 +448,7 @@ stockPie_fun <- function(ecoregion,
     cap_lab <- labs(title = "", x = "", y = "",
                     caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
                                       "2017",
-                                      "June"))
+                                      "July"))
   }
   if(!data_caption) {
     cap_lab <- labs(x = "",
@@ -485,6 +504,11 @@ stockPie_fun <- function(ecoregion,
     return(p1)
   }
 
+  if(return_data) {
+    write.csv(x = rowDat, file = paste0(output_path, file_name, ".csv"), row.names = FALSE)
+  }
+
+
   if(save_plot) {
   ggsave(filename = paste0(output_path, file_name, ".png"),
          plot = p1,
@@ -509,6 +533,7 @@ stockPie_fun <- function(ecoregion,
 #' @param file_name name for the output.
 #' @param save_plot logical to save plot.
 #' @param return_plot logical to return plot to current environment.
+#' @param return_data logical on returning a .csv of plotted data
 #'
 #' @note Stocks are linked to ecoregions via the ICES Stock database.
 #' Reference points are as published in ICES Stock Assessment Graphs database. In some cases,
@@ -539,6 +564,7 @@ gesPie_fun <- function(ecoregion,
                        active_year = 2016,
                        save_plot = FALSE,
                        return_plot = TRUE,
+                       return_data = FALSE,
                        output_path = NULL) {
 
   if(save_plot) {
@@ -616,6 +642,10 @@ gesPie_fun <- function(ecoregion,
     return(p1)
   }
 
+  if(return_data) {
+    write.csv(x = rowDat, file = paste0(output_path, file_name, ".csv"), row.names = FALSE)
+  }
+
   if(save_plot) {
     ggsave(filename = paste0(output_path, file_name, ".png"),
            plot = p1,
@@ -639,6 +669,7 @@ gesPie_fun <- function(ecoregion,
 #' @param file_name name for the output.
 #' @param save_plot logical to save plot.
 #' @param return_plot logical to return plot to current environment.
+#' @param return_data logical on returning a .csv of plotted data
 #'
 #' @note Stocks are linked to ecoregions and fish categories via the ICES Stock database.
 #' Reference points are as published in ICES Stock Assessment Graphs database. In some cases,
@@ -667,6 +698,7 @@ stock_trends_fun <- function(EcoGuild,
                              file_name = NULL,
                              save_plot = FALSE,
                              return_plot = TRUE,
+                             return_data = FALSE,
                              output_path = NULL,
                              stackable = FALSE) {
 
@@ -731,7 +763,7 @@ stock_trends_fun <- function(EcoGuild,
     cap_lab <- labs(title = plot_title, x = "Year", y = "", color = "Stock code",
                         caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
                                           "2017",
-                                          "June"))
+                                          "July"))
   }
   if(!data_caption) {
     cap_lab <- labs(title = plot_title,
@@ -799,6 +831,10 @@ stock_trends_fun <- function(EcoGuild,
       return(p1_plot)
     }
 
+    if(return_data) {
+      write.csv(x = p1_dat, file = paste0(output_path, file_name, ".csv"), row.names = FALSE)
+    }
+
     if(save_plot) {
     ggsave(filename = paste0(output_path, file_name, ".png"),
            plot = p1_plot,
@@ -825,6 +861,7 @@ stock_trends_fun <- function(EcoGuild,
 #' @param file_name name for the output.
 #' @param save_plot logical to save plot.
 #' @param return_plot logical to return plot to current environment.
+#' @param return_data logical on returning a .csv of plotted data
 #' @param catch_limit lower limit of catch to be included in the plot. Useful to cull the herd if there are many stocks with minimal catch.
 #' @param fig.width width pf combined set of plots
 #' @param fig.height height of combined set of plots,
@@ -863,6 +900,7 @@ plot_kobe <- function(ecoregion,
                       data_caption = TRUE,
                       output_path = NULL,
                       return_plot = TRUE,
+                      return_data = FALSE,
                       save_plot = FALSE,
                       catch_limit = 0,
                       file_name = NULL,
@@ -895,7 +933,7 @@ plot_kobe <- function(ecoregion,
                     y = "Catch and landings (tonnes)",
                     caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
                                       "2017",
-                                      "June"))
+                                      "July"))
   }
   if(!data_caption) {
     cap_lab <- labs(x = "Stock",
@@ -1036,6 +1074,13 @@ plot_kobe <- function(ecoregion,
             panel.grid.major.y = element_blank(),
             panel.grid.major.x = element_line( size = 0.1, color = "grey80"))
 
+
+    if(return_data) {
+      write.csv(x = catchBar, file = paste0(output_path, file_name, "_bar.csv"), row.names = FALSE)
+      write.csv(x = kobeDat, file = paste0(output_path, file_name, "_kobe.csv"), row.names = FALSE)
+    }
+
+
     if(!dynamic) {
       if(return_plot) {
         return(gridExtra::grid.arrange(kobe_plot,
@@ -1093,6 +1138,7 @@ plot_kobe <- function(ecoregion,
 #' @param file_name name for the output.
 #' @param save_plot logical to save plot.
 #' @param return_plot logical to return plot to current environment.
+#' @param return_data logical on returning a .csv of plotted data
 #'
 #' @note Stocks are linked to ecoregions and fish categories via the ICES Stock database.
 #' Reference points are as published in ICES Stock Assessment Graphs database. In some cases,
@@ -1124,6 +1170,7 @@ guild_discards_fun <- function(ecoregion,
                                output_path = NULL,
                                save_plot = FALSE,
                                return_plot = TRUE,
+                               return_data = FALSE,
                                file_name = NULL) {
 
   if(save_plot) {
@@ -1141,7 +1188,7 @@ guild_discards_fun <- function(ecoregion,
                     title = "b)",
                     caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
                                       "2017",
-                                      "June"))
+                                      "July"))
   }
   if(!data_caption) {
     cap_lab <- labs(x = "", y = "Discards and landings (thousand tonnes)",
@@ -1313,6 +1360,11 @@ guild_discards_fun <- function(ecoregion,
           legend.key = element_rect(colour = NA)) +
     cap_lab
 
+  if(return_data) {
+    write.csv(x = p3_rate, file = paste0(output_path, file_name, "_rate.csv"), row.names = FALSE)
+    write.csv(x = p3_bar, file = paste0(output_path, file_name, "_bar.csv"), row.names = FALSE)
+  }
+
   if(return_plot){
     return(gridExtra::grid.arrange(p3_rate_plot,
                                    p3_bar_plot,
@@ -1348,6 +1400,7 @@ guild_discards_fun <- function(ecoregion,
 #' @param file_name name for the output.
 #' @param save_plot logical to save plot.
 #' @param return_plot logical to return plot to current environment.
+#' @param return_data logical on returning a .csv of plotted data
 #' @param fig.width width pf combined set of plots
 #' @param fig.height height of combined set of plots
 #' @param text.size = size of text in plots
@@ -1380,6 +1433,7 @@ ices_catch_plot <- function(ecoregion, #IA = unique(allDat$ECOREGION)[1],
                             file_name = "figure2",
                             save_plot = FALSE,
                             return_plot = TRUE,
+                            return_data = FALSE,
                             fig.width = 174,
                             fig.height = 68,
                             text.size = 9) {
@@ -1402,7 +1456,7 @@ ices_catch_plot <- function(ecoregion, #IA = unique(allDat$ECOREGION)[1],
                      y = "Landings (thousand tonnes)",
                      caption = sprintf("Historical Nominal Catches 1950-2010, \nOfficial Nominal Catches 2006-2015. Accessed %s/%s. ICES, Copenhagen.",
                                        "2017",
-                                       "June"))
+                                       "July"))
   }
   if(!data_caption) {
     cap_lab <- labs(x = "",
@@ -1527,7 +1581,11 @@ ices_catch_plot <- function(ecoregion, #IA = unique(allDat$ECOREGION)[1],
                                          force = 3,
                                          segment.color = 'grey60')
   }
-  #
+
+  if(return_data) {
+    write.csv(x = catchPlot, file = paste0(output_path, file_name, ".csv"), row.names = FALSE)
+  }
+
   if(return_plot) {
     return(pl)
   }
@@ -1560,6 +1618,7 @@ ices_catch_plot <- function(ecoregion, #IA = unique(allDat$ECOREGION)[1],
 #' @param file_name name for the output.
 #' @param save_plot logical to save plot.
 #' @param return_plot logical to return plot to current environment.
+#' @param return_data logical on returning a .csv of plotted data
 #' @param fig.width width pf combined set of plots
 #' @param fig.height height of combined set of plots
 #' @param text.size = size of text in plots
@@ -1592,6 +1651,7 @@ stecf_plot <- function(ecoregion,
                        save_plot = FALSE,
                        output_path = NULL,
                        return_plot = TRUE,
+                       return_data = FALSE,
                        fig.width = 174,
                        fig.height = 68,
                        text.size = 9,
@@ -1668,8 +1728,8 @@ stecf_plot <- function(ecoregion,
                      catchPlot[catchPlot$type_var == "other",])
 
   my_caption <- sprintf("STECF 16-20, Accessed %s/%s. doi:10.2788/502445",
-                        lubridate::year(Sys.time()),
-                        lubridate::month(Sys.time(), label = TRUE, abbr = FALSE))
+                        "2017",
+                        "March")
 
   if(data_caption) {
     cap_lab <- labs(title = "", x = "", y = catchLabel,
@@ -1763,7 +1823,6 @@ stecf_plot <- function(ecoregion,
 
   if(save_plot) {
     ggsave(filename = paste0(output_path, file_name, ".png"),
-      # filename = paste0("~/git/ices-dk/fisheryO/output/", fig_name, "_", IA, ".png"),
            plot = pl,
            width = fig.width,
            height = fig.height,
@@ -1771,6 +1830,11 @@ stecf_plot <- function(ecoregion,
            dpi = 300)
 
   }
+
+  if(return_data) {
+    write.csv(x = catchPlot, file = paste0(output_path, file_name, ".csv"), row.names = FALSE)
+  }
+
   if(return_plot) {
     return(pl)
   }

@@ -7,7 +7,7 @@
 gesPie_fun(ecoregion, fisheries_guild = c("pelagic", "demersal", "crustacean",
   "elasmobranch", "benthic"), calculate_status = FALSE, data_caption = TRUE,
   file_name = NULL, active_year = 2016, save_plot = FALSE,
-  return_plot = TRUE, output_path = NULL)
+  return_plot = TRUE, return_data = FALSE, output_path = NULL)
 }
 \arguments{
 \item{ecoregion}{ecoregion name, e.g. Greater North Sea}
@@ -25,6 +25,8 @@ gesPie_fun(ecoregion, fisheries_guild = c("pelagic", "demersal", "crustacean",
 \item{save_plot}{logical to save plot.}
 
 \item{return_plot}{logical to return plot to current environment.}
+
+\item{return_data}{logical on returning a .csv of plotted data}
 
 \item{output_path}{path for output to live.}
 }

@@ -6,7 +6,8 @@
 \usage{
 stock_trends_fun(EcoGuild, active_year = 2016, dynamic = TRUE,
   data_caption = TRUE, file_name = NULL, save_plot = FALSE,
-  return_plot = TRUE, output_path = NULL, stackable = FALSE)
+  return_plot = TRUE, return_data = FALSE, output_path = NULL,
+  stackable = FALSE)
 }
 \arguments{
 \item{EcoGuild}{combined ecoregion name and fish category, e.g. Greater North Sea Ecoregion}
@@ -22,6 +23,8 @@ stock_trends_fun(EcoGuild, active_year = 2016, dynamic = TRUE,
 \item{save_plot}{logical to save plot.}
 
 \item{return_plot}{logical to return plot to current environment.}
+
+\item{return_data}{logical on returning a .csv of plotted data}
 
 \item{output_path}{path for output to live.}
 }

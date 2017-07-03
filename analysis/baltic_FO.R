@@ -1,4 +1,4 @@
-devtools::install_github("slarge/fisheryO")
+devtools::install_github("ices-tools-prod/fisheryO")
 library(fisheryO)
 rm(list = ls())
 ecoregion = "Baltic Sea Ecoregion"

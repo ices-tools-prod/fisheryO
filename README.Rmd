@@ -33,7 +33,7 @@ You can install fisheryO from github with:
 
 ```{r gh-installation, eval = FALSE}
 # install.packages("devtools")
-# devtools::install_github("slarge/fisheryO")
+# devtools::install_github("ices-tools-prod/fisheryO")
 # library(fisheryO)
 ```
 
@@ -155,7 +155,7 @@ ICES Stock Database web services: <http://sd.ices.dk/services/>
 Development
 -----------
 
-fisheryO is developed openly on [GitHub](https://github.com/slarge/fisheryO).
+fisheryO is developed openly on [GitHub](https://github.com/ices-tools-prod/fisheryO).
 
-Feel free to open an [issue](https://github.com/slarge/fisheryO/issues) there if you encounter problems or have suggestions for future versions.
+Feel free to open an [issue](https://github.com/ices-tools-prod/fisheryO/issues) there if you encounter problems or have suggestions for future versions.
 

@@ -146,6 +146,26 @@ fisheryO::plot_kobe("Greater North Sea Ecoregion",
                     save_plot = FALSE)
 ```
 
+Plot functions also have a `return_data` argument that will save a .csv of the modified data used for each plot. For now, units and labels can be inferred from the function arguments.
+
+```{r kobe_example, echo = TRUE, fig.caption = "Status of Greater North Sea finfish stocks. Left panels: Kobe plots relative to the joint distribution of exploitation (F/FMSY) and stock size (SSB/ MSY Btrigger), by individual stocks. Right panels: Catches/landings of these stocks in 2015. The left panels only include stocks for which MSY reference points have been defined. Stocks in green are exploited below FMSY and the stock size is also above MSY Btrigger. Stocks in red are either exploited above FMSY or the stock size is below MSY Btrigger, or both. Stocks in grey have unknown/undefined status in relation to reference points. For full stock names, see Annex 1. "}
+
+out_path <- tempdir()
+
+ices_catch_plot("Greater North Sea Ecoregion",
+                          type = "COUNTRY",
+                          line_count = 9,
+                          plot_type = "area",
+                          file_name = "test_figure2",
+                          save_plot = FALSE,
+                          output_path = paste0(out_path, "/"),
+                          return_data = FALSE,
+                          return_plot = FALSE)
+
+head(read.csv(paste0(out_path, "/test_figure2.csv")))
+
+```
+
 
 Notes
 -------

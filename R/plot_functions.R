@@ -623,7 +623,7 @@ gesPie_fun <- function(ecoregion,
               aes(x = 0, y = 0,
                   label = paste0("total = ",
                                  scales::comma(sum))),
-              size = 2.5) +
+              size = 1.5) +
     scale_fill_manual(values = colList) +
     theme_bw(base_size = 9) +
     theme(panel.grid = element_blank(),

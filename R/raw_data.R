@@ -1,7 +1,7 @@
 
 #' ICES Stock database
 #'
-#' Data describing ICES Stocks. Accessed 13 June 2017
+#' Data describing ICES Stocks. Accessed 4 July 2017
 #'
 #' \itemize{
 #'  \item{StockDatabaseID}{Add text}
@@ -43,7 +43,7 @@
 
 #' ICES Stock Assessment Graphs database - summary information from assessment output
 #'
-#' Data from published ICES advice from 2014-2017. Accessed 13 June 2017. ICES Stock Assessment Database, 2017/June. ICES, Copenhagen
+#' Data from published ICES advice from 2014-2017. Accessed Accessed 4 July 2017. ICES Stock Assessment Database, 2017/July ICES, Copenhagen
 #'
 #' \itemize{
 #'	\item{Year}{Add text}
@@ -77,7 +77,7 @@
 
 #' ICES Stock Assessment Graphs database - reference points
 #'
-#' Data from published ICES advice from 2014-2017. Accessed 13 June 2017. “ICES Stock Assessment Database, 2017/June. ICES, Copenhagen”
+#' Data from published ICES advice from 2014-2017. Accessed Accessed 4 July 2017. “ICES Stock Assessment Database, 2017/July ICES, Copenhagen”
 #'
 #' \itemize{
 #'	\item{AssessmentKey}{Add text}
@@ -103,7 +103,7 @@
 
 #' ICES Stock Assessment Graphs database - keys
 #'
-#' Data from published ICES advice from 2014-2017. Accessed 13 June 2017. “ICES Stock Assessment Database, 2017/May. ICES, Copenhagen”
+#' Data from published ICES advice from 2014-2017. Accessed Accessed 4 July 2017. “ICES Stock Assessment Database, 2017/July ICES, Copenhagen”
 #'
 #' \itemize{
 #'	\item{AssessmentYear}{Add text}
@@ -118,7 +118,7 @@
 
 #' ICES Stock Assessment Graphs database - stock status output
 #'
-#' Data from published ICES advice from 2014-2017. Accessed 13 June 2017. “ICES Stock Assessment Database, 2017/May. ICES, Copenhagen”
+#' Data from published ICES advice from 2014-2017. Accessed Accessed 4 July 2017. “ICES Stock Assessment Database, 2017/July. ICES, Copenhagen”
 #'
 #' \itemize{
 #'	\item{AssessmentYear}{Add text}

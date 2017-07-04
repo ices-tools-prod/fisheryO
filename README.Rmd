@@ -20,20 +20,28 @@ library(dplyr)
 
 # fisheryO
 
-The fisheryO package is offered to provide documentation of the processes used to download, aggregate, and analyze data for ICES Fisheries Overviews. Further, the package contains R functions to facilitate the standard plotting of these data.
+The fisheryO package is offered to provide documentation of the processes used to download, aggregate, and analyze data for ICES Fisheries Overviews. Further, the package contains R functions to facilitate the standard plotting of these data. ICES data are available to use according to the [ICES Data policy](http://ices.dk/marine-data/Documents/ICES-Data-policy.pdf).
 
 ICES Fisheries Overviews are available for the following ecoregions:
 
-* [Fisheries Overview of Baltic Sea Ecoregion](https://community.ices.dk/Advice/Advice2017/BalticSea/Released_advice/BalticSeaEcoregion_FisheriesOverviews.pdf?Web=1)
-* [Fisheries Overview of the Greater North Sea Ecoregion](https://community.ices.dk/Advice/Advice2017/NorthSea/Released_advice/GreaterNorthSeaEcoregion_FisheriesOverviews.pdf?Web=1)
+* [Fisheries Overview of Baltic Sea Ecoregion](https://community.ices.dk/Advice/Advice2017/BalticSea/Released_advice/BalticSeaEcoregion_FisheriesOverviews.pdf?Web=1) (fisheryO v0.2)
+* [Fisheries Overview of the Greater North Sea Ecoregion](https://community.ices.dk/Advice/Advice2017/NorthSea/Released_advice/GreaterNorthSeaEcoregion_FisheriesOverviews.pdf?Web=1)  (fisheryO v0.2)
 
 ## Installation
 
-You can install fisheryO from github with:
+You can install the most recent fisheryO build from github with:
 
 ```{r gh-installation, eval = FALSE}
 # install.packages("devtools")
 # devtools::install_github("ices-tools-prod/fisheryO")
+# library(fisheryO)
+```
+
+You can also install the raw data and code used for specific Fisheries Overviews with a "version" tag:
+
+```{r gh-vinstallation, eval = FALSE}
+# install.packages("devtools")
+# devtools::install_github("ices-tools-prod/fisheryO", rev = "v0.2")
 # library(fisheryO)
 ```
 
@@ -143,6 +151,10 @@ Notes
 
 References
 ----------
+
+ICES. 2017a. Historical Nominal Catches 1950–2010. Version 30-11-2011. Available at ICES website http://ices.dk/marine-data/dataset-collections/Pages/Fish-catch-and-stock-assessment.aspx. Accessed 04-07-2017.
+
+ICES. 2017b. Official Nominal Catches 2006–2015. Version 12-06-2017. Available at ICES website http://ices.dk/marine-data/dataset-collections/Pages/Fish-catch-and-stock-assessment.aspx. Accessed 04-07-2017.
 
 ICES Stock Assessment Graphs database: <http://sg.ices.dk>
 

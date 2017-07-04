@@ -12,7 +12,7 @@
 sag_keys_raw
 }
 \description{
-Data from published ICES advice from 2014-2017. Accessed 13 June 2017. “ICES Stock Assessment Database, 2017/May. ICES, Copenhagen”
+Data from published ICES advice from 2014-2017. Accessed Accessed 4 July 2017. “ICES Stock Assessment Database, 2017/July ICES, Copenhagen”
 }
 \details{
 \itemize{

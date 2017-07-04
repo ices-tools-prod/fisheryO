@@ -12,7 +12,7 @@
 stock_list_raw
 }
 \description{
-Data describing ICES Stocks. Accessed 13 June 2017
+Data describing ICES Stocks. Accessed 4 July 2017
 }
 \details{
 \itemize{

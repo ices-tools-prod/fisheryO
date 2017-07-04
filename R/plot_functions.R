@@ -581,7 +581,7 @@ gesPie_fun <- function(ecoregion,
     cap_lab <- labs(title = "", x = "", y = "",
                     caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
                                       "2017",
-                                      "June"))
+                                      "July"))
   }
   if(!data_caption) {
     cap_lab <- labs(x = "",

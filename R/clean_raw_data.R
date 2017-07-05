@@ -1069,6 +1069,7 @@ return(ges_table)
 #'  ecoregion and \code{sag_complete_summary} from \code{\link{clean_sag}}.
 #'
 #' @param active_year numeric of the stock database version (year). e.g., 2016
+#' @param grouping_var character string of the desired grouping. Options include: EcoRegion, EcoGuild, or FisheriesGuild
 #'
 #' @note Stocks are linked to ecoregions and fish categories via the ICES Stock database.
 #' Reference points are as published in ICES Stock Assessment Graphs database. In some cases,
@@ -1093,10 +1094,18 @@ return(ges_table)
 # Stock Status over time data #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
-clean_stock_trends <- function(active_year = 2016) {
+clean_stock_trends <- function(active_year = 2016,
+                               grouping_var = c("EcoGuild", "EcoRegion", "FisheriesGuild")[1]) {
+
+  if(!grouping_var %in% c("EcoRegion",
+                          "EcoGuild",
+                          "FisheriesGuild")) {
+    stop(paste0("grouping_var: '", grouping_var, "' is not supported. Please try: EcoRegion, EcoGuild, or FisheriesGuild"))
+  }
 
   dat <-  clean_sag(active_year)
   sag_complete_smmry <- dat$sag_complete_summary
+  grouping_variable <- rlang::sym(grouping_var)
 
   stock_trends <- sag_complete_smmry %>%
     tidyr::unnest(data) %>%
@@ -1105,41 +1114,40 @@ clean_stock_trends <- function(active_year = 2016) {
                            NA),
            SSB_MSYBtrigger = ifelse(!is.na(MSYBtrigger),
                                     SSB / MSYBtrigger,
-                                    NA)) %>%
+                                    NA),
+           EcoGuild = paste0(EcoRegion, " - ", FisheriesGuild, " stocks")) %>%
     select(Year,
            StockCode,
            FisheriesGuild,
            EcoRegion,
+           EcoGuild,
            F_FMSY,
            SSB_MSYBtrigger) %>%
-    tidyr::gather(METRIC, stockValue, -Year, -StockCode, -FisheriesGuild, -EcoRegion) %>%
-    group_by(EcoRegion, FisheriesGuild, METRIC, Year) %>%
-    mutate(ecoGuildMean = mean(stockValue, na.rm = TRUE))
+    tidyr::gather(METRIC, stockValue, -Year, -StockCode, -FisheriesGuild, -EcoRegion, -EcoGuild) %>%
+    filter(!is.na(Year))
 
-  stock_trends_frmt <- bind_rows(
-    stock_trends %>%
-      mutate(EcoGuild = paste0(EcoRegion, " - ", FisheriesGuild, " stocks")) %>%
-      ungroup() %>%
-      select(pageGroup = EcoGuild,
-             lineGroup = StockCode,
-             Year,
-             plotGroup = METRIC,
-             plotValue = stockValue) %>%
-      filter(!is.na(plotValue)),
+  stock_trends_grp <- stock_trends %>%
+    select(pageGroup = rlang::UQ(grouping_variable),
+           lineGroup = StockCode,
+           Year,
+           plotGroup = METRIC,
+           plotValue = stockValue) %>%
+    filter(!is.na(plotValue))
 
-    stock_trends %>%
-      mutate(EcoGuild = paste0(EcoRegion, " - ", FisheriesGuild, " stocks")) %>%
-      ungroup() %>%
-      distinct(EcoGuild, METRIC, Year, .keep_all = TRUE) %>%
-      select(pageGroup = EcoGuild,
-             Year,
-             plotGroup = METRIC,
-             plotValue = ecoGuildMean) %>%
-      mutate(lineGroup = "MEAN") %>%
-      filter(!is.na(plotValue))
-  )
+  stock_trends_mean <- stock_trends %>%
+    group_by(rlang::UQ(grouping_variable), METRIC, Year) %>%
+    summarize(plotValue = mean(stockValue, na.rm = TRUE),
+              lineGroup = "MEAN") %>%
+    select(pageGroup = rlang::UQ(grouping_variable),
+           lineGroup,
+           Year,
+           plotGroup = METRIC,
+           plotValue) %>%
+    filter(!is.na(plotValue))
 
-  # devtools::use_data(stock_trends_frmt)
+  stock_trends_frmt <- bind_rows(stock_trends_grp,
+                                 stock_trends_mean)
+
   return(list("stock_trends_frmt" = stock_trends_frmt,
               "sag_complete_summary" = dat$sag_complete_summary))
 }

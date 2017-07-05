@@ -661,7 +661,9 @@ gesPie_fun <- function(ecoregion,
 #' The \code{stock_trends_fun} function returns a series of line plots of F and SSB relative to F<sub>MSY</sub> and MSY B<sub>trigger</sub>
 #' reference points for stocks of a fish category for an ecoregion.
 #'
-#' @param EcoGuild combined ecoregion name and fish category, e.g. Greater North Sea Ecoregion
+#' @param object name of data to plot. Must agree with the grouping_var argument. E.g., EcoGuild must be the combined ecoregion
+#' name and fish category, e.g. "Greater North Sea Ecoregion - demersal stocks"
+#' @param grouping_var character string of the desired grouping. Options include: EcoRegion, EcoGuild, or FisheriesGuild
 #' @param data_caption print the data source as a caption, boolean.
 #' @param active_year numeric of the stock database version (year). e.g., 2016
 #' @param dynamic logical to generate html output with dynamic features.
@@ -685,15 +687,16 @@ gesPie_fun <- function(ecoregion,
 #'
 #' @examples
 #' \dontrun{
-#' stock_trends_fun("Greater North Sea Ecoregion - demersal", return_plot = TRUE)
+#' stock_trends_fun(object = "Greater North Sea Ecoregion - demersal", grouping_var = "EcoGuild", return_plot = TRUE)
 #' }
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~#
 # Stock Status over time #
 #~~~~~~~~~~~~~~~~~~~~~~~~#
-stock_trends_fun <- function(EcoGuild,
+stock_trends_fun <- function(object,
+                             grouping_var = c("EcoGuild", "EcoRegion", "FisheriesGuild")[1],
                              active_year = 2016,
-                             dynamic = TRUE,
+                             dynamic = FALSE,
                              data_caption = TRUE,
                              file_name = NULL,
                              save_plot = FALSE,
@@ -702,7 +705,20 @@ stock_trends_fun <- function(EcoGuild,
                              output_path = NULL,
                              stackable = FALSE) {
 
-  dat <- clean_stock_trends(active_year)
+  if(!grouping_var %in% c("EcoRegion",
+                          "EcoGuild",
+                          "FisheriesGuild")) {
+    stop(paste0("grouping_var: '", grouping_var, "' is not supported. Please try: EcoRegion, EcoGuild, or FisheriesGuild"))
+  }
+
+  grouping_variable <- rlang::sym(grouping_var)
+
+  dat <- clean_stock_trends(active_year = active_year,
+                            grouping_var = grouping_var)
+
+  if(!any(dat$stock_trends_frmt$pageGroup %in% object)) {
+    stop(paste0("object: '", object, "' is not found. Check your spelling/syntax and try again."))
+  }
 
   clicks <- dat$sag_complete_summary %>%
     mutate(onclick = sprintf("window.open(\"%s%i/%i/%s.pdf\")",
@@ -717,7 +733,7 @@ stock_trends_fun <- function(EcoGuild,
 
   p1_dat <- dat$stock_trends_frmt %>%
     left_join(clicks, by = c("lineGroup" = "StockCode")) %>%
-    filter(grepl(EcoGuild, pageGroup)) %>%
+    filter(grepl(object, pageGroup)) %>%
     mutate(tooltip_line =   sprintf("<b>%s</b>",
                                     ifelse(lineGroup == "MEAN",
                                            "mean",
@@ -747,7 +763,7 @@ stock_trends_fun <- function(EcoGuild,
 
   if(save_plot) {
     if(is.null(file_name)) {
-      file_name <- gsub("\\s", "_", EcoGuild)
+      file_name <- gsub("\\s", "_", object)
       file_name <- gsub("_-_", "-", file_name)
     }
 
@@ -756,7 +772,7 @@ stock_trends_fun <- function(EcoGuild,
     }
   }
 
-  plot_title <- gsub(".*\\s-\\s", "\\1", EcoGuild)
+  plot_title <- gsub(".*\\s-\\s", "\\1", object)
   plot_title <- gsub(" stocks", "", plot_title)
 
   if(data_caption) {
@@ -815,7 +831,7 @@ stock_trends_fun <- function(EcoGuild,
       suppressWarnings(
         rmarkdown::render(system.file("rmd/stockStatusTrends-dynamic.Rmd", package = "fisheryO"),
                           # "~/git/ices-dk/fisheryO/vignettes/stockStatusTrends-dynamic.rmd",
-                          output_file = paste0(output_path, file_name, "_", EcoGuild, "-dynamic.html"),
+                          output_file = paste0(output_path, file_name, "_", object, "-dynamic.html"),
                           rmarkdown::html_document(template = NULL),
                           envir = new.env())
       )

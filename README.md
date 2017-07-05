@@ -9,8 +9,8 @@ The fisheryO package is offered to provide documentation of the processes used t
 
 ICES Fisheries Overviews are available for the following ecoregions:
 
--   [Fisheries Overview of Baltic Sea Ecoregion](https://community.ices.dk/Advice/Advice2017/BalticSea/Released_advice/BalticSeaEcoregion_FisheriesOverviews.pdf?Web=1) ([fisheryO v0.2](https://github.com/ices-tools-prod/fisheryO/releases/tag/v0.2))
--   [Fisheries Overview of the Greater North Sea Ecoregion](https://community.ices.dk/Advice/Advice2017/NorthSea/Released_advice/GreaterNorthSeaEcoregion_FisheriesOverviews.pdf?Web=1) ([fisheryO v0.2](https://github.com/ices-tools-prod/fisheryO/releases/tag/v0.2))
+-   [Fisheries Overview of Baltic Sea Ecoregion](http://ices.dk/sites/pub/Publication%20Reports/Advice/2017/2017/Baltic_Sea_Ecoregion_Fisheries_Overview.pdf) ([fisheryO v0.2](https://github.com/ices-tools-prod/fisheryO/releases/tag/v0.2))
+-   [Fisheries Overview of the Greater North Sea Ecoregion](http://ices.dk/sites/pub/Publication%20Reports/Advice/2017/2017/Greater_North_Sea_Ecoregion_Fisheries_Overview.pdf) ([fisheryO v0.2](https://github.com/ices-tools-prod/fisheryO/releases/tag/v0.2))
 
 Installation
 ------------
@@ -34,7 +34,7 @@ You can also install the raw data and code used for specific Fisheries Overviews
 Work flow
 ---------
 
-1.  Before the package is built, fisheryO downloads source data from ICES web services and databases and saves the raw data as .rdata files in the /data folder. This serves to create a final version of the data used to create each Fisheries Overview, thatis, ([fisheryO v0.2](https://github.com/ices-tools-prod/fisheryO/releases/tag/v0.2)) can be used to explore the data processing steps for the [Greater North Sea ecoregion Fisheries Overview](https://community.ices.dk/Advice/Advice2017/NorthSea/Released_advice/GreaterNorthSeaEcoregion_FisheriesOverviews.pdf?Web=1). The raw data are available as a "promise" and can be explored extracted using the `data()` function. The nuts and bolts of these download steps can be found in the load\_raw\_data.R file in the /data-raw folder and links to the raw data can be found in the description files.
+1.  Before the package is built, fisheryO downloads source data from ICES web services and databases and saves the raw data as .rdata files in the /data folder. This serves to create a final version of the data used to create each Fisheries Overview, thatis, ([fisheryO v0.2](https://github.com/ices-tools-prod/fisheryO/releases/tag/v0.2)) can be used to explore the data processing steps for the [Greater North Sea ecoregion Fisheries Overview](http://ices.dk/sites/pub/Publication%20Reports/Advice/2017/2017/Greater_North_Sea_Ecoregion_Fisheries_Overview.pdf). The raw data are available as a "promise" and can be explored extracted using the `data()` function. The nuts and bolts of these download steps can be found in the load\_raw\_data.R file in the /data-raw folder and links to the raw data can be found in the description files.
 
 2.  Raw data processing is dependent on how the data will ultimately be displayed (e.g., figure or table) and several functions modify the raw data. These functions can be viewed in the clean\_raw\_data.R file in the /R folder to see the assumptions and data wrangling steps to move from raw data to figures and tables.
 
@@ -164,9 +164,9 @@ ICES. 2017a. Historical Nominal Catches 1950–2010. Version 30-11-2011. Availab
 
 ICES. 2017b. Official Nominal Catches 2006–2015. Version 12-06-2017. Available at ICES website <http://ices.dk/marine-data/dataset-collections/Pages/Fish-catch-and-stock-assessment.aspx>. Accessed 04-07-2017.
 
-ICES. 2017c. [Baltic Sea Ecoregion – Fisheries overview](https://community.ices.dk/Advice/Advice2017/BalticSea/Released_advice/BalticSeaEcoregion_FisheriesOverviews.pdf?Web=1). In Report of the ICES Advisory Committee, 2017. ICES Advice 2017, Book 4, Section 4.2.
+ICES. 2017c. [Baltic Sea Ecoregion – Fisheries overview](http://ices.dk/sites/pub/Publication%20Reports/Advice/2017/2017/Baltic_Sea_Ecoregion_Fisheries_Overview.pdf). In Report of the ICES Advisory Committee, 2017. ICES Advice 2017, Book 4, Section 4.2.
 
-ICES. 2017d. [Greater North Sea Ecoregion – Fisheries overview](https://community.ices.dk/Advice/Advice2017/NorthSea/Released_advice/GreaterNorthSeaEcoregion_FisheriesOverviews.pdf?Web=1). In Report of the ICES Advisory Committee, 2017. ICES Advice 2017, Book 9, Section 9.2.
+ICES. 2017d. [Greater North Sea Ecoregion – Fisheries overview](http://ices.dk/sites/pub/Publication%20Reports/Advice/2017/2017/Greater_North_Sea_Ecoregion_Fisheries_Overview.pdf). In Report of the ICES Advisory Committee, 2017. ICES Advice 2017, Book 9, Section 9.2.
 
 ICES Stock Assessment Graphs database: <http://sg.ices.dk>
 
@@ -175,6 +175,8 @@ ICES Stock Assessment Graphs web services: <http://sg.ices.dk/webservices.aspx>
 ICES Stock Database: <http://sd.ices.dk>
 
 ICES Stock Database web services: <http://sd.ices.dk/services/>
+
+STECF. 2016. Scientific, Technical and Economic Committee for Fisheries (STECF) – Fisheries Dependent Information (STECF-16-20). Publications Office of the European Union, Luxembourg; EUR 27758 EN. 858 pp. [doi:10.2788/502445](https://stecf.jrc.ec.europa.eu/documents/43805/1443008/2016-11_STECF+16-20_FDI_JRC104212.pdf).
 
 Development
 -----------

@@ -152,7 +152,43 @@ fisheryO::plot_kobe("Greater North Sea Ecoregion",
 
 ![](README-kobe_example-1.png)
 
-Plot functions also have a `return_data` argument that will save a .csv of the modified data used for each plot. For now, units and labels can be inferred from the function arguments. `return_data = TRUE` will save a .csv with the same `file_name` and `out_path` as the .png plot.
+Stock trends can be grouped by different parameters. `object` specifies the group you want displayed. For the time being, `group_var` is necessary to point the code in the right direction [to do](https://github.com/ices-tools-prod/fisheryO/issues/20).
+
+``` r
+
+fisheryO::stock_trends_fun(object = "Greater North Sea Ecoregion", 
+                           grouping_var = "EcoRegion",
+                           active_year = 2016,
+                           data_caption = TRUE,
+                           return_plot = TRUE,
+                           save_plot = FALSE)
+```
+
+![](README-stocktrends_example-1.png)
+
+``` r
+
+fisheryO::stock_trends_fun(object = "Greater North Sea Ecoregion - demersal stocks", 
+                           grouping_var = "EcoGuild",
+                           active_year = 2016,
+                           data_caption = TRUE,
+                           return_plot = TRUE,
+                           save_plot = FALSE)
+```
+
+![](README-stocktrends_example-2.png)
+
+``` r
+
+fisheryO::stock_trends_fun(object = "demersal", 
+                           grouping_var = "FisheriesGuild",
+                           active_year = 2016,
+                           data_caption = TRUE,
+                           return_plot = TRUE,
+                           save_plot = FALSE)
+```
+
+![](README-stocktrends_example-3.png)
 
 Notes
 -----

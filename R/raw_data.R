@@ -1,7 +1,7 @@
 
 #' ICES Stock database
 #'
-#' Data describing ICES Stocks. Accessed 4 July 2017
+#' Data describing ICES Stocks. Accessed 5 July 2017
 #'
 #' \itemize{
 #'  \item{StockDatabaseID}{Add text}
@@ -37,13 +37,13 @@
 #'  \item{AssessmentKey}{Add text}
 #' }
 #'
-#' @format A data frame with 1241 rows and 31 variables.
+#' @format A data frame with 1296 rows and 31 variables.
 #' @source \url{https://sd.ices.dk/}
 "stock_list_raw"
 
 #' ICES Stock Assessment Graphs database - summary information from assessment output
 #'
-#' Data from published ICES advice from 2014-2017. Accessed Accessed 4 July 2017. ICES Stock Assessment Database, 2017/July ICES, Copenhagen
+#' Data from published ICES advice from 2014-2017. Accessed Accessed 5 July 2017. ICES Stock Assessment Database, 2017/July ICES, Copenhagen
 #'
 #' \itemize{
 #'	\item{Year}{Add text}
@@ -71,13 +71,13 @@
 #'	\item{fishingPressureUnits}{Add text}
 #' }
 #'
-#' @format A data frame with 15770 rows and 23 variables:
+#' @format A data frame with 18454 rows and 23 variables:
 #' @source \url{https://standardgraphs.ices.dk/}
 "sag_summary_raw"
 
 #' ICES Stock Assessment Graphs database - reference points
 #'
-#' Data from published ICES advice from 2014-2017. Accessed Accessed 4 July 2017. “ICES Stock Assessment Database, 2017/July ICES, Copenhagen”
+#' Data from published ICES advice from 2014-2017. Accessed Accessed 5 July 2017. “ICES Stock Assessment Database, 2017/July ICES, Copenhagen”
 #'
 #' \itemize{
 #'	\item{AssessmentKey}{Add text}
@@ -97,13 +97,13 @@
 #'	\item{RecruitmentLength}{Add text}
 #' }
 #'
-#' @format A data frame with 436 rows and 15 variables:
+#' @format A data frame with 545 rows and 15 variables:
 #' @source \url{https://standardgraphs.ices.dk/}
 "sag_refpts_raw"
 
 #' ICES Stock Assessment Graphs database - keys
 #'
-#' Data from published ICES advice from 2014-2017. Accessed Accessed 4 July 2017. “ICES Stock Assessment Database, 2017/July ICES, Copenhagen”
+#' Data from published ICES advice from 2014-2017. Accessed Accessed 5 July 2017. “ICES Stock Assessment Database, 2017/July ICES, Copenhagen”
 #'
 #' \itemize{
 #'	\item{AssessmentYear}{Add text}
@@ -111,14 +111,14 @@
 #'	\item{StockKeyLabel}{Add text}
 #' }
 #'
-#' @format A data frame with 429 rows and 3 variables:
+#' @format A data frame with 545 rows and 3 variables:
 #' @source \url{https://standardgraphs.ices.dk/}
 "sag_keys_raw"
 
 
 #' ICES Stock Assessment Graphs database - stock status output
 #'
-#' Data from published ICES advice from 2014-2017. Accessed Accessed 4 July 2017. “ICES Stock Assessment Database, 2017/July. ICES, Copenhagen”
+#' Data from published ICES advice from 2014-2017. Accessed Accessed 5 July 2017. “ICES Stock Assessment Database, 2017/July. ICES, Copenhagen”
 #'
 #' \itemize{
 #'	\item{AssessmentYear}{Add text}
@@ -136,7 +136,7 @@
 #'	\item{fishingPressureStatus}{Add text}
 #' }
 #'
-#' @format A data frame with 5221 rows and 13 variables:
+#' @format A data frame with 6163 rows and 13 variables:
 #' @source \url{https://standardgraphs.ices.dk/}
 "sag_stock_status_raw"
 

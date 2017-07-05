@@ -4,7 +4,7 @@
 \name{stock_list_raw}
 \alias{stock_list_raw}
 \title{ICES Stock database}
-\format{A data frame with 1241 rows and 31 variables.}
+\format{A data frame with 1296 rows and 31 variables.}
 \source{
 \url{https://sd.ices.dk/}
 }
@@ -12,7 +12,7 @@
 stock_list_raw
 }
 \description{
-Data describing ICES Stocks. Accessed 4 July 2017
+Data describing ICES Stocks. Accessed 5 July 2017
 }
 \details{
 \itemize{

@@ -4,7 +4,7 @@
 \name{sag_keys_raw}
 \alias{sag_keys_raw}
 \title{ICES Stock Assessment Graphs database - keys}
-\format{A data frame with 429 rows and 3 variables:}
+\format{A data frame with 545 rows and 3 variables:}
 \source{
 \url{https://standardgraphs.ices.dk/}
 }
@@ -12,7 +12,7 @@
 sag_keys_raw
 }
 \description{
-Data from published ICES advice from 2014-2017. Accessed Accessed 4 July 2017. “ICES Stock Assessment Database, 2017/July ICES, Copenhagen”
+Data from published ICES advice from 2014-2017. Accessed Accessed 5 July 2017. “ICES Stock Assessment Database, 2017/July ICES, Copenhagen”
 }
 \details{
 \itemize{

@@ -4,7 +4,7 @@
 \name{sag_stock_status_raw}
 \alias{sag_stock_status_raw}
 \title{ICES Stock Assessment Graphs database - stock status output}
-\format{A data frame with 5221 rows and 13 variables:}
+\format{A data frame with 6163 rows and 13 variables:}
 \source{
 \url{https://standardgraphs.ices.dk/}
 }
@@ -12,7 +12,7 @@
 sag_stock_status_raw
 }
 \description{
-Data from published ICES advice from 2014-2017. Accessed Accessed 4 July 2017. “ICES Stock Assessment Database, 2017/July. ICES, Copenhagen”
+Data from published ICES advice from 2014-2017. Accessed Accessed 5 July 2017. “ICES Stock Assessment Database, 2017/July. ICES, Copenhagen”
 }
 \details{
 \itemize{

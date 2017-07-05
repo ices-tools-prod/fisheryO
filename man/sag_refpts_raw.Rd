@@ -4,7 +4,7 @@
 \name{sag_refpts_raw}
 \alias{sag_refpts_raw}
 \title{ICES Stock Assessment Graphs database - reference points}
-\format{A data frame with 436 rows and 15 variables:}
+\format{A data frame with 545 rows and 15 variables:}
 \source{
 \url{https://standardgraphs.ices.dk/}
 }
@@ -12,7 +12,7 @@
 sag_refpts_raw
 }
 \description{
-Data from published ICES advice from 2014-2017. Accessed Accessed 4 July 2017. “ICES Stock Assessment Database, 2017/July ICES, Copenhagen”
+Data from published ICES advice from 2014-2017. Accessed Accessed 5 July 2017. “ICES Stock Assessment Database, 2017/July ICES, Copenhagen”
 }
 \details{
 \itemize{

@@ -157,6 +157,7 @@ Stock trends can be grouped by different parameters. `object` specifies the grou
 ``` r
 
 fisheryO::stock_trends_fun(object = "Greater North Sea Ecoregion", 
+                           plotting_var = "StockCode",
                            grouping_var = "EcoRegion",
                            active_year = 2016,
                            data_caption = TRUE,
@@ -169,8 +170,9 @@ fisheryO::stock_trends_fun(object = "Greater North Sea Ecoregion",
 ``` r
 
 fisheryO::stock_trends_fun(object = "Greater North Sea Ecoregion - demersal stocks", 
+                           plotting_var = "StockCode",
                            grouping_var = "EcoGuild",
-                           active_year = 2016,
+                           active_year = 2017,
                            data_caption = TRUE,
                            return_plot = TRUE,
                            save_plot = FALSE)
@@ -180,15 +182,29 @@ fisheryO::stock_trends_fun(object = "Greater North Sea Ecoregion - demersal stoc
 
 ``` r
 
-fisheryO::stock_trends_fun(object = "demersal", 
+fisheryO::stock_trends_fun(object = "demersal",
+                           plotting_var = "StockCode",
                            grouping_var = "FisheriesGuild",
-                           active_year = 2016,
+                           active_year = 2017,
                            data_caption = TRUE,
                            return_plot = TRUE,
                            save_plot = FALSE)
 ```
 
 ![](README-stocktrends_example-3.png)
+
+``` r
+
+fisheryO::stock_trends_fun(object = "Greater North Sea Ecoregion", 
+                           grouping_var = "EcoRegion",
+                           plotting_var = "FisheriesGuild",
+                           active_year = 2017,
+                           data_caption = TRUE,
+                           return_plot = TRUE,
+                           save_plot = FALSE)
+```
+
+![](README-stocktrends_example-4.png)
 
 Notes
 -----

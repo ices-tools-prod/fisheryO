@@ -694,6 +694,7 @@ gesPie_fun <- function(ecoregion,
 # Stock Status over time #
 #~~~~~~~~~~~~~~~~~~~~~~~~#
 stock_trends_fun <- function(object,
+                             plotting_var = c("StockCode", "FisheriesGuild")[1],
                              grouping_var = c("EcoGuild", "EcoRegion", "FisheriesGuild")[1],
                              active_year = 2016,
                              dynamic = FALSE,
@@ -710,37 +711,50 @@ stock_trends_fun <- function(object,
                           "FisheriesGuild")) {
     stop(paste0("grouping_var: '", grouping_var, "' is not supported. Please try: EcoRegion, EcoGuild, or FisheriesGuild"))
   }
+  if(!plotting_var %in% c("StockCode",
+                          "FisheriesGuild")) {
+    stop(paste0("plotting_var: '", plotting_var, "' is not supported. Please try: stock or guild"))
+  }
+  if(plotting_var == "FisheriesGuild" &
+     grouping_var %in% c("EcoGuild", "FisheriesGuild")) {
+    stop("plotting_var = 'FisheriesGuild' should only be used with grouping_var = 'EcoRegion'.")
+  }
 
   grouping_variable <- rlang::sym(grouping_var)
+  plotting_variable <- rlang::sym(plotting_var)
 
   dat <- clean_stock_trends(active_year = active_year,
-                            grouping_var = grouping_var)
+                            grouping_var = grouping_var,
+                            plotting_var = plotting_var)
 
   if(!any(dat$stock_trends_frmt$pageGroup %in% object)) {
     stop(paste0("object: '", object, "' is not found. Check your spelling/syntax and try again."))
   }
 
-  clicks <- dat$sag_complete_summary %>%
-    mutate(onclick = sprintf("window.open(\"%s%i/%i/%s.pdf\")",
-                             "http://ices.dk/sites/pub/Publication%20Reports/Advice/",
-                             YearOfLastAssessment,
-                             YearOfLastAssessment,
-                             StockCode)) %>%
-    select(StockCode,
-           Description,
-           onclick) %>%
-    distinct(.keep_all = TRUE)
+  # clicks <- dat$sag_complete_summary %>%
+  #   mutate(onclick = sprintf("window.open(\"%s%i/%i/%s.pdf\")",
+  #                            "http://ices.dk/sites/pub/Publication%20Reports/Advice/",
+  #                            YearOfLastAssessment,
+  #                            YearOfLastAssessment,
+  #                            StockCode)) %>%
+  #   select(StockCode,
+  #          Description,
+  #          onclick) %>%
+  #   distinct(.keep_all = TRUE)
 
   p1_dat <- dat$stock_trends_frmt %>%
-    left_join(clicks, by = c("lineGroup" = "StockCode")) %>%
+    ungroup() %>%
     filter(grepl(object, pageGroup)) %>%
-    mutate(tooltip_line =   sprintf("<b>%s</b>",
-                                    ifelse(lineGroup == "MEAN",
-                                           "mean",
-                                           Description)),
+    # left_join(clicks, by = c("lineGroup" = "StockCode")) %>%
+  # %>%
+    mutate(
+      # tooltip_line =   sprintf("<b>%s</b>",
+      #                               ifelse(lineGroup == "MEAN",
+      #                                      "mean",
+      #                                      Description)),
            plotGroup = factor(plotGroup,
-                              labels = c("F/F[MSY]", "SSB/MSY~B[trigger]"))) %>%
-    select(-Description)
+                              labels = c("F/F[MSY]", "SSB/MSY~B[trigger]"))) #%>%
+    # select(-Description)
 
   if(length(unique(p1_dat$lineGroup)) <= 2){
     p1_dat <- p1_dat %>%
@@ -791,10 +805,11 @@ stock_trends_fun <- function(object,
   p1_plot <- ggplot(p1_dat %>% filter(lineGroup != "MEAN"),
                     aes(x = Year, y = plotValue,
                         color = lineGroup,
-                        fill = lineGroup,
-                        onclick = onclick,
-                        data_id = lineGroup,
-                        tooltip = tooltip_line)) +
+                        fill = lineGroup#,
+                        # onclick = onclick,
+                        # data_id = lineGroup,
+                        # tooltip = tooltip_line
+                        )) +
     geom_hline(yintercept = 1, col = "grey60") +
     theme_bw(base_size = 9) +
     scale_color_manual(values = values) +

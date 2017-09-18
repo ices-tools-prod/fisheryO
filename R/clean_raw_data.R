@@ -1073,6 +1073,8 @@ return(ges_table)
 #'
 #' @param active_year numeric of the stock database version (year). e.g., 2016
 #' @param grouping_var character string of the desired grouping. Options include: EcoRegion, EcoGuild, or FisheriesGuild
+#' @param plotting_var character string of the variable to plot. Options include: StockCode or FisheriesGuild (mean)
+#' @param metric character string of the desired metric. Options include: MSY or MEAN (according to grouping_var)
 #'
 #' @note Stocks are linked to ecoregions and fish categories via the ICES Stock database.
 #' Reference points are as published in ICES Stock Assessment Graphs database. In some cases,
@@ -1099,20 +1101,24 @@ return(ges_table)
 
 clean_stock_trends <- function(active_year = 2016,
                                grouping_var = c("EcoGuild", "EcoRegion", "FisheriesGuild")[1],
-                               plotting_var = c("StockCode", "FisheriesGuild")[1]) {
+                               plotting_var = c("StockCode", "FisheriesGuild")[1],
+                               metric = c("MSY", "MEAN")[1]) {
 
   if(!grouping_var %in% c("EcoRegion",
                           "EcoGuild",
                           "FisheriesGuild")) {
-    stop(paste0("grouping_var: '", grouping_var, "' is not supported. Please try: EcoRegion, EcoGuild, or FisheriesGuild"))
+    stop(paste0("grouping_var: '", grouping_var, "' is not supported. Please try: 'EcoRegion', 'EcoGuild', or 'FisheriesGuild'"))
   }
   if(!plotting_var %in% c("StockCode",
                           "FisheriesGuild")) {
-    stop(paste0("plotting_var: '", plotting_var, "' is not supported. Please try: stock or guild"))
+    stop(paste0("plotting_var: '", plotting_var, "' is not supported. Please try: 'StockCode' or 'FisheriesGuild'"))
   }
   if(plotting_var == "FisheriesGuild" &
      grouping_var %in% c("EcoGuild", "FisheriesGuild")) {
     stop("plotting_var = 'FisheriesGuild' should only be used with grouping_var = 'EcoRegion'.")
+  }
+  if(!metric %in% c("MSY", "MEAN")) {
+    stop(paste0("metric: '", metric, "' is not supported. Please try: 'MSY' or 'MEAN'"))
   }
 
 
@@ -1121,14 +1127,32 @@ clean_stock_trends <- function(active_year = 2016,
   grouping_variable <- rlang::sym(grouping_var)
   plotting_variable <- rlang::sym(plotting_var)
 
-  stock_trends <- sag_complete_smmry %>%
+  stock_means <- sag_complete_smmry %>%
     tidyr::unnest(data) %>%
+    group_by(rlang::UQ(grouping_variable),
+             Year) %>% 
+    mutate(FMEAN = mean(F, na.rm = TRUE),
+           SSBMEAN = mean(SSB, na.rm = TRUE),
+           FMEAN = ifelse(!grepl("F|F(ages 3-6)", fishingPressureDescription),
+                          NA,
+                          FMEAN),
+           SSBMEAN = ifelse(!grepl("SSB", stockSizeDescription),
+                  NA,
+                  SSBMEAN))
+    
+  stock_trends <- stock_means %>% 
     mutate(F_FMSY = ifelse(!is.na(FMSY),
                            F / FMSY,
                            NA),
            SSB_MSYBtrigger = ifelse(!is.na(MSYBtrigger),
                                     SSB / MSYBtrigger,
                                     NA),
+           F_FMEAN = ifelse(!is.na(FMEAN),
+                            F / FMEAN, 
+                            NA),
+           SSB_SSBMEAN = ifelse(!is.na(SSBMEAN),
+                                SSB / SSBMEAN,
+                                NA),
            EcoGuild = paste0(EcoRegion, " - ", FisheriesGuild, " stocks")) %>%
     select(Year,
            StockCode,
@@ -1136,9 +1160,12 @@ clean_stock_trends <- function(active_year = 2016,
            EcoRegion,
            EcoGuild,
            F_FMSY,
-           SSB_MSYBtrigger) %>%
+           SSB_MSYBtrigger,
+           F_FMEAN,
+           SSB_SSBMEAN) %>%
     tidyr::gather(METRIC, stockValue, -Year, -StockCode, -FisheriesGuild, -EcoRegion, -EcoGuild) %>%
-    filter(!is.na(Year))
+    filter(!is.na(Year),
+           grepl(metric, METRIC))
 
   stock_trends_grp <- stock_trends %>%
     group_by(rlang::UQ(grouping_variable),

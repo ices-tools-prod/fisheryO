@@ -448,7 +448,7 @@ stockPie_fun <- function(ecoregion,
     cap_lab <- labs(title = "", x = "", y = "",
                     caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
                                       "2017",
-                                      "July"))
+                                      "September"))
   }
   if(!data_caption) {
     cap_lab <- labs(x = "",
@@ -581,7 +581,7 @@ gesPie_fun <- function(ecoregion,
     cap_lab <- labs(title = "", x = "", y = "",
                     caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
                                       "2017",
-                                      "July"))
+                                      "September"))
   }
   if(!data_caption) {
     cap_lab <- labs(x = "",
@@ -664,6 +664,8 @@ gesPie_fun <- function(ecoregion,
 #' @param object name of data to plot. Must agree with the grouping_var argument. E.g., EcoGuild must be the combined ecoregion
 #' name and fish category, e.g. "Greater North Sea Ecoregion - demersal stocks"
 #' @param grouping_var character string of the desired grouping. Options include: EcoRegion, EcoGuild, or FisheriesGuild
+#' @param plotting_var character string of the variable to plot. Options include: StockCode or FisheriesGuild (mean)
+#' @param metric character string of the desired metric. Options include: MSY or MEAN (according to grouping_var)
 #' @param data_caption print the data source as a caption, boolean.
 #' @param active_year numeric of the stock database version (year). e.g., 2016
 #' @param dynamic logical to generate html output with dynamic features.
@@ -696,6 +698,7 @@ gesPie_fun <- function(ecoregion,
 stock_trends_fun <- function(object,
                              plotting_var = c("StockCode", "FisheriesGuild")[1],
                              grouping_var = c("EcoGuild", "EcoRegion", "FisheriesGuild")[1],
+                             metric = c("MSY", "MEAN")[1],
                              active_year = 2016,
                              dynamic = FALSE,
                              data_caption = TRUE,
@@ -719,13 +722,18 @@ stock_trends_fun <- function(object,
      grouping_var %in% c("EcoGuild", "FisheriesGuild")) {
     stop("plotting_var = 'FisheriesGuild' should only be used with grouping_var = 'EcoRegion'.")
   }
+  if(!metric %in% c("MSY", "MEAN")) {
+    stop(paste0("metric: '", metric, "' is not supported. Please try: 'MSY' or 'MEAN'"))
+  }
+  
 
   grouping_variable <- rlang::sym(grouping_var)
   plotting_variable <- rlang::sym(plotting_var)
 
   dat <- clean_stock_trends(active_year = active_year,
                             grouping_var = grouping_var,
-                            plotting_var = plotting_var)
+                            plotting_var = plotting_var,
+                            metric = metric)
 
   if(!any(dat$stock_trends_frmt$pageGroup %in% object)) {
     stop(paste0("object: '", object, "' is not found. Check your spelling/syntax and try again."))
@@ -752,15 +760,24 @@ stock_trends_fun <- function(object,
       #                               ifelse(lineGroup == "MEAN",
       #                                      "mean",
       #                                      Description)),
-           plotGroup = factor(plotGroup,
-                              labels = c("F/F[MSY]", "SSB/MSY~B[trigger]"))) #%>%
+           plotGroup = case_when(plotGroup == "SSB_SSBMEAN"~ "SSB/SSB[mean]",
+                                 plotGroup == "F_FMEAN"~ "F/F[mean]",
+                                 plotGroup == "F_FMSY"~ "F/F[MSY]",
+                                 plotGroup == "SSB_MSYBtrigger"~ "SSB/MSY~B[trigger]"),
+           plotGroup = factor(plotGroup))
+                              # labels = c("F/F[MSY]", "SSB/MSY~B[trigger]"))) #%>%
     # select(-Description)
 
   if(length(unique(p1_dat$lineGroup)) <= 2){
     p1_dat <- p1_dat %>%
       filter(lineGroup != "MEAN")
   }
-
+  
+  if(metric == "MEAN"){
+    p1_dat <- p1_dat %>%
+      filter(lineGroup != "MEAN")
+  }
+  
   adj_names <- sort(setdiff(unique(p1_dat$lineGroup), "MEAN"))
   if(length(adj_names) > 10) {
     values <- rep("#7F7F7F", length(adj_names))
@@ -793,7 +810,7 @@ stock_trends_fun <- function(object,
     cap_lab <- labs(title = plot_title, x = "Year", y = "", color = "Stock code",
                         caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
                                           "2017",
-                                          "July"))
+                                          "September"))
   }
   if(!data_caption) {
     cap_lab <- labs(title = plot_title,
@@ -964,7 +981,7 @@ plot_kobe <- function(ecoregion,
                     y = "Catch and landings (tonnes)",
                     caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
                                       "2017",
-                                      "July"))
+                                      "September"))
   }
   if(!data_caption) {
     cap_lab <- labs(x = "Stock",
@@ -1219,7 +1236,7 @@ guild_discards_fun <- function(ecoregion,
                     title = "b)",
                     caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
                                       "2017",
-                                      "July"))
+                                      "September"))
   }
   if(!data_caption) {
     cap_lab <- labs(x = "", y = "Discards and landings (thousand tonnes)",

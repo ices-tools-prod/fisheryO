@@ -82,10 +82,11 @@ devtools::use_data(ices_catch_official_raw, overwrite = TRUE)
 # DATA SOURCE: FAO species names and labels #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
-spURL <- "ftp://ftp.fao.org/FI/STAT/DATA/ASFIS_sp.zip"
+spURL <- "http://www.fao.org/fishery/static/ASFIS/ASFIS_sp.zip"
 tmpFileSp <- tempfile(fileext = ".zip")
 download.file(spURL, destfile = tmpFileSp, mode = "wb", quiet = TRUE)
-species_list_raw <- read.delim(unz(tmpFileSp, "ASFIS_sp_Feb_2016.txt"),
+FAO_file <- grep(".*txt", unzip(tmpFileSp,list = TRUE)$Name, value = TRUE)
+species_list_raw <- read.delim(unz(tmpFileSp, FAO_file),
                            fill = TRUE,
                            stringsAsFactors = FALSE,
                            header = TRUE,

@@ -137,3 +137,56 @@ stock_trends_fun(object = "Oceanic Northeast Atlantic Ecoregion",
                  return_data = TRUE,
                  output_path = output_path)
 
+
+stock_trends_fun(object = "Norwegian Sea and Barents Sea Ecoregions",
+                 plotting_var = "StockCode",
+                 grouping_var = "EcoRegion",
+                 metric = "MSY",
+                 active_year = 2017,
+                 dynamic = FALSE,
+                 data_caption = TRUE,
+                 file_name = "nsbs_MSY",
+                 save_plot = TRUE,
+                 return_plot = FALSE,
+                 return_data = TRUE,
+                 output_path = output_path)
+
+stock_trends_fun(object = "Norwegian Sea and Barents Sea Ecoregions",
+                 plotting_var = "StockCode",
+                 grouping_var = "EcoRegion",
+                 metric = "MEAN",
+                 active_year = 2017,
+                 dynamic = FALSE,
+                 data_caption = TRUE,
+                 file_name = "nsbs_MEAN",
+                 save_plot = TRUE,
+                 return_plot = FALSE,
+                 return_data = TRUE,
+                 output_path = output_path)
+
+stock_trends_fun(object = "Iceland Sea Ecoregion",
+                 plotting_var = "StockCode",
+                 grouping_var = "EcoRegion",
+                 metric = "MSY",
+                 active_year = 2017,
+                 dynamic = FALSE,
+                 data_caption = TRUE,
+                 file_name = "is_MSY",
+                 save_plot = TRUE,
+                 return_plot = FALSE,
+                 return_data = TRUE,
+                 output_path = output_path)
+
+stock_trends_fun(object = "Iceland Sea Ecoregion",
+                 plotting_var = "StockCode",
+                 grouping_var = "EcoRegion",
+                 metric = "MEAN",
+                 active_year = 2017,
+                 dynamic = FALSE,
+                 data_caption = TRUE,
+                 file_name = "is_MEAN",
+                 save_plot = TRUE,
+                 return_plot = FALSE,
+                 return_data = TRUE,
+                 output_path = output_path)
+

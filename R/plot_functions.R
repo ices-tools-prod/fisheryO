@@ -448,7 +448,7 @@ stockPie_fun <- function(ecoregion,
     cap_lab <- labs(title = "", x = "", y = "",
                     caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
                                       "2017",
-                                      "September"))
+                                      "November"))
   }
   if(!data_caption) {
     cap_lab <- labs(x = "",
@@ -581,7 +581,7 @@ gesPie_fun <- function(ecoregion,
     cap_lab <- labs(title = "", x = "", y = "",
                     caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
                                       "2017",
-                                      "September"))
+                                      "November"))
   }
   if(!data_caption) {
     cap_lab <- labs(x = "",
@@ -810,7 +810,7 @@ stock_trends_fun <- function(object,
     cap_lab <- labs(title = plot_title, x = "Year", y = "", color = "Stock code",
                         caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
                                           "2017",
-                                          "September"))
+                                          "November"))
   }
   if(!data_caption) {
     cap_lab <- labs(title = plot_title,
@@ -981,7 +981,7 @@ plot_kobe <- function(ecoregion,
                     y = "Catch and landings (tonnes)",
                     caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
                                       "2017",
-                                      "September"))
+                                      "November"))
   }
   if(!data_caption) {
     cap_lab <- labs(x = "Stock",
@@ -1236,7 +1236,7 @@ guild_discards_fun <- function(ecoregion,
                     title = "b)",
                     caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
                                       "2017",
-                                      "September"))
+                                      "November"))
   }
   if(!data_caption) {
     cap_lab <- labs(x = "", y = "Discards and landings (thousand tonnes)",

@@ -7,9 +7,9 @@
 plot_kobe(ecoregion, guild = c("all", "benthic", "demersal", "pelagic",
   "crustacean", "elasmobranch", "large-scale stocks")[1], active_year = 2016,
   data_caption = TRUE, output_path = NULL, return_plot = TRUE,
-  save_plot = FALSE, catch_limit = 0, file_name = NULL,
-  plotTitle = NULL, fig.width = 170, fig.height = 100.5, units = "mm",
-  res = 300, dynamic = FALSE)
+  return_data = FALSE, save_plot = FALSE, catch_limit = 0,
+  file_name = NULL, plotTitle = NULL, fig.width = 131.32,
+  fig.height = 88.9, units = "mm", res = 300, dynamic = FALSE)
 }
 \arguments{
 \item{ecoregion}{ecoregion name, e.g. Greater North Sea Ecoregion}
@@ -23,6 +23,8 @@ plot_kobe(ecoregion, guild = c("all", "benthic", "demersal", "pelagic",
 \item{output_path}{path for output to live.}
 
 \item{return_plot}{logical to return plot to current environment.}
+
+\item{return_data}{logical on returning a .csv of plotted data}
 
 \item{save_plot}{logical to save plot.}
 
@@ -47,7 +49,7 @@ When \code{file_name} is \code{NULL}, the file name is the ecoregion.
 When \code{output_path} is \code{NULL}, the file is saved to "~/".
 }
 \description{
-This function returns a 2 plots: a scatter plot of F/F<sub>MSY</sub> and SSB/MSY B<sub>trigger</sub>
+The \code{plot_kobe} function returns a 2 plots: a scatter plot of F/F<sub>MSY</sub> and SSB/MSY B<sub>trigger</sub>
 by fish category and ecoregion and a "lollipop" plot of total catch (divided into discards and landings) by stock.
 }
 \note{

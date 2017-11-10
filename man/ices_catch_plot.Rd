@@ -7,7 +7,8 @@
 ices_catch_plot(ecoregion, type = c("COMMON_NAME", "COUNTRY", "GUILD")[1],
   line_count = 4, plot_type = c("line", "area")[1], data_caption = TRUE,
   output_path = NULL, file_name = "figure2", save_plot = FALSE,
-  return_plot = TRUE, fig.width = 174, fig.height = 68, text.size = 9)
+  return_plot = TRUE, return_data = FALSE, fig.width = 174,
+  fig.height = 68, text.size = 9)
 }
 \arguments{
 \item{ecoregion}{ecoregion name, e.g. Greater North Sea Ecoregion}
@@ -28,6 +29,8 @@ ices_catch_plot(ecoregion, type = c("COMMON_NAME", "COUNTRY", "GUILD")[1],
 
 \item{return_plot}{logical to return plot to current environment.}
 
+\item{return_data}{logical on returning a .csv of plotted data}
+
 \item{fig.width}{width pf combined set of plots}
 
 \item{fig.height}{height of combined set of plots}
@@ -41,7 +44,7 @@ When \code{file_name} is \code{NULL}, the file name is the ecoregion.
 When \code{output_path} is \code{NULL}, the file is saved to "~/".
 }
 \description{
-This function returns an area or line plot of landings (historic and official catch) for an ecoregion by country,
+The \code{ices_catch_plot} function returns an area or line plot of landings (historic and official catch) for an ecoregion by country,
 guild, or species.
 }
 \note{

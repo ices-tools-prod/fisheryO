@@ -146,32 +146,42 @@ clean_sag <- function(active_year = 2016){
 
   data(list = raw_data, envir = environment())
 
-  # Old stock codes
-  if(active_year <= 2016) {
-    filter_stocks <- c("cod-ingr", "cod-wgr",
-                       "sal-nea", "san-scow",
-                       "sal-na", "sal-32",
-                       "sal-2431",
-                       "trt-bal", "sal-wgc")
-  }
-  if(active_year >= 2017){
-    filter_stocks <- c("cod.21.1", "cod.21.1a-e",
-                       "sal.27.nea", "san.27.6a",
-                       "sal.21.2-5", "sal.27.32",
-                       "sal.27.22-31",
-                       "trs.27.22-32", "sal.2127.1a-f14")
-  }
+  filter_stocks <- c("cod-ingr", "cod-wgr", "sal-nea", "san-scow",
+                       "sal-na", "sal-32", "sal-2431",
+                       "trt-bal", "sal-wgc", "cod.21.1", "cod.21.1a-e",
+                       "sal.27.nea", "san.27.6a", "sal.21.2-5", "sal.27.32",
+                       "sal.27.22-31", "trs.27.22-32", "sal.2127.1a-f14")
 
   stock_list <- stock_list_raw %>%
-    filter(ActiveYear == active_year) %>%
-    select(StockCode = StockKeyLabel,
+    filter(ActiveYear == active_year,
+           !is.na(YearOfLastAssessment)) %>%
+    # ICES adopted new stock codes in 2017. Multiyear MSY/MP stocks are linked to old codes until new assessment
+    mutate(StockKeyLabel = ifelse(StockKeyLabel == "had.27.7a",
+                                  "had-iris",
+                                  StockKeyLabel),
+          StockCode = case_when(is.na(YearOfLastAssessment) &
+                                   is.na(YearOfNextAssessment) ~ StockKeyLabel,
+                                 active_year >= 2017 &
+                                   YearOfLastAssessment < 2017 &
+                                   # YearOfNextAssessment > 2017 &
+                                   AdviceCategory %in% c("MSY", "MP", "MSY/PA") ~ PreviousStockKeyLabel,
+                                 TRUE ~ StockKeyLabel),
+           ID2016 = toupper(gsub( "-.*$", "", StockCode)),
+           ID2017 = toupper(gsub("\\..*", "", StockCode)),
+           SpeciesID = case_when(active_year < 2017 ~ ID2016,
+                                   YearOfLastAssessment < 2017 &
+                                   # YearOfNextAssessment > 2017 &
+                                   AdviceCategory %in% c("MSY", "MP", "MSY/PA") ~ ID2016,
+                                 TRUE ~ ID2017)) %>%
+    select(StockCode,
            Description = StockKeyDescription,
            SpeciesScientificName,
            EcoRegion,
            DataCategory,
            YearOfLastAssessment,
            AdviceCategory,
-           FisheriesGuild) %>%
+           FisheriesGuild,
+           SpeciesID) %>%
     filter(!StockCode %in% filter_stocks) %>%
     mutate(DataCategory = floor(as.numeric(DataCategory)),
            StockCode = tolower(StockCode),
@@ -181,6 +191,10 @@ clean_sag <- function(active_year = 2016){
                               "Micromesistius poutassou", Description), # misspelled blue whiting
            Description = gsub(pattern = "Solea spp.",
                               "Solea solea", Description), # wrong description for sole
+           Description = gsub(pattern = "Platichtys flesus",
+                              "Platichthys flesus", Description),
+           Description = gsub(pattern = "Lophius piscatorius and L. budegassa",
+                              "Lophius piscatorius and Lophius budegassa", Description),
            AdviceCategory = ifelse(AdviceCategory == "MSY/PA",
                                    "MSY", AdviceCategory),
            SpeciesScientificName = recode(SpeciesScientificName,
@@ -191,13 +205,6 @@ clean_sag <- function(active_year = 2016){
     mutate(EcoRegion = ifelse(grepl("Norwegian|Barents", EcoRegion),
                               "Norwegian Sea and Barents Sea Ecoregions",
                               EcoRegion))
-
-  if(active_year <= 2016){
-    stock_list$SpeciesID <- toupper(gsub( "-.*$", "", stock_list$StockCode))
-  }
-  if(active_year >= 2017){
-    stock_list$SpeciesID <- toupper(gsub("\\..*", "", stock_list$StockCode))
-  }
 
   # Format so the species names will be italicized
   stock_list_frmt <- bind_rows(
@@ -251,14 +258,14 @@ clean_sag <- function(active_year = 2016){
            discards)
 
   # List of the F types that we want to include in the analysis and those that should be considered "relative"
-  keeper_F <- c("F", "F/FMSY", "F in winter rings", "Harvest rate",
-                "Harvest rate/FMSY", "Fishing Pressure", "weighted F")
-  relative_F <- c("F/FMSY", "Harvest rate/FMSY")
+  keeper_F <- c("F", "F/FMSY", "F in winter rings", "Harvest rate", "F/Fmsy", "Harvest Rate","F(ages 3-6)",
+                "Harvest rate/FMSY", "Fishing Pressure", "weighted F", "Total biomass/Bmsy")
+  relative_F <- c("F/FMSY", "F/Fmsy", "Harvest rate/FMSY")
 
   # List of the SSB types that we want to include in the analysis and those that should be considered "relative"
-  keeper_SSB <- c("SSB", "B/BMSY", "SSB & Biomass Age 4+", "UW Tv Index",
-                  "Stock Size", "Total biomass/BMSY", "Abundance", "Stock abundance")
-  relative_SSB <- c("B/BMSY", "Total biomass/BMSY")
+  keeper_SSB <- c("SSB", "B/BMSY", "SSB & Biomass Age 4+", "UW Tv Index", "Total biomass/Bmsy", "B/Bmsy",
+                  "Stock Size", "Total biomass/BMSY", "Abundance", "Stock abundance", "Abundance Index", "UW Tv index")
+  relative_SSB <- c("B/BMSY", "B/Bmsy", "Total biomass/BMSY", "Total biomass/Bmsy")
 
   # Clean up the stock summary data
   sag_summary_clean <- sag_summary %>%
@@ -266,9 +273,9 @@ clean_sag <- function(active_year = 2016){
            # ****************** #
            # SSB is not in SAG for meg-4a6a 2015. Added from:
            # http://ices.dk/sites/pub/Publication%20Reports/Expert%20Group%20Report/acom/2015/WGCSE/05.03_Megrim%20IV_VI_2015.pdf#page=22
-           SSB = ifelse(Year == 2015 & StockCode %in% c("meg-4a6a", "lez.27.4a6a"),
-                        1.91,
-                        SSB),
+           # SSB = ifelse(Year == 2015 & StockCode %in% c("meg-4a6a", "lez.27.4a6a"),
+           #              1.91,
+           #              SSB),
            # discards are erroneously uploaded to SAG for nep-5 2015.
            discards = ifelse(Year == 2015 & StockCode %in% c("nep-5", "nep.fu.5"),
                              NA,
@@ -613,8 +620,7 @@ frmt_summary_tbl <- function(active_year = active_year,
       filter(variable != "-") %>%
       arrange(variable, year) %>%
       mutate(year = paste0(variable, year),
-             year = factor(year, levels = unique(year))) %>%
-      select(-AssessmentKey1)
+             year = factor(year, levels = unique(year)))
 
     # ID the list of stocks
     stock_summary_table <-  stck_frmt %>%
@@ -1066,6 +1072,9 @@ return(ges_table)
 #'  ecoregion and \code{sag_complete_summary} from \code{\link{clean_sag}}.
 #'
 #' @param active_year numeric of the stock database version (year). e.g., 2016
+#' @param grouping_var character string of the desired grouping. Options include: EcoRegion, EcoGuild, or FisheriesGuild
+#' @param plotting_var character string of the variable to plot. Options include: StockCode or FisheriesGuild (mean)
+#' @param metric character string of the desired metric. Options include: MSY or MEAN (according to grouping_var)
 #'
 #' @note Stocks are linked to ecoregions and fish categories via the ICES Stock database.
 #' Reference points are as published in ICES Stock Assessment Graphs database. In some cases,
@@ -1090,53 +1099,100 @@ return(ges_table)
 # Stock Status over time data #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
-clean_stock_trends <- function(active_year = 2016) {
+clean_stock_trends <- function(active_year = 2016,
+                               grouping_var = c("EcoGuild", "EcoRegion", "FisheriesGuild")[1],
+                               plotting_var = c("StockCode", "FisheriesGuild")[1],
+                               metric = c("MSY", "MEAN")[1]) {
+
+  if(!grouping_var %in% c("EcoRegion",
+                          "EcoGuild",
+                          "FisheriesGuild")) {
+    stop(paste0("grouping_var: '", grouping_var, "' is not supported. Please try: 'EcoRegion', 'EcoGuild', or 'FisheriesGuild'"))
+  }
+  if(!plotting_var %in% c("StockCode",
+                          "FisheriesGuild")) {
+    stop(paste0("plotting_var: '", plotting_var, "' is not supported. Please try: 'StockCode' or 'FisheriesGuild'"))
+  }
+  if(plotting_var == "FisheriesGuild" &
+     grouping_var %in% c("EcoGuild", "FisheriesGuild")) {
+    stop("plotting_var = 'FisheriesGuild' should only be used with grouping_var = 'EcoRegion'.")
+  }
+  if(!metric %in% c("MSY", "MEAN")) {
+    stop(paste0("metric: '", metric, "' is not supported. Please try: 'MSY' or 'MEAN'"))
+  }
+
 
   dat <-  clean_sag(active_year)
   sag_complete_smmry <- dat$sag_complete_summary
+  grouping_variable <- rlang::sym(grouping_var)
+  plotting_variable <- rlang::sym(plotting_var)
 
-  stock_trends <- sag_complete_smmry %>%
+  stock_means <- sag_complete_smmry %>%
     tidyr::unnest(data) %>%
+    group_by(rlang::UQ(grouping_variable),
+             Year) %>% 
+    mutate(FMEAN = mean(F, na.rm = TRUE),
+           SSBMEAN = mean(SSB, na.rm = TRUE),
+           FMEAN = ifelse(!grepl("F|F(ages 3-6)", fishingPressureDescription),
+                          NA,
+                          FMEAN),
+           SSBMEAN = ifelse(!grepl("SSB", stockSizeDescription),
+                  NA,
+                  SSBMEAN))
+    
+  stock_trends <- stock_means %>% 
     mutate(F_FMSY = ifelse(!is.na(FMSY),
                            F / FMSY,
                            NA),
            SSB_MSYBtrigger = ifelse(!is.na(MSYBtrigger),
                                     SSB / MSYBtrigger,
-                                    NA)) %>%
+                                    NA),
+           F_FMEAN = ifelse(!is.na(FMEAN),
+                            F / FMEAN, 
+                            NA),
+           SSB_SSBMEAN = ifelse(!is.na(SSBMEAN),
+                                SSB / SSBMEAN,
+                                NA),
+           EcoGuild = paste0(EcoRegion, " - ", FisheriesGuild, " stocks")) %>%
     select(Year,
            StockCode,
            FisheriesGuild,
            EcoRegion,
+           EcoGuild,
            F_FMSY,
-           SSB_MSYBtrigger) %>%
-    tidyr::gather(METRIC, stockValue, -Year, -StockCode, -FisheriesGuild, -EcoRegion) %>%
-    group_by(EcoRegion, FisheriesGuild, METRIC, Year) %>%
-    mutate(ecoGuildMean = mean(stockValue, na.rm = TRUE))
+           SSB_MSYBtrigger,
+           F_FMEAN,
+           SSB_SSBMEAN) %>%
+    tidyr::gather(METRIC, stockValue, -Year, -StockCode, -FisheriesGuild, -EcoRegion, -EcoGuild) %>%
+    filter(!is.na(Year),
+           grepl(metric, METRIC))
 
-  stock_trends_frmt <- bind_rows(
-    stock_trends %>%
-      mutate(EcoGuild = paste0(EcoRegion, " - ", FisheriesGuild, " stocks")) %>%
-      ungroup() %>%
-      select(pageGroup = EcoGuild,
-             lineGroup = StockCode,
-             Year,
-             plotGroup = METRIC,
-             plotValue = stockValue) %>%
-      filter(!is.na(plotValue)),
+  stock_trends_grp <- stock_trends %>%
+    group_by(rlang::UQ(grouping_variable),
+             rlang::UQ(plotting_variable), METRIC, Year) %>%
+    summarize(plotValue = mean(stockValue, na.rm = TRUE)) %>%
+    select(pageGroup = rlang::UQ(grouping_variable),
+           lineGroup = rlang::UQ(plotting_variable),
+           Year,
+           plotGroup = METRIC,
+           plotValue) %>%
+    filter(!is.na(plotValue))
 
-    stock_trends %>%
-      mutate(EcoGuild = paste0(EcoRegion, " - ", FisheriesGuild, " stocks")) %>%
-      ungroup() %>%
-      distinct(EcoGuild, METRIC, Year, .keep_all = TRUE) %>%
-      select(pageGroup = EcoGuild,
-             Year,
-             plotGroup = METRIC,
-             plotValue = ecoGuildMean) %>%
-      mutate(lineGroup = "MEAN") %>%
-      filter(!is.na(plotValue))
-  )
+  stock_trends_mean <- stock_trends %>%
+    group_by(rlang::UQ(grouping_variable), METRIC, Year) %>%
+    summarize(plotValue = mean(stockValue, na.rm = TRUE),
+              lineGroup = "MEAN") %>%
+    select(pageGroup = rlang::UQ(grouping_variable),
+           lineGroup,
+           Year,
+           plotGroup = METRIC,
+           plotValue) %>%
+    filter(!is.na(plotValue))
 
-  # devtools::use_data(stock_trends_frmt)
+  stock_trends_frmt <- bind_rows(stock_trends_grp,
+                                 stock_trends_mean) %>%
+    distinct(.keep_all = TRUE)
+
   return(list("stock_trends_frmt" = stock_trends_frmt,
               "sag_complete_summary" = dat$sag_complete_summary))
 }
@@ -1485,7 +1541,10 @@ stecf_effort_df <- stecf_effort_raw %>%
   mutate(ISO3c = ifelse(grepl("SCO|ENG|GBG|GBJ|IOM|NIR", country),
                                 "GBR",
                                 country),
-         COUNTRY = countrycode::countrycode(ISO3c, "iso3c", "country.name")) %>%
+         COUNTRY = countrycode::countrycode(ISO3c, "iso3c", "country.name"),
+         COUNTRY = ifelse(grepl("United Kingdom", COUNTRY),
+                          "United Kingdom",
+                          COUNTRY)) %>%
   mutate(YEAR = as.numeric(year),
          EFFORT = as.numeric(nominal_effort)) %>%
   select(YEAR,
@@ -1499,7 +1558,10 @@ stecf_landings_df <- stecf_landings_raw %>%
   mutate(ISO3c = ifelse(grepl("SCO|ENG|GBG|GBJ|IOM|NIR", country),
                         "GBR",
                         country),
-         COUNTRY = countrycode::countrycode(ISO3c, "iso3c", "country.name")) %>%
+         COUNTRY = countrycode::countrycode(ISO3c, "iso3c", "country.name"),
+         COUNTRY = ifelse(grepl("United Kingdom", COUNTRY),
+                          "United Kingdom",
+                          COUNTRY)) %>%
   mutate(YEAR = as.numeric(year),
          LANDINGS = as.numeric(sum_landings),
          LANDINGS = ifelse(COUNTRY == "Germany" &

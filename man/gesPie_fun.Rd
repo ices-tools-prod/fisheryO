@@ -7,7 +7,7 @@
 gesPie_fun(ecoregion, fisheries_guild = c("pelagic", "demersal", "crustacean",
   "elasmobranch", "benthic"), calculate_status = FALSE, data_caption = TRUE,
   file_name = NULL, active_year = 2016, save_plot = FALSE,
-  return_plot = TRUE, output_path = NULL)
+  return_plot = TRUE, return_data = FALSE, output_path = NULL)
 }
 \arguments{
 \item{ecoregion}{ecoregion name, e.g. Greater North Sea}
@@ -26,6 +26,8 @@ gesPie_fun(ecoregion, fisheries_guild = c("pelagic", "demersal", "crustacean",
 
 \item{return_plot}{logical to return plot to current environment.}
 
+\item{return_data}{logical on returning a .csv of plotted data}
+
 \item{output_path}{path for output to live.}
 }
 \value{
@@ -34,7 +36,7 @@ When \code{file_name} is \code{NULL}, the file name is the ecoregion.
 When \code{output_path} is \code{NULL}, the file is saved to "~/".
 }
 \description{
-This function returns pie charts of the proportion of stocks
+The \code{gesPie_fun} function returns pie charts of the proportion of stocks
 relative to GES reference points in an ecoregion.
 }
 \note{

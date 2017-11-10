@@ -1,7 +1,7 @@
 Package: fisheryO
 Type: Package
 Title: Fisheries Overviews for ICES Advice
-Version: 0.1.2
+Version: 0.2
 Authors@R: person("Scott", "Large", email = "Scott.Large@ices.dk",
                   role = c("aut", "cre"))
 Description: Functions that work with International Council for the Exploration

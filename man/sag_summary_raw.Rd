@@ -4,7 +4,7 @@
 \name{sag_summary_raw}
 \alias{sag_summary_raw}
 \title{ICES Stock Assessment Graphs database - summary information from assessment output}
-\format{A data frame with 15770 rows and 23 variables:}
+\format{A data frame with 18454 rows and 23 variables:}
 \source{
 \url{https://standardgraphs.ices.dk/}
 }
@@ -12,7 +12,7 @@
 sag_summary_raw
 }
 \description{
-Data from published ICES advice from 2014-2017. Accessed 13 June 2017. "ICES Stock Assessment Database, 2017/June. ICES, Copenhagen"
+Data from published ICES advice from 2014-2017. Accessed Accessed 5 July 2017. ICES Stock Assessment Database, 2017/July ICES, Copenhagen
 }
 \details{
 \itemize{

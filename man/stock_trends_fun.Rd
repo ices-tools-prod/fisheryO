@@ -4,8 +4,9 @@
 \alias{stock_trends_fun}
 \title{Stock status over time}
 \usage{
-stock_trends_fun(object, grouping_var = c("EcoGuild", "EcoRegion",
-  "FisheriesGuild")[1], active_year = 2016, dynamic = FALSE,
+stock_trends_fun(object, plotting_var = c("StockCode", "FisheriesGuild")[1],
+  grouping_var = c("EcoGuild", "EcoRegion", "FisheriesGuild")[1],
+  metric = c("MSY", "MEAN")[1], active_year = 2016, dynamic = FALSE,
   data_caption = TRUE, file_name = NULL, save_plot = FALSE,
   return_plot = TRUE, return_data = FALSE, output_path = NULL,
   stackable = FALSE)
@@ -14,7 +15,11 @@ stock_trends_fun(object, grouping_var = c("EcoGuild", "EcoRegion",
 \item{object}{name of data to plot. Must agree with the grouping_var argument. E.g., EcoGuild must be the combined ecoregion
 name and fish category, e.g. "Greater North Sea Ecoregion - demersal stocks"}
 
+\item{plotting_var}{character string of the variable to plot. Options include: StockCode or FisheriesGuild (mean)}
+
 \item{grouping_var}{character string of the desired grouping. Options include: EcoRegion, EcoGuild, or FisheriesGuild}
+
+\item{metric}{character string of the desired metric. Options include: MSY or MEAN (according to grouping_var)}
 
 \item{active_year}{numeric of the stock database version (year). e.g., 2016}
 

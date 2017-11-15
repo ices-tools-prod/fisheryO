@@ -5,12 +5,17 @@
 \title{Clean stock status trends}
 \usage{
 clean_stock_trends(active_year = 2016, grouping_var = c("EcoGuild",
-  "EcoRegion", "FisheriesGuild")[1])
+  "EcoRegion", "FisheriesGuild")[1], plotting_var = c("StockCode",
+  "FisheriesGuild")[1], metric = c("MSY", "MEAN")[1])
 }
 \arguments{
 \item{active_year}{numeric of the stock database version (year). e.g., 2016}
 
 \item{grouping_var}{character string of the desired grouping. Options include: EcoRegion, EcoGuild, or FisheriesGuild}
+
+\item{plotting_var}{character string of the variable to plot. Options include: StockCode or FisheriesGuild (mean)}
+
+\item{metric}{character string of the desired metric. Options include: MSY or MEAN (according to grouping_var)}
 }
 \value{
 A list of 2: 1) data frame of F and SSB relative to F<sub>MSY</sub> and MSY B<sub>trigger</sub> reference points

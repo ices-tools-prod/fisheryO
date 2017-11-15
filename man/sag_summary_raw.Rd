@@ -4,7 +4,7 @@
 \name{sag_summary_raw}
 \alias{sag_summary_raw}
 \title{ICES Stock Assessment Graphs database - summary information from assessment output}
-\format{A data frame with 18454 rows and 23 variables:}
+\format{A data frame with 20204 rows and 23 variables:}
 \source{
 \url{https://standardgraphs.ices.dk/}
 }

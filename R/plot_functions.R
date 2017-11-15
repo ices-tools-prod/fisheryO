@@ -445,10 +445,15 @@ stockPie_fun <- function(ecoregion,
   }
 
   if(data_caption) {
+    data("date_data", package = "fisheryO")
+    
+    cap_month <- format(min(date_data$date[grepl("sag", date_data$data_file)]), "%B")
+    cap_year <- format(min(date_data$date[grepl("sag", date_data$data_file)]), "%Y")
+    
     cap_lab <- labs(title = "", x = "", y = "",
                     caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
-                                      "2017",
-                                      "November"))
+                                      cap_year,
+                                      cap_month))
   }
   if(!data_caption) {
     cap_lab <- labs(x = "",
@@ -578,10 +583,15 @@ gesPie_fun <- function(ecoregion,
   }
 
   if(data_caption) {
+    data("date_data", package = "fisheryO")
+    
+    cap_month <- format(min(date_data$date[grepl("sag", date_data$data_file)]), "%B")
+    cap_year <- format(min(date_data$date[grepl("sag", date_data$data_file)]), "%Y")
+    
     cap_lab <- labs(title = "", x = "", y = "",
                     caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
-                                      "2017",
-                                      "November"))
+                                      cap_year,
+                                      cap_month))
   }
   if(!data_caption) {
     cap_lab <- labs(x = "",
@@ -807,10 +817,15 @@ stock_trends_fun <- function(object,
   plot_title <- gsub(" stocks", "", plot_title)
 
   if(data_caption) {
+    data("date_data", package = "fisheryO")
+    
+    cap_month <- format(min(date_data$date[grepl("sag", date_data$data_file)]), "%B")
+    cap_year <- format(min(date_data$date[grepl("sag", date_data$data_file)]), "%Y")
+    
     cap_lab <- labs(title = plot_title, x = "Year", y = "", color = "Stock code",
                         caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
-                                          "2017",
-                                          "November"))
+                                          cap_year,
+                                          cap_month))
   }
   if(!data_caption) {
     cap_lab <- labs(title = plot_title,
@@ -977,11 +992,16 @@ plot_kobe <- function(ecoregion,
   }
 
   if(data_caption) {
+    data("date_data", package = "fisheryO")
+    
+    cap_month <- format(min(date_data$date[grepl("sag", date_data$data_file)]), "%B")
+    cap_year <- format(min(date_data$date[grepl("sag", date_data$data_file)]), "%Y")
+    
     cap_lab <- labs(x = "Stock",
                     y = "Catch and landings (tonnes)",
                     caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
-                                      "2017",
-                                      "November"))
+                                      cap_year,
+                                      cap_month))
   }
   if(!data_caption) {
     cap_lab <- labs(x = "Stock",
@@ -1232,11 +1252,16 @@ guild_discards_fun <- function(ecoregion,
   }
 
   if(data_caption) {
+    data("date_data", package = "fisheryO")
+    
+    cap_month <- format(min(date_data$date[grepl("sag", date_data$data_file)]), "%B")
+    cap_year <- format(min(date_data$date[grepl("sag", date_data$data_file)]), "%Y")
+    
     cap_lab <- labs(x = "", y = "Discards and landings (thousand tonnes)",
                     title = "b)",
                     caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
-                                      "2017",
-                                      "November"))
+                                      cap_year,
+                                      cap_month))
   }
   if(!data_caption) {
     cap_lab <- labs(x = "", y = "Discards and landings (thousand tonnes)",
@@ -1500,11 +1525,16 @@ ices_catch_plot <- function(ecoregion, #IA = unique(allDat$ECOREGION)[1],
   }
 
   if(data_caption) {
+    data("date_data", package = "fisheryO")
+    
+    cap_month <- format(min(date_data$date[grepl("ices_catch", date_data$data_file)]), "%B")
+    cap_year <- format(min(date_data$date[grepl("ices_catch", date_data$data_file)]), "%Y")
+    
     cap_lab <-  labs(x = "",
                      y = "Landings (thousand tonnes)",
                      caption = sprintf("Historical Nominal Catches 1950-2010, \nOfficial Nominal Catches 2006-2015. Accessed %s/%s. ICES, Copenhagen.",
-                                       "2017",
-                                       "July"))
+                                       cap_year,
+                                       cap_month))
   }
   if(!data_caption) {
     cap_lab <- labs(x = "",
@@ -1775,9 +1805,12 @@ stecf_plot <- function(ecoregion,
   catchPlot <- rbind(catchPlot[!catchPlot$type_var == "other",],
                      catchPlot[catchPlot$type_var == "other",])
 
+  cap_year <- format(min(date_data$date[grepl("sag", date_data$data_file)]), "%Y")
+  cap_month <- format(min(date_data$date[grepl("sag", date_data$data_file)]), "%B")
+  
   my_caption <- sprintf("STECF 16-20, Accessed %s/%s. doi:10.2788/502445",
-                        "2017",
-                        "March")
+                        cap_year,
+                        cap_month)
 
   if(data_caption) {
     cap_lab <- labs(title = "", x = "", y = catchLabel,

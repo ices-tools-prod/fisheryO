@@ -10,7 +10,6 @@
 #'
 #' @author Scott Large
 #'
-#' @seealso Used in \code{\link{area_definition_map}} to a map describing potential mismatches between ICES Ecoregions and ICES Areas.
 #'
 #' Input data: \code{\link{ices_shape}}, \code{\link{eco_shape}}, and \code{\link{europe_shape}}.
 #'
@@ -1013,8 +1012,8 @@ ges_stock_props <- function(active_year = active_year,
 
   ges_table_count <- pie_tbl %>% #pie_table
     select(EcoRegion,
-           D3C2 = FMSY,
-           D3C1 = BMSY) %>%
+           D3C2 = BMSY,
+           D3C1 = FMSY) %>%
     tidyr::gather(VARIABLE, COLOR, -EcoRegion) %>%
     mutate(COLOR = ifelse(is.na(COLOR),
                           "GREY",
@@ -1045,8 +1044,8 @@ ges_stock_props <- function(active_year = active_year,
     left_join(pie_tbl, by = "StockCode") %>%
     select(EcoRegion,
            CATCH,
-           D3C2 = FMSY,
-           D3C1 = BMSY) %>%
+           D3C2 = BMSY,
+           D3C1 = FMSY) %>%
     tidyr::gather(VARIABLE, COLOR, -EcoRegion, -CATCH) %>%
     mutate(COLOR = ifelse(is.na(COLOR),
                           "GREY",

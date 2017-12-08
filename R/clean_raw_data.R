@@ -1128,6 +1128,7 @@ clean_stock_trends <- function(active_year = 2016,
 
   stock_means <- sag_complete_smmry %>%
     tidyr::unnest(data) %>%
+    mutate(EcoGuild =  paste0(EcoRegion, " - ", FisheriesGuild, " stocks")) %>% 
     group_by(rlang::UQ(grouping_variable),
              Year) %>% 
     mutate(FMEAN = mean(F, na.rm = TRUE),
@@ -1151,8 +1152,7 @@ clean_stock_trends <- function(active_year = 2016,
                             NA),
            SSB_SSBMEAN = ifelse(!is.na(SSBMEAN),
                                 SSB / SSBMEAN,
-                                NA),
-           EcoGuild = paste0(EcoRegion, " - ", FisheriesGuild, " stocks")) %>%
+                                NA)) %>%
     select(Year,
            StockCode,
            FisheriesGuild,

@@ -190,48 +190,9 @@ load_raw_data <- function(raw_data = c("all",
     devtools::use_data(europe_shape, compress='xz', overwrite = TRUE)
   }
   
-  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-  # DATA SOURCE: ICES Stock Assessment Graphs Database #
-  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-  sag_summary_raw <- icesSAG::getSAG(stock = NULL,
-                                     year = 2014:2017,
-                                     data = "summary",
-                                     combine = TRUE)
-  devtools::use_data(sag_summary_raw, overwrite = TRUE)
-  
-  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-  # DATA SOURCE: ICES Stock Assessment Graphs Database #
-  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-  
-  sag_refpts_raw <- icesSAG::getSAG(stock = NULL,
-                                    year = 2014:2017,
-                                    data = "refpts",
-                                    combine = TRUE)
-  devtools::use_data(sag_refpts_raw, overwrite = TRUE)
-  
-  
-  sag_keys_raw <- do.call("rbind", lapply(2014:2017,
-                                          function(x) icesSAG::findAssessmentKey(stock = NULL,
-                                                                                 year = x,
-                                                                                 full = TRUE)[, c("AssessmentYear",
-                                                                                                  "AssessmentKey",
-                                                                                                  "StockKeyLabel")]))
-  devtools::use_data(sag_keys_raw, overwrite = TRUE)
-  
-  get_stock_status <- function(assessmentKey) {
-    dat <- icesSAG::getStockStatusValues(assessmentKey)[[1]]
-    if(is.null(dat)) stop(paste0("NULL value returned for assessmentKey = ", assessmentKey))
-    dat
-  }
-  
-  sag_stock_status_raw <- sag_keys_raw %>%
-    mutate(stock_status = purrr::map(.x = AssessmentKey, purrr::possibly(get_stock_status, otherwise = NA_real_))) %>%
-    filter(!is.na(stock_status)) %>%
-    tidyr::unnest(stock_status) %>%
-    select(-AssessmentKey1)
-  
-  devtools::use_data(sag_stock_status_raw, overwrite = TRUE)
-
 }
 
-load_raw_data(raw_data = "all")
+load_raw_data(raw_data = c("stock_list_raw", 
+                           "sag_summary_raw", "sag_refpts_raw", "sag_keys_raw", "sag_stock_status_raw",
+                           "ices_catch_official_raw", "ices_catch_historical_raw",
+                           "species_list_raw"))

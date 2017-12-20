@@ -477,11 +477,11 @@ stockPie_fun <- function(ecoregion,
     filter(fraction != 0) %>%
     ungroup() %>%
     mutate(VARIABLE = recode_factor(VARIABLE,
-                                    "FMSY" = "Fishing pressure\n MSY",
-                                    "BMSY" = "Stock size\n MSY",
-                                    "FPA" = "Fishing pressure\n PA",
-                                    "BPA" = "Stock size \n PA",
-                                    "SBL" = "Safe biological limits"),
+                                    "FMSY" = "Fishing pressure\nMSY",
+                                    "BMSY" = "Stock size\nMSY",
+                                    "FPA" = "Fishing pressure\nPA",
+                                    "BPA" = "Stock size\nPA",
+                                    "SBL" = "Safe\nbiological limits"),
            FisheriesGuild = factor(FisheriesGuild,
                                    levels = c("total", "benthic", "crustacean", "elasmobranch", "demersal", "pelagic"))
     )

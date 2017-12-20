@@ -279,6 +279,17 @@ clean_sag <- function(active_year = 2016){
            discards = ifelse(Year == 2015 & StockCode %in% c("nep-5", "nep.fu.5"),
                              NA,
                              discards),
+           # landings are erroneously uploaded for nop.27.3a4 and pra.27.4a20 2017
+           landings = ifelse(StockCode %in% c("nop.27.3a4", "pra.27.4a20"),
+                             NA,
+                             landings),
+           # Wrong units for san.sa.1r
+           landings = ifelse(StockCode == "san.sa.1r",
+                             landings/1000,
+                             landings),
+           catches = ifelse(StockCode == "san.sa.1r",
+                            catches/1000,
+                            catches),
            # Real value is 0.201. before rounding rules and ADG erred towards green
            F = ifelse(Year == 2015 & StockCode %in% c("sol-nsea", "sol.27.4"),
                       0.20,
@@ -1286,7 +1297,12 @@ stock_catch <- function(active_year = 2016) {
                !is.na(landings),
                is.na(discards),
                landings != catches) %>%
-        mutate(discards = catches - landings)
+        mutate(discards = catches - landings),
+      stock_catch %>%  # Missing landings, but have catches and discards
+        filter(!is.na(catches),
+               is.na(landings),
+               !is.na(discards)) %>%
+        mutate(landings = catches - discards)
     )
 
   return(stock_catch_full)
@@ -1361,7 +1377,8 @@ stock_status <- function(active_year = 2016){
                                     "GREEN",
                                     "RED",
                                     "GREY")),
-           FisheriesGuild = ifelse(StockCode %in% c("whb-comb", "mac-nea"),
+           FisheriesGuild = ifelse(StockCode %in% c("whb-comb", "mac-nea",
+                                                    "whb.27.1-91214", "mac.27.nea"),
                                    "large-scale stocks",
                                    FisheriesGuild))
 

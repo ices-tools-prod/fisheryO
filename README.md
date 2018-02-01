@@ -9,8 +9,8 @@ The fisheryO package is offered to provide documentation of the processes used t
 
 ICES Fisheries Overviews are available for the following ecoregions:
 
--   [Fisheries Overview of Baltic Sea Ecoregion](http://ices.dk/sites/pub/Publication%20Reports/Advice/2017/2017/Baltic_Sea_Ecoregion_Fisheries_Overview.pdf) ([fisheryO v0.2](https://github.com/ices-tools-prod/fisheryO/releases/tag/v0.2))
--   [Fisheries Overview of the Greater North Sea Ecoregion](http://ices.dk/sites/pub/Publication%20Reports/Advice/2017/2017/Greater_North_Sea_Ecoregion_Fisheries_Overview.pdf) ([fisheryO v0.2](https://github.com/ices-tools-prod/fisheryO/releases/tag/v0.2))
+-   [Fisheries Overview of Baltic Sea Ecoregion](http://ices.dk/sites/pub/Publication%20Reports/Advice/2017/2017/Baltic_Sea_Ecoregion_Fisheries_Overview.pdf) ([fisheryO v0.2.1](https://github.com/ices-tools-prod/fisheryO/releases/tag/v0.2.1))
+-   [Fisheries Overview of the Greater North Sea Ecoregion](http://ices.dk/sites/pub/Publication%20Reports/Advice/2017/2017/Greater_North_Sea_Ecoregion_Fisheries_Overview.pdf) ([fisheryO v0.2.1](https://github.com/ices-tools-prod/fisheryO/releases/tag/v0.2.1))
 
 Installation
 ------------
@@ -48,6 +48,7 @@ knitr::kable(as.data.frame(data(package = "fisheryO")$results[,c("Item", "Title"
 
 | Item                         | Title                                                                              |
 |:-----------------------------|:-----------------------------------------------------------------------------------|
+| date\_data                   |                                                                                    |
 | eco\_shape                   | ICES Ecoregions                                                                    |
 | europe\_shape                | Europe map                                                                         |
 | ices\_catch\_historical\_raw | Historical Nominal Catches 1950-2010                                               |
@@ -159,7 +160,8 @@ Stock trends can be grouped by different parameters. `object` specifies the grou
 fisheryO::stock_trends_fun(object = "Greater North Sea Ecoregion", 
                            plotting_var = "StockCode",
                            grouping_var = "EcoRegion",
-                           active_year = 2016,
+                           metric = "MSY",
+                           active_year = 2017,
                            data_caption = TRUE,
                            return_plot = TRUE,
                            save_plot = FALSE)
@@ -169,42 +171,33 @@ fisheryO::stock_trends_fun(object = "Greater North Sea Ecoregion",
 
 ``` r
 
-fisheryO::stock_trends_fun(object = "Greater North Sea Ecoregion - demersal stocks", 
-                           plotting_var = "StockCode",
-                           grouping_var = "EcoGuild",
-                           active_year = 2017,
-                           data_caption = TRUE,
-                           return_plot = TRUE,
-                           save_plot = FALSE)
+# fisheryO::stock_trends_fun(object = "Greater North Sea Ecoregion - demersal stocks", 
+#                            plotting_var = "StockCode",
+#                            grouping_var = "EcoGuild",
+#                            metric = "MSY",
+#                            active_year = 2017,
+#                            data_caption = TRUE,
+#                            return_plot = TRUE,
+#                            save_plot = FALSE)
+# 
+# fisheryO::stock_trends_fun(object = "demersal",
+#                            plotting_var = "StockCode",
+#                            grouping_var = "FisheriesGuild",
+#                            metric = "MSY",
+#                            active_year = 2017,
+#                            data_caption = TRUE,
+#                            return_plot = TRUE,
+#                            save_plot = FALSE)
+# 
+# fisheryO::stock_trends_fun(object = "Greater North Sea Ecoregion", 
+#                            grouping_var = "EcoRegion",
+#                            plotting_var = "FisheriesGuild",
+#                            metric = "MEAN",
+#                            active_year = 2017,
+#                            data_caption = TRUE,
+#                            return_plot = TRUE,
+#                            save_plot = FALSE)
 ```
-
-![](README-stocktrends_example-2.png)
-
-``` r
-
-fisheryO::stock_trends_fun(object = "demersal",
-                           plotting_var = "StockCode",
-                           grouping_var = "FisheriesGuild",
-                           active_year = 2017,
-                           data_caption = TRUE,
-                           return_plot = TRUE,
-                           save_plot = FALSE)
-```
-
-![](README-stocktrends_example-3.png)
-
-``` r
-
-fisheryO::stock_trends_fun(object = "Greater North Sea Ecoregion", 
-                           grouping_var = "EcoRegion",
-                           plotting_var = "FisheriesGuild",
-                           active_year = 2017,
-                           data_caption = TRUE,
-                           return_plot = TRUE,
-                           save_plot = FALSE)
-```
-
-![](README-stocktrends_example-4.png)
 
 Notes
 -----

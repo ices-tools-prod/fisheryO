@@ -1,8 +1,8 @@
-rm(list = ls())
-devtools::install_github("ices-tools-prod/fisheryO", ref = "v0.2")
-library(fisheryO)
+# rm(list = ls())
+# devtools::install_github("ices-tools-prod/fisheryO", ref = "v0.2")
+# library(fisheryO)
 ecoregion = "Greater North Sea Ecoregion"
-active_year = 2016
+active_year = 2017
 output_path = "~/NS_FO/"
 options(scipen = 5)
 
@@ -95,8 +95,8 @@ stecf_plot(ecoregion,
 ## Figure 7.
 guild_discards_fun(ecoregion,
                    data_caption = TRUE,
-                   file_name = "ns_figure7",
-                   active_year = 2016,
+                   file_name = "ns_figure7_update",
+                   active_year = 2017,
                    output_path = output_path,
                    save_plot = TRUE,
                    return_data = TRUE,
@@ -128,8 +128,8 @@ stockPie_fun(ecoregion,
              fisheries_guild = c("pelagic", "demersal", "crustacean", "elasmobranch", "benthic"),
              data_caption = TRUE,
              calculate_status = FALSE,
-             file_name = "ns_figure10",
-             active_year = 2016,
+             file_name = "ns_figure10_update",
+             active_year = 2017,
              save_plot = TRUE,
              return_plot = FALSE,
              return_data = TRUE,
@@ -139,50 +139,62 @@ stockPie_fun(ecoregion,
 gesPie_fun(ecoregion,
            fisheries_guild = c("pelagic", "demersal", "crustacean", "elasmobranch", "benthic"),
            data_caption = TRUE,
-           file_name = "ns_figure11",
+           file_name = "ns_figure11_update",
            calculate_status = FALSE,
-           active_year = 2016,
+           active_year = 2017,
            save_plot = TRUE,
            return_plot = FALSE,
            return_data = TRUE,
            output_path = output_path)
 
 ## Figure 12.
-stock_trends_fun(EcoGuild = "Greater North Sea Ecoregion - benthic stocks",
-                 active_year = 2016,
+stock_trends_fun(object = "Greater North Sea Ecoregion - benthic stocks",
+                 plotting_var = "StockCode",
+                 grouping_var = "EcoGuild",
+                 metric = "MSY",
+                 active_year = 2017,
                  dynamic = FALSE,
                  data_caption = TRUE,
-                 file_name = "ns_figure12_benthic",
+                 file_name = "ns_figure12_benthic_update",
                  save_plot = TRUE,
                  return_plot = FALSE,
                  return_data = TRUE,
                  output_path = output_path)
 
-stock_trends_fun(EcoGuild = "Greater North Sea Ecoregion - demersal stocks",
-                 active_year = 2016,
+stock_trends_fun(object = "Greater North Sea Ecoregion - demersal stocks",
+                 plotting_var = "StockCode",
+                 grouping_var = "EcoGuild",
+                 metric = "MSY",
+                 active_year = 2017,
                  dynamic = FALSE,
                  data_caption = TRUE,
-                 file_name = "ns_figure12_demersal",
+                 file_name = "ns_figure12_demersal_update",
                  save_plot = TRUE,
                  return_plot = FALSE,
                  return_data = TRUE,
                  output_path = output_path)
 
-stock_trends_fun(EcoGuild = "Greater North Sea Ecoregion - pelagic stocks",
-                 active_year = 2016,
+stock_trends_fun(object = "Greater North Sea Ecoregion - pelagic stocks",
+                 plotting_var = "StockCode",
+                 grouping_var = "EcoGuild",
+                 metric = "MSY",
+                 active_year = 2017,
                  dynamic = FALSE,
                  data_caption = TRUE,
-                 file_name = "ns_figure12_pelagic",
+                 file_name = "ns_figure12_pelagic_update",
                  save_plot = TRUE,
                  return_plot = FALSE,
                  return_data = TRUE,
                  output_path = output_path)
 
-stock_trends_fun(EcoGuild = "Greater North Sea Ecoregion - crustacean stocks",
-                 active_year = 2016,
+stock_trends_fun(object = "Greater North Sea Ecoregion - crustacean stocks",
+                 plotting_var = "StockCode",
+                 grouping_var = "EcoGuild",
+                 metric = "MSY",
+                 active_year = 2017,
                  dynamic = FALSE,
                  data_caption = TRUE,
-                 file_name = "ns_figure12_crustacean",
+                 file_name = "ns_figure12_crustacean_update",
                  save_plot = TRUE,
                  return_plot = FALSE,
                  return_data = TRUE,
@@ -192,9 +204,9 @@ stock_trends_fun(EcoGuild = "Greater North Sea Ecoregion - crustacean stocks",
 plot_kobe(ecoregion,
           guild = "all",
           catch_limit = 10000,
-          active_year = 2016,
+          active_year = 2017,
           data_caption = TRUE,
-          file_name = "ns_figure13_all",
+          file_name = "ns_figure13_all_update",
           output_path = output_path,
           return_plot = FALSE,
           return_data = TRUE,
@@ -202,9 +214,9 @@ plot_kobe(ecoregion,
 
 plot_kobe(ecoregion,
           guild = "benthic",
-          active_year = 2016,
+          active_year = 2017,
           data_caption = TRUE,
-          file_name = "ns_figure13_benthic",
+          file_name = "ns_figure13_benthic_update",
           output_path = output_path,
           return_plot = FALSE,
           return_data = TRUE,
@@ -212,9 +224,9 @@ plot_kobe(ecoregion,
 
 plot_kobe(ecoregion,
           guild = "crustacean",
-          active_year = 2016,
+          active_year = 2017,
           data_caption = TRUE,
-          file_name = "ns_figure13_crustacean",
+          file_name = "ns_figure13_crustacean_update",
           output_path = output_path,
           return_plot = FALSE,
           return_data = TRUE,
@@ -222,9 +234,9 @@ plot_kobe(ecoregion,
 
 plot_kobe(ecoregion,
           guild = "demersal",
-          active_year = 2016,
+          active_year = 2017,
           data_caption = TRUE,
-          file_name = "ns_figure13_demersal",
+          file_name = "ns_figure13_demersal_update",
           output_path = output_path,
           return_plot = FALSE,
           return_data = TRUE,
@@ -232,9 +244,9 @@ plot_kobe(ecoregion,
 
 plot_kobe(ecoregion,
           guild = "pelagic",
-          active_year = 2016,
+          active_year = 2017,
           data_caption = TRUE,
-          file_name = "ns_figure13_pelagic",
+          file_name = "ns_figure13_pelagic_update",
           output_path = output_path,
           return_plot = FALSE,
           return_data = TRUE,
@@ -255,7 +267,7 @@ clicks <- dat$sag_complete_summary %>%
                            YearOfLastAssessment,
                            YearOfLastAssessment,
                            StockCode)) %>%
-  write.csv(file = paste0(output_path, "ns_links.csv"), row.names = FALSE)
+  write.csv(file = paste0(output_path, "ns_links_update.csv"), row.names = FALSE)
 
 
 
@@ -278,7 +290,8 @@ stockPlot <- frmt_summary_tbl(active_year,
          AdviceCategory = gsub("MSY|MP", "MSY", AdviceCategory),
          AdviceCategory = ifelse(StockCode %in% proxy_stocks,
                                  "MSY",
-                                 AdviceCategory))
+                                 AdviceCategory),
+        DataCategory = as.factor(DataCategory))
 
 grey.path <- system.file("symbols", "grey_q.png", package = "fisheryO")
 red.path <- system.file("symbols", "red_cross.png", package = "fisheryO")
@@ -292,15 +305,16 @@ if(!all(unlist(lapply(c(grey.path, red.path, green.path, orange.path), file.exis
 colkeys <- colnames(stockPlot[,names(stockPlot) != c("SpeciesScientificName")])
 
 FT <- stockPlot %>%
+  # head() %>% 
   mutate(cname = gsub("<em>", "", stringr::str_extract(Description, ".*?<em>")),
          sname = gsub("<em>|</em>", "", stringr::str_extract(Description, "<em>.*?</em>")),
          rest = gsub("</em>", "", stringr::str_extract(Description, "</em>.*"))) %>%
   flextable::flextable(col_keys = colkeys) %>%
-  flextable::display(col_key = "Description", pattern = "{{cname}}{{sname}}{{rest}}",
-                     formatters = list(cname ~ cname,
-                                       sname ~ sname,
-                                       rest ~ rest),
-                     fprops = list(sname = officer::fp_text(italic = TRUE))) %>%
+  flextable::display(col_key = "Description", pattern = "{{scientific_name}}{{common_name}}{{other}}",
+                     formatters = list(common_name ~ cname,
+                                       scientific_name ~ sname,
+                                       other ~ rest),
+                     fprops = list(scientific_name = officer::fp_text(italic = TRUE))) %>%
   flextable::display(i = ~ SBL == "RED", col_key = "SBL", pattern = "{{add_icon}}",
                      formatters = list(add_icon ~ flextable::as_image(SBL, src = red.path, width = .15, height = .15))) %>%
   flextable::display(i = ~ SBL == "GREY", col_key = "SBL", pattern = "{{add_icon}}",
@@ -443,8 +457,8 @@ FT <- stockPlot %>%
                                D3C1 = "D3C1",
                                D3C2 = "D3C2",
                                GES = "GES") %>%
-  flextable::merge_h(part = "header") %>%
-  flextable::merge_v(part = "header") %>%
+  # flextable::merge_h(part = "header") %>%
+  # flextable::merge_v(part = "header") %>%
   flextable::align(j = c("StockCode",
                          "Description",
                          "FisheriesGuild",
@@ -466,8 +480,9 @@ FT <- stockPlot %>%
   flextable::autofit()
 
 
-officer::read_docx() %>%
-  flextable::body_add_flextable(FT) %>%
-  print(target = paste0(output_path, file_name, ".docx")) %>%
+doc <- officer::read_docx() %>%
+  flextable::body_add_flextable(FT)
+
+print(doc, target = paste0(output_path, "ns_annex_update.docx")) %>%
   invisible()
 

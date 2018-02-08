@@ -166,7 +166,8 @@ load_raw_data <- function(raw_data = c("all",
   if("ices_shape" %in% raw_data) {
     tmp_path <- tempdir()
     get_map("http://gis.ices.dk/shapefiles/ICES_areas.zip")
-    ices_shape <- sf::st_read(dsn = tmp_path, layer = "ICES_Areas_20160601_dense", quiet = FALSE)
+    layer_name <- grep("ICES_Areas", gsub("\\..*", "", list.files(tmp_path)), value = TRUE)[1]
+    ices_shape <- sf::st_read(dsn = tmp_path, layer = layer_name, quiet = FALSE)
     devtools::use_data(ices_shape, compress='xz', overwrite = TRUE)
   }
   
@@ -174,7 +175,8 @@ load_raw_data <- function(raw_data = c("all",
     
     tmp_path <- tempdir()
     get_map("http://gis.ices.dk/shapefiles/ICES_ecoregions.zip")
-    eco_shape <- sf::st_read(dsn = tmp_path, layer = "ICES_ecoregions_20150113_no_land", quiet = FALSE)
+    layer_name <- grep("ICES_ecoregions", gsub("\\..*", "", list.files(tmp_path)), value = TRUE)[1]
+    eco_shape <- sf::st_read(dsn = tmp_path, layer = layer_name, quiet = FALSE)
     devtools::use_data(eco_shape, compress='xz', overwrite = TRUE)
   }
   

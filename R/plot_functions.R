@@ -128,7 +128,7 @@ area_definition_map <- function(ecoregion,
 # Stock Summary Table  #
 # ~~~~~~~~~~~~~~~~~~~~ #
 stockSummaryTable_fun <- function(ecoregion,
-                                  active_year = 2016,
+                                  active_year = 2017,
                                   table_type = c("static_docx", "dynamic_html")[1],
                                   output_path = NULL,
                                   file_name = NULL,
@@ -428,7 +428,7 @@ stockPie_fun <- function(ecoregion,
                          calculate_status = FALSE,
                          data_caption = TRUE,
                          file_name,
-                         active_year = 2016,
+                         active_year = 2017,
                          save_plot = FALSE,
                          return_plot = TRUE,
                          return_data = FALSE,
@@ -561,7 +561,7 @@ gesPie_fun <- function(ecoregion,
                        calculate_status = FALSE,
                        data_caption = TRUE,
                        file_name = NULL,
-                       active_year = 2016,
+                       active_year = 2017,
                        save_plot = FALSE,
                        return_plot = TRUE,
                        return_data = FALSE,
@@ -579,6 +579,7 @@ gesPie_fun <- function(ecoregion,
 
   if(data_caption) {
     cap_lab <- labs(title = "", x = "", y = "",
+  #how can we change this to fit every case                  
                     caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
                                       "2017",
                                       "September"))
@@ -699,7 +700,7 @@ stock_trends_fun <- function(object,
                              plotting_var = c("StockCode", "FisheriesGuild")[1],
                              grouping_var = c("EcoGuild", "EcoRegion", "FisheriesGuild")[1],
                              metric = c("MSY", "MEAN")[1],
-                             active_year = 2016,
+                             active_year = 2017,
                              dynamic = FALSE,
                              data_caption = TRUE,
                              file_name = NULL,
@@ -808,7 +809,8 @@ stock_trends_fun <- function(object,
 
   if(data_caption) {
     cap_lab <- labs(title = plot_title, x = "Year", y = "", color = "Stock code",
-                        caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
+  #how to fit to every case, or date_data in the data_raw                      
+                    caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
                                           "2017",
                                           "September"))
   }
@@ -944,7 +946,7 @@ plot_kobe <- function(ecoregion,
                                 "crustacean",
                                 "elasmobranch",
                                 "large-scale stocks")[1],
-                      active_year = 2016,
+                      active_year = 2017,
                       data_caption = TRUE,
                       output_path = NULL,
                       return_plot = TRUE,
@@ -979,6 +981,7 @@ plot_kobe <- function(ecoregion,
   if(data_caption) {
     cap_lab <- labs(x = "Stock",
                     y = "Catch and landings (tonnes)",
+#same as before                    
                     caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
                                       "2017",
                                       "September"))
@@ -1213,7 +1216,7 @@ plot_kobe <- function(ecoregion,
 
 # Landings and discards disaggregated by guild
 guild_discards_fun <- function(ecoregion,
-                               active_year = 2016,
+                               active_year = 2017,
                                data_caption = TRUE,
                                output_path = NULL,
                                save_plot = FALSE,
@@ -1234,6 +1237,7 @@ guild_discards_fun <- function(ecoregion,
   if(data_caption) {
     cap_lab <- labs(x = "", y = "Discards and landings (thousand tonnes)",
                     title = "b)",
+#same as before                    
                     caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
                                       "2017",
                                       "September"))
@@ -1248,6 +1252,8 @@ guild_discards_fun <- function(ecoregion,
   p3_dat_ts <-  stock_catch(active_year) %>%
     filter(grepl(ecoregion, EcoRegion))
 
+##AV: What should we expect about this point in the updates?
+  
   if(ecoregion == "Baltic Sea Ecoregion"){
     # Get rid of crustacean and elasmobranchs in the Baltic... to appease ADGFO
     p3_dat_ts <- p3_dat_ts %>%
@@ -1271,9 +1277,11 @@ guild_discards_fun <- function(ecoregion,
               by = c("Year", "StockCode", "YearOfLastAssessment",
                      "Description", "FisheriesGuild", "EcoRegion"))
 
+#AV: please explain  
   # Once updated to dplyr v0.6, mutate_at and quo() to make this work with SE.
   # ~~~~~~~~~~~~~~~~~~~~~~~#
-  if(active_year <= 2016){
+ #AV: does this point need update? years?
+   if(active_year <= 2016){
     p3_dat_dcds <- p3_dat_na %>%
       select(StockCode, Year, discards, YearOfLastAssessment) %>%
       group_by(StockCode) %>%
@@ -1502,6 +1510,7 @@ ices_catch_plot <- function(ecoregion, #IA = unique(allDat$ECOREGION)[1],
   if(data_caption) {
     cap_lab <-  labs(x = "",
                      y = "Landings (thousand tonnes)",
+#AV: same as before                     
                      caption = sprintf("Historical Nominal Catches 1950-2010, \nOfficial Nominal Catches 2006-2015. Accessed %s/%s. ICES, Copenhagen.",
                                        "2017",
                                        "July"))
@@ -1775,6 +1784,7 @@ stecf_plot <- function(ecoregion,
   catchPlot <- rbind(catchPlot[!catchPlot$type_var == "other",],
                      catchPlot[catchPlot$type_var == "other",])
 
+#AV same with the caption  
   my_caption <- sprintf("STECF 16-20, Accessed %s/%s. doi:10.2788/502445",
                         "2017",
                         "March")

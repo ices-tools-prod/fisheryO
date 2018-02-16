@@ -19,7 +19,11 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # ICES Area and Ecoregion definitions #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-area_definition <- function(ecoregion = "Greater North Sea Ecoregion"){
+area_definition <- function(ecoregion = c("Greater North Sea Ecoregion","Baltic Sea Ecoregion",
+             "Bay of Biscay and the Iberian Coast Ecoregion",
+              "Celtic Seas Ecoregion","Icelandic Waters Ecoregion",
+             "Norwegian and Barents Sea Ecoregion",
+             "Arctic Ocean Ecoregion")){
 
   raw_data <- c("europe_shape",
                 "ices_shape",
@@ -33,7 +37,13 @@ area_definition <- function(ecoregion = "Greater North Sea Ecoregion"){
     mutate(Ecoregion = case_when(
       grepl("Baltic Sea", .$Ecoregion) ~ "Baltic Sea Ecoregion",
       grepl("Greater North Sea", .$Ecoregion) ~ "Greater North Sea Ecoregion",
-      # ... add remaining ecoregions
+      grepl("Bay of Biscay and the Iberian Coast", .$Ecoregion) ~ "Bay of Biscay and the Iberian Coast Ecoregion",
+      grepl("Celtic Seas", .$Ecoregion) ~ "Celtic Seas Ecoregion",
+      grepl("Iceland Sea", .$Ecoregion) ~ "Icelandic Waters Ecoregion",
+      grepl("Norwegian Sea", .$Ecoregion) ~ "Norwegian and Barents Sea Ecoregions",
+      grepl("Barents Sea", .$Ecoregion) ~ "Norwegian and Barents Sea Ecoregion",
+      #grepl("Arctic Ocean", .$Ecoregion) ~ "Arctic Ocean Ecoregion",
+       # ... add remaining ecoregions
       TRUE ~ "OTHER")) %>%
     filter(Ecoregion == ecoregion) %>%
     sf::st_sf()
@@ -47,12 +57,28 @@ area_definition <- function(ecoregion = "Greater North Sea Ecoregion"){
                   "4.a", "4.b", "4.c",
                   "7.d", "7.e")
 
+  #all these next area definitions need decissions on conflicts:
+    
+  Area_27_bob <- c("8.a", "8.b","8.c",
+                    "8.d.2", "8.e.2", "9.a",
+                    "9.b.2")
+  Area_27_cs <- c("6.a", "6.b.2","7.a", "7.b", "7.c.2",
+                     "7.f", "7.g", "7.h","7.j.2", "7.k.2")
+  
+  Area_27_is <- c("5.a.1", "5.a.2","12.a.4")
+  
+  Area_27_nwb <- c("1.a", "1.b","2.a.1", "2.a.2", "2.b.1", "2.b.2")
+  
   ices_areas <- ices_shape %>%
     sf::st_transform(crs = crs) %>%
     mutate(ECOREGION = case_when(
       .$Area_27 %in% Area_27_baltic ~ "Baltic Sea Ecoregion",
       .$Area_27 %in%  Area_27_ns ~ "Greater North Sea Ecoregion",
-      # ... add remaining ecoregions
+      .$Area_27 %in%  Area_27_bob ~ "Bay of Biscay and the Iberian Coast Ecoregion",
+      .$Area_27 %in%  Area_27_cs ~ "Celtic Seas Ecoregion",
+      .$Area_27 %in%  Area_27_is ~ "Icelandic Waters Ecoregion",
+      .$Area_27 %in%  Area_27_nwb ~ "Norwegian and Barents Sea Ecoregions",
+       # ... add remaining ecoregions
       TRUE ~ "OTHER")) %>%
     sf::st_sf()
 
@@ -136,7 +162,7 @@ area_definition <- function(ecoregion = "Greater North Sea Ecoregion"){
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # Clean up the Stock Database #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-clean_sag <- function(active_year = 2016){
+clean_sag <- function(active_year = 2017){
 
   raw_data <- c("stock_list_raw",
                 "sag_summary_raw",
@@ -429,7 +455,7 @@ pa_maker <- function(df,
 #' @seealso Used in \code{\link{stockSummaryTable_fun}} to create the "Status of stock summary relative to reference points"
 #' table for all stocks for an ecoregion. Input data: SAG summary table and reference points come from \code{\link{clean_sag}}.
 #' @examples
-#' head(frmt_summary_tbl(active_year = 2016)$summary_table)
+#' head(frmt_summary_tbl(active_year = 2017)$summary_table)
 #' @export
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
@@ -1109,7 +1135,7 @@ return(ges_table)
 # Stock Status over time data #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
-clean_stock_trends <- function(active_year = 2016,
+clean_stock_trends <- function(active_year = 2017,
                                grouping_var = c("EcoGuild", "EcoRegion", "FisheriesGuild")[1],
                                plotting_var = c("StockCode", "FisheriesGuild")[1],
                                metric = c("MSY", "MEAN")[1]) {
@@ -1233,7 +1259,7 @@ clean_stock_trends <- function(active_year = 2016,
 # ~~~~~~~~~~~~~~~ #
 # Catch by stocks #
 # ~~~~~~~~~~~~~~~ #
-stock_catch <- function(active_year = 2016) {
+stock_catch <- function(active_year = 2017) {
 
   stock_catch <- clean_sag(active_year)$sag_complete_summary %>%
     tidyr::unnest(data) %>%
@@ -1333,7 +1359,7 @@ stock_catch <- function(active_year = 2016) {
 #' head(stock_status(2016))
 #' @export
 
-stock_status <- function(active_year = 2016){
+stock_status <- function(active_year = 2017){
 
   stck_ctch_fll <- stock_catch(active_year)
 
@@ -1447,8 +1473,17 @@ ices_catch_data <- function() {
 
   historic_uk <- paste0(c("^UK", "^Channel", "^Isle of Man"),
                         collapse = "|")
-
-  catch_dat_1950 <- ices_catch_historical_raw %>%
+  #these historical catches definition need decission on conflicts
+  historic_bob <- c("VIII a", "VIII b", "VIII c", "VIII d2", "VIII e2",
+                    "IX a", "IX b2", "VIII d (not specified)", "IX (not specified)")
+  historic_cs <- c("VI a", "VI b2", "VII a", "VII b", "VII c2", "VII f", "VII g", "VII h",
+                   "VII j2", "VII k2", "VII (not specified)", "VII b+c (not specified)",
+                   "VII c (not specified)", "VII d-k (not specified)", "VII f-k (not specified)",
+                   "VII g-k (not specified)", "VII j (not specified)")
+  historic_nwb <- c("I a", "II a1", "II b1", "I  and  IIa (not specified)", "I (not specified)",
+                    "I b", "II (not specified)", "II a2", "II b (not specified)", "II b2" )
+  
+   catch_dat_1950 <- ices_catch_historical_raw %>%
     tidyr::gather(YEAR, VALUE, -Country, -Species, -Division) %>%
     mutate(YEAR = as.numeric(gsub("X", "", YEAR)),
            VALUE = ifelse(VALUE == "<0.5",
@@ -1648,6 +1683,8 @@ gear_dat_clean <- bind_rows(
            )
     )
 )
+
+#up here I will add in the future Bob, etc etc, by annex  
 
 stecf_effort_clean <- gear_dat_clean %>%
   left_join(stecf_effort_df, by = c("ANNEX", "AREA", "GEAR")) %>%

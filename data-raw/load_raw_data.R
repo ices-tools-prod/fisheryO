@@ -194,7 +194,4 @@ load_raw_data <- function(raw_data = c("all",
   
 }
 
-load_raw_data(raw_data = c("stock_list_raw", 
-                           "sag_summary_raw", "sag_refpts_raw", "sag_keys_raw", "sag_stock_status_raw",
-                           "ices_catch_official_raw", "ices_catch_historical_raw",
-                           "species_list_raw"))
+load_raw_data(raw_data = raw names)

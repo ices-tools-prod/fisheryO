@@ -573,13 +573,14 @@ frmt_summary_tbl <- function(active_year = active_year,
     )
 
   summary_sbl <- bind_rows(
-    summary_sbl %>%
-      filter(YearOfLastAssessment == 2014) %>%
-      mutate(SBL = ifelse(FPA2013 == "GREEN"  &  BPA2014 == "GREEN",
-                          "GREEN",
-                          ifelse(FPA2013 == "RED"  |  BPA2014 == "RED",
-                                 "RED",
-                                 NA))),
+    # summary_sbl %>%
+    #   #check if this still can apply
+    #   filter(YearOfLastAssessment == 2014) %>%
+    #   mutate(SBL = ifelse(FPA2013 == "GREEN"  &  BPA2014 == "GREEN",
+    #                       "GREEN",
+    #                       ifelse(FPA2013 == "RED"  |  BPA2014 == "RED",
+    #                              "RED",
+    #                              NA))),
     summary_sbl %>%
       filter(YearOfLastAssessment == 2015) %>%
       mutate(SBL = ifelse(FPA2014 == "GREEN"  &  BPA2015 == "GREEN",
@@ -599,6 +600,13 @@ frmt_summary_tbl <- function(active_year = active_year,
       mutate(SBL = ifelse(FPA2016 == "GREEN"  &  BPA2017 == "GREEN",
                           "GREEN",
                           ifelse(FPA2016 == "RED"  |  BPA2017 == "RED",
+                                 "RED",
+                                 NA))),
+    summary_sbl %>%
+      filter(YearOfLastAssessment == 2018) %>%
+      mutate(SBL = ifelse(FPA2017 == "GREEN"  &  BPA2018 == "GREEN",
+                          "GREEN",
+                          ifelse(FPA2017 == "RED"  |  BPA2018 == "RED",
                                  "RED",
                                  NA)))
   )[, c("StockCode", "SBL")]
@@ -689,10 +697,7 @@ frmt_summary_tbl <- function(active_year = active_year,
   # stockDat
   summary_table_frmt <- stck_frmt %>%  #slFull
     left_join(summary_table, by = "StockCode") %>%
-    mutate(F_2013 = ifelse(AdviceCategory %in% c("MSY", "MP"),
-                           FMSY2013,
-                           FPA2013),
-           F_2014 = ifelse(AdviceCategory %in% c("MSY", "MP"),
+    mutate(F_2014 = ifelse(AdviceCategory %in% c("MSY", "MP"),
                            FMSY2014,
                            FPA2014),
            F_2015 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
@@ -701,9 +706,9 @@ frmt_summary_tbl <- function(active_year = active_year,
            F_2016 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
                            FMSY2016,
                            FPA2016),
-           SSB_2014 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
-                             BMSY2014,
-                             BPA2014),
+           F_2017 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
+                           FMSY2017,
+                           FPA2017),
            SSB_2015 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
                              BMSY2015,
                              BPA2015),
@@ -713,19 +718,15 @@ frmt_summary_tbl <- function(active_year = active_year,
            SSB_2017 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
                              BMSY2017,
                              BPA2017),
+           SSB_2018 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
+                             BMSY2018,
+                             BPA2018),
            D3C1 = NA,
            D3C2 = NA,
            GES = NA)
-
+#this table, was the one discussed by Eskild and Colm, flag it
+  
   summary_table_frmt <- bind_rows(
-    summary_table_frmt %>%
-      filter(YearOfLastAssessment == 2014) %>%
-      mutate(D3C1 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
-                           FMSY2013,
-                           FPA2013),
-             D3C2 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
-                           BMSY2014,
-                           BPA2014)),
     summary_table_frmt %>%
       filter(YearOfLastAssessment == 2015) %>%
       mutate(D3C1 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
@@ -749,7 +750,15 @@ frmt_summary_tbl <- function(active_year = active_year,
                            FPA2016),
              D3C2 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
                            BMSY2017,
-                           BPA2017)
+                           BPA2017)),
+    summary_table_frmt %>%
+     filter(YearOfLastAssessment == 2018) %>%
+     mutate(D3C1 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
+                        FMSY2017,
+                        FPA2017),
+            D3C2 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
+                        BMSY2018,
+                        BPA2018)
       )
   ) %>%
     select(StockCode,
@@ -760,9 +769,10 @@ frmt_summary_tbl <- function(active_year = active_year,
            AdviceCategory,
            DataCategory,
            SBL,
-           F_2013, F_2014, F_2015, F_2016,
-           SSB_2014, SSB_2015, SSB_2016, SSB_2017,
+           F_2014, F_2015, F_2016,F_2017,
+           SSB_2015, SSB_2016, SSB_2017,SSB_2018,
            D3C1, D3C2, GES)
+  
 
   summary_table_frmt$GES[is.na(summary_table_frmt$D3C1) |
                            is.na(summary_table_frmt$D3C2)] <- NA
@@ -771,10 +781,10 @@ frmt_summary_tbl <- function(active_year = active_year,
   summary_table_frmt$GES[summary_table_frmt$D3C1 == "GREEN" &
                            summary_table_frmt$D3C2 == "GREEN"] <- "GREEN"
 
-  summary_table_frmt[c("SBL", "F_2013", "F_2014", "F_2015", "F_2016",
-                       "SSB_2014", "SSB_2015", "SSB_2016", "SSB_2017",
-                       "D3C1", "D3C2", "GES")][is.na(summary_table_frmt[c("SBL", "F_2013", "F_2014", "F_2015", "F_2016",
-                                                                          "SSB_2014", "SSB_2015", "SSB_2016","SSB_2017",
+  summary_table_frmt[c("SBL", "F_2014", "F_2015", "F_2016","F_2017",
+                       "SSB_2015", "SSB_2016", "SSB_2017","SSB_2018",
+                       "D3C1", "D3C2", "GES")][is.na(summary_table_frmt[c("SBL", "F_2014", "F_2015", "F_2016","F_2017",
+                                                                          "SSB_2015", "SSB_2016","SSB_2017","SSB_2018",
                                                                           "D3C1", "D3C2", "GES")])] <- "GREY"
 
   # summary_table_frmt[summary_table_frmt == "GREEN"] <- "<i class=\"glyphicon glyphicon-ok-sign\" style=\"color:green; font-size:2.2em\"></i>"
@@ -860,7 +870,9 @@ stock_props <- function(active_year = active_year,
                                        FMSY2015,
                                        ifelse(YearOfLastAssessment == 2017,
                                               FMSY2016,
-                                              NA)))),
+                                              ifelse(YearOfLastAssessment == 2018,
+                                                     FMSY2017,
+                                              NA))))),
            FPA = ifelse(YearOfLastAssessment == 2014,
                         FPA2013,
                         ifelse(YearOfLastAssessment == 2015,
@@ -869,7 +881,9 @@ stock_props <- function(active_year = active_year,
                                       FPA2015,
                                       ifelse(YearOfLastAssessment == 2017,
                                              FPA2016,
-                                             NA)))),
+                                             ifelse(YearOfLastAssessment == 2018,
+                                                    FPA2017,
+                                             NA))))),
            BMSY = ifelse(YearOfLastAssessment == 2014,
                          BMSY2014,
                          ifelse(YearOfLastAssessment == 2015,
@@ -878,7 +892,9 @@ stock_props <- function(active_year = active_year,
                                        BMSY2016,
                                        ifelse(YearOfLastAssessment == 2017,
                                               BMSY2017,
-                                              NA)))),
+                                              ifelse(YearOfLastAssessment == 2018,
+                                                     BMSY2018,
+                                              NA))))),
            BPA = ifelse(YearOfLastAssessment == 2014,
                         BPA2014,
                         ifelse(YearOfLastAssessment == 2015,
@@ -887,8 +903,10 @@ stock_props <- function(active_year = active_year,
                                       BPA2016,
                                       ifelse(YearOfLastAssessment == 2017,
                                              BPA2017,
+                                             ifelse(YearOfLastAssessment == 2018,
+                                                    BPA2018,
                                              NA)))),
-           SBL = SBL) %>%
+           SBL = SBL)) %>%
     #*****************#
     # nep-9 doesn't have the MSY2016, so we need to use MSY2015. Consider this a bandaid for now.
     mutate(BMSY = ifelse(StockCode == "nep-9",
@@ -1443,7 +1461,7 @@ ices_catch_data <- function() {
   data(list = raw_data, envir = environment())
 
   fish_category <- stock_list_raw %>%
-    filter(YearOfLastAssessment == 2016,
+    filter(YearOfLastAssessment == 2016, #should I change to 2017?
            !is.na(FisheriesGuild)) %>%
     mutate(X3A_CODE = gsub("-.*$", "", StockKeyLabel),
            X3A_CODE = gsub("\\..*", "", X3A_CODE),
@@ -1712,3 +1730,4 @@ stecf_landings_clean <- gear_dat_clean %>%
 return(list("stecf_effort_clean" = stecf_effort_clean,
             "stecf_landings_clean" = stecf_landings_clean))
 }
+

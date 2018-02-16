@@ -194,4 +194,4 @@ load_raw_data <- function(raw_data = c("all",
   
 }
 
-load_raw_data(raw_data = raw names)
+load_raw_data(raw_data = "all")

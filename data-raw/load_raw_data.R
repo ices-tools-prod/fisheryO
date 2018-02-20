@@ -2,15 +2,15 @@
 load_raw_data <- function(raw_data = c("all", 
                                        "stock_list_raw", 
                                        "sag_summary_raw", "sag_refpts_raw", "sag_keys_raw", "sag_stock_status_raw",
-                                       "ices_catch_official_raw", "ices_catch_historical_raw",
-                                       "species_list_raw",
+                                       "ices_catch_official_raw", "ices_catch_preliminary_raw",
+                                       "ices_catch_historical_raw","species_list_raw",
                                        "stecf_effort_raw", "stecf_landings_raw",
                                        "europe_shape", "ices_shape", "eco_shape")) {
   
   raw_names <- c("stock_list_raw", 
                  "sag_summary_raw", "sag_refpts_raw", "sag_keys_raw", "sag_stock_status_raw",
-                 "ices_catch_official_raw", "ices_catch_historical_raw",
-                 "species_list_raw",
+                 "ices_catch_official_raw", "ices_catch_preliminary_raw",
+                 "ices_catch_historical_raw","species_list_raw",
                  "stecf_effort_raw", "stecf_landings_raw",
                  "europe_shape", "ices_shape", "eco_shape")
   
@@ -117,6 +117,31 @@ load_raw_data <- function(raw_data = c("all",
                                         header = TRUE,
                                         fill = TRUE)
     # remove columns with all NA
+    ices_catch_official_raw <- Filter(function(x)!all(is.na(x)), ices_catch_official_raw)
+    
+    devtools::use_data(ices_catch_official_raw, overwrite = TRUE)
+  }
+  ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ##
+  #### DATA SOURCE: ICES preliminary catch statistics (2016-2017) ###
+  ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ##
+  
+  if("ices_catch_preliminary_raw" %in% raw_data) {
+    prelimcatchURL_A <- "http://data.ices.dk/rec12/download/2016preliminaryCatchStatistics.csv"
+    tmpFilePrelim2016Catch <- tempfile(fileext = ".csv")
+    download.file(prelimcatchURL_A, destfile = tmpFilePrelim2016Catch, mode = "wb", quiet = TRUE)
+    ices_catch_preliminary2016_raw <- read.csv(tmpFilePrelim2016Catch,
+                                               stringsAsFactors = FALSE,
+                                               header = TRUE,
+                                               fill = TRUE)
+    prelimcatchURL_B <- "http://data.ices.dk/rec12/download/nbfonlboezfempbqkbdgtlvr375A0.csv"
+    tmpFilePrelim2017Catch <- tempfile(fileext = ".csv")
+    download.file(prelimcatchURL_B, destfile = tmpFilePrelim2017Catch, mode = "wb", quiet = TRUE)
+    ices_catch_preliminary2017_raw <- read.csv(tmpFilePrelim2017Catch,
+                                        stringsAsFactors = FALSE,
+                                        header = TRUE,
+                                        fill = TRUE)
+
+    
     ices_catch_official_raw <- Filter(function(x)!all(is.na(x)), ices_catch_official_raw)
     
     devtools::use_data(ices_catch_official_raw, overwrite = TRUE)

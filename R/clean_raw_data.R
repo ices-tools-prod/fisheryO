@@ -1456,7 +1456,8 @@ ices_catch_data <- function() {
   raw_data <- c("ices_catch_historical_raw",
                 "species_list_raw",
                 "stock_list_raw",
-                "ices_catch_official_raw")
+                "ices_catch_official_raw", "ices_catch_preliminary2016_raw",
+                "ices_catch_preliminary2017_raw")
 
   data(list = raw_data, envir = environment())
 
@@ -1568,7 +1569,37 @@ ices_catch_data <- function() {
            SPECIES_CODE = Species,
            COMMON_NAME = English_name,
            VALUE)
-
+  #here I fix the preliminary catch data and merge, 
+  #don´t like it, simplify
+ catch_dat_2016 <- ices_catch_preliminary2016_raw %>%
+    tidyr::gather(YEAR, VALUE, -Country, -AphiaID, -Area, -Catch) %>%
+    filter(Country != "") %>%
+    mutate(2016 = as.numeric(gsub("Catch", "", 2016)),
+             #VALUE = as.numeric(VALUE),
+           Country = countrycode::countrycode(Country,"iso2c", "country.name"),
+           Country = ifelse(grepl("Guernsey|Isle of Man|Jersey", Country),
+                            "United Kingdom",
+                            Country),
+           ISO3 = countrycode::countrycode(Country, "country.name", "iso3c", warn = FALSE),
+           Country = gsub("(United Kingdom) .*", "\\1", Country),
+           Area = tolower(Area),
+           ECOREGION = case_when(
+             .$Area %in% c("27.3.bc", "27.3.d", "27.3_nk") ~ "Baltic Sea Ecoregion",
+             .$Area %in% c("27.3.a", "27.4", "27.7.d") ~ "Greater North Sea Ecoregion",
+             TRUE ~ "OTHER")) %>%
+    filter(ECOREGION != "OTHER") %>%
+    left_join(species_list_raw, c("Species" = "X3A_CODE")) %>%
+    left_join(fish_category, by = c("Species" = "X3A_CODE")) %>%
+    select(YEAR,
+           COUNTRY = Country,
+           ISO3,
+           GUILD = FisheriesGuild,
+           ECOREGION,
+           SPECIES_NAME = Scientific_name,
+           SPECIES_CODE = Species,
+           COMMON_NAME = English_name,
+           VALUE)
+  
   ices_catch_dat <- catch_dat_2010 %>%
     bind_rows(catch_dat_1950) %>%
     mutate(GUILD = ifelse(is.na(GUILD),
@@ -1635,13 +1666,13 @@ stecf_landings_df <- stecf_landings_raw %>%
          LANDINGS = as.numeric(sum_landings),
          LANDINGS = ifelse(COUNTRY == "Germany" &
                              year == 2013 &
-                             vessel.length == "U8M",
+                             `vessel length` == "U8M",
                            NA, LANDINGS)) %>%
   select(YEAR = year,
          COUNTRY,
          ANNEX = annex,
-         AREA = regulated.area,
-         GEAR = regulated.gear,
+         AREA = `regulated area`,
+         GEAR = `regulated gear`,
          LANDINGS)
 
 gear_dat <- full_join(

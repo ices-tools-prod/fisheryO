@@ -12,7 +12,7 @@ stock_list_raw <- jsonlite::fromJSON("http://sd.ices.dk/services/odata4/StockLis
                                      simplifyDataFrame = TRUE)$value
 
 stock_list_raw <- unique(stock_list_raw)
-
+devtools::use_data(stock_list_raw, compress='xz', overwrite = TRUE)
 
 ##1.2  FAO: species_list_raw ####
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ##
@@ -25,7 +25,7 @@ species_list_raw <- read.delim(unz(tmpFileSp, FAO_file),
                                stringsAsFactors = FALSE,
                                header = TRUE,
                                na.strings = "")
-
+devtools::use_data(species_list_raw, compress='xz', overwrite = TRUE)
 
 ####1.3 ICES ices_historical_raw (1950-2010) #### 
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~##

@@ -15,12 +15,13 @@
   #### DATA SOURCE: ICES Stock Assessment Graphs Database ####
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ##
   
-    #modify so you can state the active year any year.
+    #modified so you can state the active year and get the previous 3.
     
-    load_sag <-  function(){
+    load_sag <-  function(active_year){
+    year <- ((active_year-3):active_year)
     sag_summary_raw <- icesSAG::getSAG(stock = NULL,
                                        # year = 2014:2017,
-                                       year = 2015:2018,
+                                       year,
                                        data = "summary",
                                        combine = TRUE)
   
@@ -33,7 +34,7 @@
  
     sag_refpts_raw <- icesSAG::getSAG(stock = NULL,
                                       # year = 2014:2017,
-                                      year = 2015:2018,
+                                      year ,
                                       purpose = "Advice",
                                       data = "refpts",
                                       combine = TRUE)
@@ -41,13 +42,12 @@
     sag_refpts_raw <<- unique (sag_refpts_raw)
     
      #cambio aqui tambien 2014:2017 por 2015:2018
-    sag_keys_raw <- do.call("rbind", lapply(2015:2018,
+    sag_keys_raw <- do.call("rbind", lapply(year,
                                             function(x) icesSAG::findAssessmentKey(stock = NULL,
                                                                                    year = x,
                                                                                    full = TRUE)[, c("AssessmentYear",
                                                                                                     "AssessmentKey",
                                                                                                     "StockKeyLabel", "Purpose")]))
-  
     #to get rid of double 
     sag_keys_raw <- sag_keys_raw %>% filter(Purpose == "Advice")
     sag_keys_raw <<- sag_keys_raw[,-4]
@@ -80,7 +80,6 @@
                                           header = TRUE,
                                           fill = TRUE,
                                           na.strings = c("...", "-", "ns", "."))
-    
   
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ##
   #### DATA SOURCE: ICES official catch statistics (2006-2016) ####
@@ -119,20 +118,20 @@
   #### DATA SOURCE: FAO species names and labels ####
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ##
     #this should be in the package
-    spURL <- "http://www.fao.org/fishery/static/ASFIS/ASFIS_sp.zip"
-    tmpFileSp <- tempfile(fileext = ".zip")
-    download.file(spURL, destfile = tmpFileSp, mode = "wb", quiet = TRUE)
-    FAO_file <- grep(".*txt", unzip(tmpFileSp,list = TRUE)$Name, value = TRUE)
-    species_list_raw <- read.delim(unz(tmpFileSp, FAO_file),
-                                   fill = TRUE,
-                                   stringsAsFactors = FALSE,
-                                   header = TRUE,
-                                   na.strings = "")
+    # spURL <- "http://www.fao.org/fishery/static/ASFIS/ASFIS_sp.zip"
+    # tmpFileSp <- tempfile(fileext = ".zip")
+    # download.file(spURL, destfile = tmpFileSp, mode = "wb", quiet = TRUE)
+    # FAO_file <- grep(".*txt", unzip(tmpFileSp,list = TRUE)$Name, value = TRUE)
+    # species_list_raw <- read.delim(unz(tmpFileSp, FAO_file),
+    #                                fill = TRUE,
+    #                                stringsAsFactors = FALSE,
+    #                                header = TRUE,
+    #                                na.strings = "")
    
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ##
   #### DATA SOURCE: STECF Effort and Catch tables ####
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ##
-  #not sure what to do about this
+  #not sure what to do about this, how could we download it each time?
     stecf_effort_raw <- readRDS("data-raw/STECF_effort_data.rds")
     devtools::use_data(stecf_effort_raw, overwrite = TRUE)
  
@@ -145,33 +144,33 @@
   
   #this should be in the package, all the geo data
     
-    get_map <- function(URL) {
-    tmp_file <- tempfile(fileext = ".zip")
-    download.file(url = URL,
-                  destfile = tmp_file,
-                  mode = "wb", quiet = TRUE)
-    unzip(tmp_file, exdir = tmp_path)
-  }
-  
-    tmp_path <- tempdir()
-    get_map("http://gis.ices.dk/shapefiles/ICES_areas.zip")
-    layer_name <- grep("ICES_Areas", gsub("\\..*", "", list.files(tmp_path)), value = TRUE)[1]
-    ices_shape <- sf::st_read(dsn = tmp_path, layer = layer_name, quiet = FALSE)
-    devtools::use_data(ices_shape, compress='xz', overwrite = TRUE)
-  
-    tmp_path <- tempdir()
-    get_map("http://gis.ices.dk/shapefiles/ICES_ecoregions.zip")
-    layer_name <- grep("ICES_ecoregions", gsub("\\..*", "", list.files(tmp_path)), value = TRUE)[1]
-    eco_shape <- sf::st_read(dsn = tmp_path, layer = layer_name, quiet = FALSE)
-    devtools::use_data(eco_shape, compress='xz', overwrite = TRUE)
+  #   get_map <- function(URL) {
+  #   tmp_file <- tempfile(fileext = ".zip")
+  #   download.file(url = URL,
+  #                 destfile = tmp_file,
+  #                 mode = "wb", quiet = TRUE)
+  #   unzip(tmp_file, exdir = tmp_path)
+  # }
+  # 
+  #   tmp_path <- tempdir()
+  #   get_map("http://gis.ices.dk/shapefiles/ICES_areas.zip")
+  #   layer_name <- grep("ICES_Areas", gsub("\\..*", "", list.files(tmp_path)), value = TRUE)[1]
+  #   ices_shape <- sf::st_read(dsn = tmp_path, layer = layer_name, quiet = FALSE)
+  #   devtools::use_data(ices_shape, compress='xz', overwrite = TRUE)
+  # 
+  #   tmp_path <- tempdir()
+  #   get_map("http://gis.ices.dk/shapefiles/ICES_ecoregions.zip")
+  #   layer_name <- grep("ICES_ecoregions", gsub("\\..*", "", list.files(tmp_path)), value = TRUE)[1]
+  #   eco_shape <- sf::st_read(dsn = tmp_path, layer = layer_name, quiet = FALSE)
+  #   devtools::use_data(eco_shape, compress='xz', overwrite = TRUE)
   
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ##
-  #### DATA SOURCE: rnaturalearth 10 ####
+  #### DATA SOURCE: rnaturalearth 10 #### SAME, in the package
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ##
 
-    europe_shape <- rnaturalearth::ne_countries(scale = 10,
-                                                type = "countries",
-                                                continent = "europe",
-                                                returnclass = "sf")[, c("iso_a3", "iso_n3", "admin", "geometry")]
+    # europe_shape <- rnaturalearth::ne_countries(scale = 10,
+    #                                             type = "countries",
+    #                                             continent = "europe",
+    #                                             returnclass = "sf")[, c("iso_a3", "iso_n3", "admin", "geometry")]
     
     

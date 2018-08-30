@@ -21,23 +21,23 @@
 #' }
 #' @export
 
+# AV: I am going to take out the save_plot, ggsave is enough, 
+# could be added to the manual as suggestion
+# ggsave("CS_figure1.png", path = "~/", width = 178, height = 152, units = "mm", dpi = 300)
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # ICES Area and Ecoregion Map #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
-area_definition_map <- function(ecoregion,
-                                save_plot = FALSE,
-                                return_plot = TRUE,
-                                output_path = NULL,
-                                file_name = NULL) {
-  
-  if(is.null(file_name)) {
-    file_name <- gsub("\\s", "_", ecoregion)
-  }
-  
-  if(is.null(output_path)) {
-    output_path <- "~/"
-  }
+area_definition_map <- function() {
+  # 
+  # if(is.null(file_name)) {
+  #   file_name <- gsub("\\s", "_", ecoregion)
+  # }
+  # 
+  # if(is.null(output_path)) {
+  #   output_path <- "~/"
+  # }
   
     cap_lab <- labs(caption = "Made with Natural Earth and ICES Marine Data",
                     x = "",
@@ -65,21 +65,8 @@ area_definition_map <- function(ecoregion,
           plot.subtitle = element_text(size = 7)) +
     coord_sf(crs = crs, xlim = xlims, ylim = ylims) +
     cap_lab
-  
-  
-  if(return_plot) {
-    # p1
+
      return(p1)
-  }
-  
-  if(save_plot) {
-    ggsave(filename = paste0(output_path, file_name, ".png"),
-           plot = p1,
-           width = 178,
-           height = 152,
-           units = "mm",
-           dpi = 300)
-  }
 }
 
 #' Render html stock summary table
@@ -1293,34 +1280,29 @@ if(save_plot){
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # Landings over time by country, guild, or species #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-ices_catch_plot <- function(ecoregion, #IA = unique(allDat$ECOREGION)[1],
+ices_catch_plot <- function(ecoregion, 
                             type = c("COMMON_NAME", "COUNTRY", "GUILD")[1],
                             line_count = 4,
                             # start_year = 1990,
                             plot_type = c("line", "area")[1],
-                            data_caption = TRUE,
-                            output_path = NULL,
                             cap_month = "August",
                             cap_year = "2018",
-                            file_name = "CS_figure4",
-                            save_plot = TRUE,
-                            return_plot = TRUE,
                             return_data = FALSE,
-                            fig.width = 174,
-                            fig.height = 68,
+                            file_name = NULL,
+                            output_path= NULL,
                             text.size = 9) {
   
-  if(save_plot) {
+  if(return_data) {
     if(is.null(file_name)) {
       file_name <- gsub("\\s", "_", ecoregion)
     }
-    
+
     if(is.null(output_path)) {
       output_path <- "~/"
     }
   }
   
-    cap_lab <-  labs(x = "",
+    cap_lab <-labs(x = "",
                      y = "Landings (thousand tonnes)",
                      caption = sprintf("Historical Nominal Catches 1950-2010, \nOfficial Nominal Catches 2006-2016, \nPreliminary Catches 2017. Accessed %s/%s. ICES, Copenhagen.",
                                        cap_year,
@@ -1450,19 +1432,7 @@ ices_catch_plot <- function(ecoregion, #IA = unique(allDat$ECOREGION)[1],
     write.csv(x = catchPlot, file = paste0(output_path, file_name, ".csv"), row.names = FALSE)
   }
   
-  if(return_plot) {
     return(pl)
-  }
-  
-  # if(save_plot) {
-    ggsave(filename = paste0(output_path, file_name, ".png"),
-           # paste0("~/git/ices-dk/fisheryO/output/", fig_name, "_", IA, ".png"),
-           plot = pl,
-           width = fig.width,
-           height = fig.height,
-           units = "mm",
-           dpi = 300)
-  # }
 }
 
 #' STECF Landings over time by country, guild, or species
@@ -1508,16 +1478,12 @@ stecf_plot <- function(ecoregion,
                        type = c("GEAR", "COUNTRY")[1],
                        line_count = 4,
                        plot_type = c("line", "area")[1],
-                       cap_month =" may",
+                       cap_month =" May",
                        cap_year = "2018",
                        stecf_report = "17-09",
-                       file_name = NULL,
-                       save_plot = FALSE,
-                       output_path = NULL,
-                       return_plot = TRUE,
                        return_data = FALSE,
-                       fig.width = 174,
-                       fig.height = 68,
+                       file_name = NULL,
+                       output_path = NULL,
                        text.size = 9,
                        ...) {
   
@@ -1536,7 +1502,7 @@ stecf_plot <- function(ecoregion,
       rename_(.dots = setNames(c(type, "LANDINGS"),
                                c("type_var", "VALUE")))
   }
-  if(save_plot) {
+  if(return_data) {
     if(is.null(file_name)) {
       file_name <- gsub("\\s", "_", ecoregion)
     }
@@ -1583,12 +1549,10 @@ stecf_plot <- function(ecoregion,
   catchPlot <- rbind(catchPlot[!catchPlot$type_var == "other",],
                      catchPlot[catchPlot$type_var == "other",])
   
-  
-  #Have to fix this caption:
-  # my_caption <- sprintf("STECF", stecf_report, "Accessed %s/%s.",
-  #                       cap_year,
-  #                       cap_month)
-  
+  my_caption = sprintf("STECF %s. Accessed %s/%s.",
+                    stecf_report,
+                    cap_month,
+                    cap_year)
   
     cap_lab <- labs(title = "", x = "", y = catchLabel,
                     caption = my_caption)
@@ -1674,22 +1638,19 @@ stecf_plot <- function(ecoregion,
   }
   
   
-  if(save_plot) {
-    ggsave(filename = paste0(output_path, file_name, ".png"),
-           plot = pl,
-           width = fig.width,
-           height = fig.height,
-           units = "mm",
-           dpi = 300)
-    
-  }
+  # if(save_plot) {
+  #   ggsave(filename = paste0(output_path, file_name, ".png"),
+  #          plot = pl,
+  #          width = fig.width,
+  #          height = fig.height,
+  #          units = "mm",
+  #          dpi = 300)
+  #   
+  # }
   
   if(return_data) {
     write.csv(x = catchPlot, file = paste0(output_path, file_name, ".csv"), row.names = FALSE)
   }
-  
-  if(return_plot) {
     return(pl)
-  }
 }
 

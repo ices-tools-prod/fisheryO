@@ -17,8 +17,9 @@
 #'
 #' @export
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
-# ICES Area and Ecoregion definitions #
+# ICES Area and Ecoregion definitions # 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+#in order to remove it, I should prepare all data by ecoregion, manybe is not worthy?
 area_definition <- function(ecoregion)
                               # c("Greater North Sea Ecoregion","Baltic Sea Ecoregion",
                               #             "Bay of Biscay and the Iberian Coast Ecoregion",
@@ -54,19 +55,22 @@ area_definition <- function(ecoregion)
                       "3.b.23", "3.c.22", "3.d.31",
                       "3.d.30", "3.d.32", "3.d.29",
                       "3.d.28.1", "3.d.28.2", "3.d.26")
-  
+  #have to do like this, because both have the 7.e in the map
+  if(ecoregion == "Greater North Sea Ecoregion") {
   Area_27_ns <- c("3.a.20", "3.a.21",
                   "4.a", "4.b", "4.c",
                   "7.d", "7.e")
+  }
+  if(ecoregion == "Celtic Seas Ecoregion") {
+  Area_27_cs <- c("6.a", "6.b.2","7.a", "7.b", "7.c.2", "7.e",
+                  "7.f", "7.g", "7.h","7.j.2", "7.k.2")
+  }
   
-  #all these next area definitions need decissions on conflicts:
+  #all these next area definitions need decissions:
   
   Area_27_bob <- c("8.a", "8.b","8.c",
                    "8.d.2", "8.e.2", "9.a",
                    "9.b.2")
-  Area_27_cs <- c("6.a", "6.b.2","7.a", "7.b", "7.c.2",
-                  "7.f", "7.g", "7.h","7.j.2", "7.k.2")
-  
   Area_27_is <- c("5.a.1", "5.a.2","12.a.4")
   
   Area_27_nw <- c("2.a.1", "2.a.2", "2.b.1", "2.b.2", "14.a")
@@ -77,9 +81,9 @@ area_definition <- function(ecoregion)
     sf::st_transform(crs = crs) %>%
     mutate(ECOREGION = case_when(
       .$Area_27 %in% Area_27_baltic ~ "Baltic Sea Ecoregion",
-      .$Area_27 %in%  Area_27_ns ~ "Greater North Sea Ecoregion",
+      # .$Area_27 %in%  Area_27_ns ~ "Greater North Sea Ecoregion",
       .$Area_27 %in%  Area_27_bob ~ "Bay of Biscay and the Iberian Coast Ecoregion",
-      .$Area_27 %in%  Area_27_cs ~ "Celtic Seas Ecoregion",
+      #.$Area_27 %in%  Area_27_cs ~ "Celtic Seas Ecoregion",
       .$Area_27 %in%  Area_27_is ~ "Icelandic Waters Ecoregion",
       
       #this bit has to be turned on and off, because either areas are 
@@ -89,6 +93,23 @@ area_definition <- function(ecoregion)
       # ... add remaining ecoregions
       TRUE ~ "OTHER")) %>%
     sf::st_sf()
+  
+  if(ecoregion == "Greater North Sea Ecoregion") {
+    ices_areas <- ices_shape %>%
+      sf::st_transform(crs = crs) %>%
+      mutate(ECOREGION = case_when(
+        .$Area_27 %in%  Area_27_ns ~ "Greater North Sea Ecoregion"))%>%
+          sf::st_sf()
+  }
+  
+  if(ecoregion == "Celtic Seas Ecoregion") {
+    ices_areas <- ices_shape %>%
+      sf::st_transform(crs = crs) %>%
+      mutate(ECOREGION = case_when(
+       .$Area_27 %in% Area_27_cs ~ "Celtic Seas Ecoregion"))%>%
+      sf::st_sf()
+  }
+  
   
   # Centroids for labels
   ices_area_centroids <- sf::st_centroid(ices_areas)
@@ -102,9 +123,11 @@ area_definition <- function(ecoregion)
   colnames(centroids) <- c("Area_27", "ECOREGION", "X", "Y")
   
   if(ecoregion == "Celtic Seas Ecoregion") {
-    extracentroids <-centroids %>% filter(Area_27 %in% c("4.a", "2.a.2", "7.e"))
-    # %>% mutate, change the position of labels so they are close to Celtic Seas
-    extraareas <- ices_areas%>% filter(Area_27 %in% c("4.a", "2.a.2", "7.e"))
+    extracentroids <-centroids %>% filter(Area_27 %in% c("4.a", "2.a.2"))
+    #mutate, change the position of labels so they are close to Celtic Seas
+    extracentroids[,3] <- c(3710000, 3760000)
+    extracentroids[,4] <- c(4250000, 4500000)
+    extraareas <- ices_areas%>% filter(Area_27 %in% c("4.a", "2.a.2"))
     extracentroids<<- extracentroids
     extraareas<<- extraareas
     }
@@ -155,6 +178,8 @@ area_definition <- function(ecoregion)
   eco_areas <<- eco_areas
   europe_shape <<- europe_shape
   centroids <<- centroids
+  extracentroids <<- extracentroids
+  extraareas <<- extraareas
   crs <<- crs
   
   # return(list("ices_areas" = ices_areas,
@@ -198,7 +223,7 @@ clean_sag <- function(active_year = active_year){
                 "sag_keys_raw",
                 "sag_refpts_raw")
   
-  data(list = raw_data, envir = environment())
+   data(list = raw_data, envir = environment())
   
   filter_stocks <- c("cod-ingr", "cod-wgr", "sal-nea", "san-scow",
                    "sal-na", "sal-32", "sal-2431",
@@ -406,13 +431,7 @@ sag_complete_summary <- sag_ref_summary %>%
  stock_list_frmt <<- stock_list_frmt
  sag_complete_summary <<- sag_complete_summary
 
-  # return(list("stock_list_frmt" = stock_list_frmt,
-  #           "sag_complete_summary" = sag_complete_summary))
-
 }
-
-
-
 
 #' Format stock summary table
 #'
@@ -1302,13 +1321,13 @@ ices_catch_data <- function() {
                    "III d  Baltic 28-2", "III d  Baltic 29",
                    "III d  Baltic 30", "III d  Baltic 31",
                    "III d  Baltic 32")
-  
+
   historic_ns <- c("III a", "IIIa  and  IV  (not specified)",
                    "IIIa  and  IVa+b  (not specified)", "IV (not specified)",
                    "IV a", "IV a+b (not specified)",
                    "IV b", "IV b+c (not specified)",
                    "IV c", "VII d")
-  
+
   historic_uk <- paste0(c("^UK", "^Channel", "^Isle of Man"),
                         collapse = "|")
   #these historical catches definition need decission on conflicts
@@ -1318,14 +1337,13 @@ ices_catch_data <- function() {
                    "VII j2", "VII k2", "VII (not specified)", "VII b+c (not specified)",
                    "VII c (not specified)", "VII d-k (not specified)", "VII f-k (not specified)",
                    "VII g-k (not specified)", "VII j (not specified)")
-  historic_nw <- c( "II a1", "II b1", "I  and  IIa (not specified)", 
+  historic_nw <- c( "II a1", "II b1", "I  and  IIa (not specified)",
                     "II (not specified)", "II a2", "II b (not specified)",
                     "II b2", "XIV", "XIVa" )
   #check this!
-  historic_br <- c( "II a1", "II b1", "I  and  IIa (not specified)", 
+  historic_br <- c( "II a1", "II b1", "I  and  IIa (not specified)",
                     "II (not specified)", "II a2", "II b (not specified)",
                     "II b2", "XIV", "XIVa" )
-  
   catch_dat_1950 <- ices_catch_historical_raw %>%
     tidyr::gather(YEAR, VALUE, -Country, -Species, -Division) %>%
     mutate(YEAR = as.numeric(gsub("X", "", YEAR)),
@@ -1420,16 +1438,18 @@ ices_catch_data <- function() {
            Country = gsub("(United Kingdom) .*", "\\1", Country),
            Area = tolower(Area))
   
+  
+  #check why areas names are different!!
   catch_dat_prelim <- catch_dat_prelim%>%
     mutate(ECOREGION = case_when(
       .$Area %in% c("27_3_bc", "27_3_c_22","27_3_d","27_3_d_24","27_3_d_25","27_3_d_26","27_3_d_30",
                     "27_3_d_27","27_3_d_31","27_3_nk", "27_3_b_23", "27_3_d_28_2","27_3_d_32","27_3_d_29") ~ "Baltic Sea Ecoregion",
-      .$Area %in% c("27_3_a", "27_4_a","27_4_b", "27_7_d") ~ "Greater North Sea Ecoregion",
+      .$Area %in% c("27_3_a", "27_4_a","27_4_b", "27_4_c", "27_7_d") ~ "Greater North Sea Ecoregion",
       
       .$Area %in% c("8_a", "8_b","8_c",
                     "8_d_2", "8_e_2", "9_a",
                     "9_b_2")~ "Bay of Biscay and the Iberian Coast Ecoregion",
-      .$Area %in% c("6_a", "6_b_2","7_a", "7_b", "7_c_2",
+      .$Area %in% c("6_a", "6_b_2","7_a", "7_b", "7_c_2","7.e",
                     "7_f", "7_g", "7_h","7_j_2", "7_k_2")~"Celtic Seas Ecoregion",
       
       .$Area %in% c("5_a_1", "5_a_2","12_a_4")~"Icelandic Waters Ecoregion",

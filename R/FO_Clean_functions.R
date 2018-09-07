@@ -123,7 +123,7 @@ area_definition <- function(ecoregion)
   colnames(centroids) <- c("Area_27", "ECOREGION", "X", "Y")
   
   if(ecoregion == "Celtic Seas Ecoregion") {
-    extracentroids <-centroids %>% filter(Area_27 %in% c("4.a", "2.a.2"))
+    extracentroids <-centroids %>% filter(Area_27 %in% c("4.a", "2.a.2", "5.b"))
     #mutate, change the position of labels so they are close to Celtic Seas
     extracentroids[,3] <- c(3710000, 3760000)
     extracentroids[,4] <- c(4250000, 4500000)
@@ -432,6 +432,22 @@ sag_complete_summary <- sag_ref_summary %>%
  sag_complete_summary <<- sag_complete_summary
 
 }
+
+##need to add a new function to give back stock_list_frmt, sag_complete_summary and
+#stock_list by ecoregion
+
+sag_ecoregion <- function(ecoregion){
+  sag_ecoregion <- sag_complete_summary %>% filter(grepl(pattern = ecoregion, EcoRegion))
+  if(ecoregion == "Celtic Seas Ecoregion"){
+    CSout_stocks <- c("aru.27.123a4", "bli.27.nea", "bll.27.3a47de",
+                      "cap.27.2a514", "her.27.1-24a514a", "lin.27.5b", "reb.2127.sp",
+                       "reg.27.561214", "rjb.27.3a4", "rng.27.1245a8914ab",
+                        "san.sa.7r", "smn-dp")
+    sag_ecoregion <<- sag_ecoregion [!(sag_ecoregion$StockKeyLabel %in% CSout_stocks), ]
+  }
+}
+
+
 
 #' Format stock summary table
 #'
@@ -995,9 +1011,9 @@ ges_table <- rbind(ges_table_count, ges_table_catch)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 clean_stock_trends <- function(active_year = active_year,
-                               grouping_var = c("EcoGuild", "EcoRegion", "FisheriesGuild")[1],
-                               plotting_var = c("StockKeyLabel", "FisheriesGuild")[1],
-                               metric = c("MSY", "MEAN")[1]) {
+                               grouping_var = "EcoGuild",
+                               plotting_var = "StockKeyLabel",
+                               metric = "MSY") {
   
   if(!grouping_var %in% c("EcoRegion",
                           "EcoGuild",
@@ -1086,8 +1102,8 @@ clean_stock_trends <- function(active_year = active_year,
                                  stock_trends_mean) %>%
     distinct(.keep_all = TRUE)
   
-  return(list("stock_trends_frmt" = stock_trends_frmt,
-              "sag_complete_summary" = dat$sag_complete_summary))
+  stock_trends_frmt<<- stock_trends_frmt
+              # "sag_complete_summary" = dat$sag_complete_summary))
 }
 
 #' Catch, discards, and landings by stock
@@ -1117,7 +1133,7 @@ clean_stock_trends <- function(active_year = active_year,
 stock_catch <- function(active_year = active_year) {
   
   stock_catch <- sag_complete_summary %>%
-    tidyr::unnest(data) %>%
+    # tidyr::unnest(data) %>%
     select(Year,
            YearOfLastAssessment,
            StockKeyLabel,

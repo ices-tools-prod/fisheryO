@@ -730,6 +730,15 @@ stock_props <- function(active_year = active_year,
                         fisheries_guild = fisheries_guild) {
 
 stck_frmt <- stock_list_frmt
+stck_frmt <- stck_frmt %>%filter(grepl(pattern = ecoregion, EcoRegion))
+
+if(ecoregion == "Celtic Seas Ecoregion"){
+  CSout_stocks <- c("aru.27.123a4", "bli.27.nea", "bll.27.3a47de",
+                    "cap.27.2a514", "her.27.1-24a514a", "lin.27.5b", "reb.2127.sp",
+                    "reg.27.561214", "rjb.27.3a4", "rng.27.1245a8914ab",
+                    "san.sa.7r", "smn-dp")
+  stck_frmt <<- stck_frmt [!(stck_frmt$StockKeyLabel %in% CSout_stocks), ]
+}
 summary_tbl <- summary_table
 
 pie_table <- stck_frmt %>%
@@ -738,8 +747,8 @@ pie_table <- stck_frmt %>%
          FisheriesGuild,
          YearOfLastAssessment) %>%
   left_join(summary_tbl, by = "StockKeyLabel") %>%
-  filter(EcoRegion %in% ecoregion,
-         FisheriesGuild %in% fisheries_guild) %>%
+  # filter(EcoRegion %in% ecoregion)%>% #,
+         #FisheriesGuild %in% fisheries_guild) %>%
   #the problem is here
   mutate(FMSY = ifelse(YearOfLastAssessment == 2014,
                        FMSY2013,
@@ -785,7 +794,10 @@ pie_table <- stck_frmt %>%
                                            ifelse(YearOfLastAssessment == 2018,
                                                   BPA2018,
                                                   NA))))))
-  pie_table <<-pie_table
+  
+ #Hopefully it wont be needed when is in sid:  
+ # pie_table$FisheriesGuild[which(pie_table$StockKeyLabel == "tsu.27.nea")] <- "demersal"
+   pie_table <<-pie_table
 
    # return(list("stock_props" = pie_table))
 
@@ -1011,35 +1023,61 @@ ges_table <- rbind(ges_table_count, ges_table_catch)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 clean_stock_trends <- function(active_year = active_year,
-                               grouping_var = "EcoGuild",
+                               ecoregion =  c("Greater North Sea Ecoregion","Baltic Sea Ecoregion",
+                                              "Bay of Biscay and the Iberian Coast Ecoregion",
+                                              "Celtic Seas Ecoregion","Icelandic Waters Ecoregion",
+                                              "Norwegian Sea Ecoregion", "Barents Sea Ecoregion",
+                                              "Arctic Ocean Ecoregion"),
+                               grouping_var = "FisheriesGuild",
                                plotting_var = "StockKeyLabel",
                                metric = "MSY") {
   
-  if(!grouping_var %in% c("EcoRegion",
-                          "EcoGuild",
-                          "FisheriesGuild")) {
-    stop(paste0("grouping_var: '", grouping_var, "' is not supported. Please try: 'EcoRegion', 'EcoGuild', or 'FisheriesGuild'"))
-  }
-  if(!plotting_var %in% c("StockKeyLabel",
-                          "FisheriesGuild")) {
-    stop(paste0("plotting_var: '", plotting_var, "' is not supported. Please try: 'StockKeyLabel' or 'FisheriesGuild'"))
-  }
-  if(plotting_var == "FisheriesGuild" &
-     grouping_var %in% c("EcoGuild", "FisheriesGuild")) {
-    stop("plotting_var = 'FisheriesGuild' should only be used with grouping_var = 'EcoRegion'.")
-  }
-  if(!metric %in% c("MSY", "MEAN")) {
-    stop(paste0("metric: '", metric, "' is not supported. Please try: 'MSY' or 'MEAN'"))
-  }
-  
+  # if(!grouping_var %in% c("EcoRegion",
+  #                         "EcoGuild",
+  #                         "FisheriesGuild")) {
+  #   stop(paste0("grouping_var: '", grouping_var, "' is not supported. Please try: 'EcoRegion', 'EcoGuild', or 'FisheriesGuild'"))
+  # }
+  # if(!plotting_var %in% c("StockKeyLabel",
+  #                         "FisheriesGuild")) {
+  #   stop(paste0("plotting_var: '", plotting_var, "' is not supported. Please try: 'StockKeyLabel' or 'FisheriesGuild'"))
+  # }
+  # if(plotting_var == "FisheriesGuild" &
+  #    grouping_var %in% c("EcoGuild", "FisheriesGuild")) {
+  #   stop("plotting_var = 'FisheriesGuild' should only be used with grouping_var = 'EcoRegion'.")
+  # }
+  # if(!metric %in% c("MSY", "MEAN")) {
+  #   stop(paste0("metric: '", metric, "' is not supported. Please try: 'MSY' or 'MEAN'"))
+  # }
+  # 
   sag_complete_smmry <- sag_complete_summary
   grouping_variable <- rlang::sym(grouping_var)
   plotting_variable <- rlang::sym(plotting_var)
+  
+  sag_complete_smmry <- sag_complete_smmry %>% filter(grepl(pattern = ecoregion, EcoRegion))
+  
+  if(ecoregion == "Celtic Seas Ecoregion"){
+    sagno<- sag_complete_smmry%>%filter(StockKeyLabel %in% c("aru.27.123a4",
+                                                   "bli.27.nea",
+                                                   "bll.27.3a47de",
+                                                   "cap.27.2a514",
+                                                   "her.27.1-24a514a",
+                                                   "lin.27.5b",
+                                                   "reb.2127.sp",
+                                                   "reg.27.561214",
+                                                   "rjb.27.3a4",
+                                                   "rng.27.1245a8914ab",
+                                                   "san.sa.7r",
+                                                   "smn-dp"))
+    sag_complete_smmry <- anti_join(sag_complete_smmry, sagno, by = "StockKeyLabel")
+  }
+  
+  # sag_complete_smmry$FisheriesGuild[which(sag_complete_smmry$StockKeyLabel == "usk.27.6b")] <- "demersal"
   
   stock_means <- sag_complete_smmry %>%
     tidyr::unnest(EcoRegion) %>%
     mutate(EcoGuild =  paste0(EcoRegion, " - ", FisheriesGuild, " stocks")) %>% 
     group_by(rlang::UQ(grouping_variable),
+    # group_by((grouping_variable),
              Year) %>% 
     mutate(FMEAN = mean(F, na.rm = TRUE),
            SSBMEAN = mean(SSB, na.rm = TRUE),
@@ -1087,11 +1125,15 @@ clean_stock_trends <- function(active_year = active_year,
            plotValue) %>%
     filter(!is.na(plotValue))
   
+  #the problem of 2 means per year is here:
+  
   stock_trends_mean <- stock_trends %>%
-    group_by(rlang::UQ(grouping_variable), METRIC, Year) %>%
+    group_by(FisheriesGuild, METRIC, Year)%>%
+    # group_by(rlang::UQ(grouping_variable), METRIC, Year) %>%
     summarize(plotValue = mean(stockValue, na.rm = TRUE),
               lineGroup = "MEAN") %>%
-    select(pageGroup = rlang::UQ(grouping_variable),
+    # select(pageGroup = rlang::UQ(grouping_variable),
+    select(pageGroup = FisheriesGuild,
            lineGroup,
            Year,
            plotGroup = METRIC,
@@ -1101,6 +1143,7 @@ clean_stock_trends <- function(active_year = active_year,
   stock_trends_frmt <- bind_rows(stock_trends_grp,
                                  stock_trends_mean) %>%
     distinct(.keep_all = TRUE)
+  
   
   stock_trends_frmt<<- stock_trends_frmt
               # "sag_complete_summary" = dat$sag_complete_summary))
@@ -1132,8 +1175,9 @@ clean_stock_trends <- function(active_year = active_year,
 # ~~~~~~~~~~~~~~~ #
 stock_catch <- function(active_year = active_year) {
   
-  stock_catch <- sag_complete_summary %>%
-    # tidyr::unnest(data) %>%
+  # stock_catch <- sag_ecoregion %>%
+   stock_catch <- sag_complete_summary %>%
+      # tidyr::unnest(data) %>%
     select(Year,
            YearOfLastAssessment,
            StockKeyLabel,

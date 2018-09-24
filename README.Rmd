@@ -48,6 +48,12 @@ You can also install the raw data and code used for specific Fisheries Overviews
 
 ## Work flow
 
+```{r scheme, echo=FALSE}
+knitr::include_graphics("fisheryO.png")
+```
+
+
+
 1. Before the package is built, fisheryO downloads source data from ICES web services and databases and saves the raw data as .rdata files in the /data folder. This serves to create a final version of the data used to create each Fisheries Overview, thatis, ([fisheryO v0.2](https://github.com/ices-tools-prod/fisheryO/releases/tag/v0.2)) can be used to explore the data processing steps for the [Greater North Sea ecoregion Fisheries Overview](http://ices.dk/sites/pub/Publication%20Reports/Advice/2017/2017/Greater_North_Sea_Ecoregion_Fisheries_Overview.pdf). The raw data are available as a "promise" and can be explored extracted using the `data()` function. The nuts and bolts of these download steps can be found in the load_raw_data.R file in the /data-raw folder and links to the raw data can be found in the description files.
 
 2. Raw data processing is dependent on how the data will ultimately be displayed (e.g., figure or table) and several functions modify the raw data. These functions can be viewed in the clean_raw_data.R file in the /R folder to see the assumptions and data wrangling steps to move from raw data to figures and tables.

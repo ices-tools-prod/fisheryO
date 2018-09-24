@@ -23,7 +23,7 @@
 
 # AV: I am going to take out the save_plot, ggsave is enough, 
 # could be added to the manual as suggestion
-# ggsave("CS_figure1.png", path = "~/", width = 178, height = 152, units = "mm", dpi = 300)
+# ggsave("CS_figure11.png", path = "~/", width = 178, height = 152, units = "mm", dpi = 300)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # ICES Area and Ecoregion Map #
@@ -334,7 +334,9 @@ stockSummaryTable_fun <- function(ecoregion,
   doc <- officer::read_docx() %>%
     flextable::body_add_flextable(FT)
   
-  print(doc, target = paste0("CelticSeas_ListStocks.docx")) %>%
+  
+  #this is not working, cant remember how I did with the baltic!!
+  print(FT, preview = "docx") %>%
     invisible()
 
 }
@@ -380,7 +382,7 @@ stockSummaryTable_fun <- function(ecoregion,
 # ~~~~~~~~~~~~~~~~~~~~~~~~ #
  stockPie_fun <- function(ecoregion,
                           fisheries_guild = c("pelagic", "demersal", "crustacean", "elasmobranch", "benthic"),
-                          cap_month = "May",
+                          cap_month = "September",
                           cap_year = "2018",
                           file_name,
                           active_year = 2018,
@@ -547,16 +549,16 @@ gesPie_fun <- function(ecoregion,
   
  
   rowDat <-ges_table %>%
-    filter(grepl(pattern = ecoregion, EcoRegion)) %>%
-    ungroup() %>%
-    select(-EcoRegion) %>%
-    group_by(VARIABLE, METRIC) %>%
-    mutate(VALUE = ifelse(METRIC == "total_sum",
-                          round(VALUE / 1000),
-                          round(VALUE)),
-           fraction = VALUE/ sum(VALUE)) %>%
-    filter(fraction != 0) %>%
-    ungroup() %>%
+    # filter(grepl(pattern = ecoregion, EcoRegion)) %>%
+     ungroup() %>%
+     select(-EcoRegion) %>%
+     group_by(VARIABLE, METRIC) %>%
+     mutate(#VALUE = ifelse(METRIC == "total_sum",
+            #               round(VALUE / 1000),
+            #               round(VALUE)),
+            fraction = VALUE/ sum(VALUE)) %>%
+     filter(fraction != 0) %>%
+     ungroup() %>%
     mutate(METRIC = recode_factor(METRIC,
                                   "count" = "Number of stocks",
                                   "total_sum" = "Proportion of catch\n (thousand tonnes)"))
@@ -650,43 +652,41 @@ gesPie_fun <- function(ecoregion,
 #~~~~~~~~~~~~~~~~~~~~~~~~#
 # Stock Status over time #
 #~~~~~~~~~~~~~~~~~~~~~~~~#
-stock_trends_fun <- function(object,
-                             plotting_var = c("StockKeyLabel", "FisheriesGuild")[1],
-                             grouping_var = c("EcoGuild", "EcoRegion", "FisheriesGuild")[1],
-                             metric = c("MSY", "MEAN")[1],
+stock_trends_fun <- function(ecoregion,
+                             plotting_var = "StockKeyLabel",
+                             grouping_var = "FisheriesGuild",
+                             fisheries_guild = c("benthic", "pelagic", "demersal"),
+                             metric = "MSY",
                              active_year = 2018,
-                             cap_month = "June",
+                             cap_month = "September",
                              cap_year = "2018",
-                             file_name = NULL,
-                             save_plot = FALSE,
-                             return_plot = TRUE,
                              return_data = FALSE,
                              output_path = NULL) {
   
-  if(!grouping_var %in% c("EcoRegion",
-                          "EcoGuild",
-                          "FisheriesGuild")) {
-    stop(paste0("grouping_var: '", grouping_var, "' is not supported. Please try: EcoRegion, EcoGuild, or FisheriesGuild"))
-  }
-  if(!plotting_var %in% c("StockKeyLabel",
-                          "FisheriesGuild")) {
-    stop(paste0("plotting_var: '", plotting_var, "' is not supported. Please try: stock or guild"))
-  }
-  if(plotting_var == "FisheriesGuild" &
-     grouping_var %in% c("EcoGuild", "FisheriesGuild")) {
-    stop("plotting_var = 'FisheriesGuild' should only be used with grouping_var = 'EcoRegion'.")
-  }
-  if(!metric %in% c("MSY", "MEAN")) {
-    stop(paste0("metric: '", metric, "' is not supported. Please try: 'MSY' or 'MEAN'"))
-  }
-  
+  # if(!grouping_var %in% c("EcoRegion",
+  #                         "EcoGuild",
+  #                         "FisheriesGuild")) {
+  #   stop(paste0("grouping_var: '", grouping_var, "' is not supported. Please try: EcoRegion, EcoGuild, or FisheriesGuild"))
+  # }
+  # if(!plotting_var %in% c("StockKeyLabel",
+  #                         "FisheriesGuild")) {
+  #   stop(paste0("plotting_var: '", plotting_var, "' is not supported. Please try: stock or guild"))
+  # }
+  # if(plotting_var == "FisheriesGuild" &
+  #    grouping_var %in% c("EcoGuild", "FisheriesGuild")) {
+  #   stop("plotting_var = 'FisheriesGuild' should only be used with grouping_var = 'EcoRegion'.")
+  # }
+  # if(!metric %in% c("MSY", "MEAN")) {
+  #   stop(paste0("metric: '", metric, "' is not supported. Please try: 'MSY' or 'MEAN'"))
+  # }
+  # 
   grouping_variable <- rlang::sym(grouping_var)
   plotting_variable <- rlang::sym(plotting_var)
   
   
-  p1_dat <- stock_trends_frmt %>%
+  p1_dat <- stock_trends_frmt %>% filter(pageGroup == fisheries_guild)%>%
     ungroup() %>%
-    filter(grepl(object, pageGroup)) %>%
+     # filter(grepl(ecoregion, EcoRegion)) %>%
     mutate(plotGroup = case_when(plotGroup == "SSB_SSBMEAN"~ "SSB/SSB[mean]",
                             plotGroup == "F_FMEAN"~ "F/F[mean]",
                             plotGroup == "F_FMSY"~ "F/F[MSY]",
@@ -698,43 +698,44 @@ stock_trends_fun <- function(object,
       filter(lineGroup != "MEAN")
   }
   
-  if(metric == "MEAN"){
-    p1_dat <- p1_dat %>%
-      filter(lineGroup != "MEAN")
-  }
+  # if(metric == "MEAN"){
+  #   p1_dat <- p1_dat %>%
+  #     filter(lineGroup != "MEAN")
+  # }
   
   adj_names <- sort(setdiff(unique(p1_dat$lineGroup), "MEAN"))
-  values <- ggthemes::tableau_color_pal('tableau10')(length(adj_names))
+  #When more than 20 colors are needed:
+  # library(RColorBrewer)
+  # n <- 30
+  # qual_col_pals = brewer.pal.info[brewer.pal.info$category == 'qual',]
+  # col_vector = unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
+  # values<- col_vector
+  values <- ggthemes::tableau_color_pal('tableau20')(length(adj_names))
   legend_pos <- "bottom"
   
   names(values) <- adj_names
   values <- c(values, c(MEAN = "black"))
   
-  if(save_plot) {
-    if(is.null(file_name)) {
-      file_name <- gsub("\\s", "_", object)
-      file_name <- gsub("_-_", "-", file_name)
-    }
-    
-    if(is.null(output_path)) {
-      output_path <- "~/"
-    }
-  }
-  
-  plot_title <- gsub(".*\\s-\\s", "\\1", object)
-  plot_title <- gsub(" stocks", "", plot_title)
+  plot_title <- fisheries_guild
   
   cap_lab <- labs(title = plot_title, x = "Year", y = "",
                     caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
-                                      cap_year,
-                                      cap_month))
+                                      cap_month,
+                                      cap_year))
+  # p1_dat$pageGroup[which(p1_dat$lineGroup == "lin.27.5a")] <- "demersal"
   
-  p1_plot <- ggplot(p1_dat %>% filter(lineGroup != "MEAN"),
+  p1_dat2 <- p1_dat %>% filter(pageGroup%in% fisheries_guild)
+  duplicates <- p1_dat2 %>% group_by(plotValue) %>% filter(n()>1)
+  duplicates <- duplicates %>% filter (lineGroup== "MEAN")
+  p1_dat2 <- anti_join(p1_dat2,duplicates)
+  
+  
+  p1_plot <- ggplot(p1_dat2 %>% filter(lineGroup != "MEAN"),
                     aes(x = Year, y = plotValue,
                         color = lineGroup,
                         fill = lineGroup#,
                         # onclick = onclick,
-                        # data_id = lineGroup,
+                        #data_id = NULL#,
                         # tooltip = tooltip_line
                     )) +
     geom_hline(yintercept = 1, col = "grey60") +
@@ -750,29 +751,23 @@ stock_trends_fun <- function(object,
           panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),
           legend.key = element_rect(colour = NA),
+          legend.title = element_blank(),
           plot.caption = element_text(size = 6)) +
     cap_lab +
-    facet_grid(rows= vars (plotGroup),scales = "free_y", labeller = label_parsed)
+    # facet_grid(rows= vars (plotGroup),scales = "free_y", labeller = label_parsed)
+    facet_wrap(~ plotGroup, scales = "free_y", labeller = label_parsed, strip.position = "left", ncol = 1, nrow = 2)
   
-  p1_plot <- p1_plot + geom_line(alpha = 0.8)
-  p1_plot <- p1_plot + geom_line(data = p1_dat %>% filter(lineGroup == "MEAN"),
+  p1_plot <- p1_plot + geom_line(data = p1_dat2,alpha = 0.8)
+  p1_plot <- p1_plot + geom_line(data = p1_dat2 %>% filter(lineGroup == "MEAN"),
                                  alpha = 0.9, size = 1.15)
-  
-  if(return_plot) {
-    return(p1_plot)
-  }
+ 
+   return(p1_plot) 
   
   if(return_data) {
+      if(is.null(output_path)) {
+        output_path <- "~/"
+      }
     write.csv(x = p1_dat, file = paste0(output_path, file_name, ".csv"), row.names = FALSE)
-  }
-  
-  if(save_plot) {
-    ggsave(filename = paste0(output_path, file_name, ".png"),
-           plot = p1_plot,
-           width = 170,
-           height = 100.5,
-           units = "mm",
-           dpi = 300)
   }
 }
 
@@ -826,7 +821,7 @@ plot_kobe <- function(ecoregion,
                                 "elasmobranch",
                                 "large-scale stocks")[1],
                       active_year = 2018,
-                      cap_month = "May",
+                      cap_month = "September",
                       cap_year = "2018",
                       output_path = NULL,
                       return_plot = TRUE,
@@ -865,7 +860,7 @@ plot_kobe <- function(ecoregion,
                                       cap_month))
   
   kobeDat <- stock_status_full %>%
-    filter(EcoRegion %in% c("Baltic Sea Ecoregion", "Baltic Sea Ecoregion, Greater North Sea Ecoregion"),
+    filter(grepl(ecoregion, EcoRegion),
            FisheriesGuild %in% fisheries_guild,
            !is.na(F_FMSY),
            !is.na(SSB_MSYBtrigger)) %>%
@@ -885,7 +880,23 @@ plot_kobe <- function(ecoregion,
                           max(catches, landings, na.rm = TRUE))) %>%
     distinct(.keep_all = TRUE)
   
-  kobeDat$tip <- sprintf('
+  if(ecoregion == "Celtic Seas Ecoregion"){
+  kobeno<- kobeDat%>%filter(StockKeyLabel %in% c("aru.27.123a4",
+                              "bli.27.nea",
+                              "bll.27.3a47de",
+                              "cap.27.2a514",
+                              "her.27.1-24a514a",
+                              "lin.27.5b",
+                              "reb.2127.sp",
+                              "reg.27.561214",
+                              "rjb.27.3a4",
+                              "rng.27.1245a8914ab",
+                              "san.sa.7r",
+                              "smn-dp"))
+  kobeDat <- anti_join(kobeDat, kobeno, by = "StockKeyLabel")
+  }
+
+kobeDat$tip <- sprintf('
                          <div class="tipchart">
                          <h6>%s</h6>
                          <table>
@@ -955,7 +966,7 @@ plot_kobe <- function(ecoregion,
     
     # Lollipop plot
     catchBar <- stock_status_full %>%
-      filter(EcoRegion %in% c("Baltic Sea Ecoregion", "Baltic Sea Ecoregion, Greater North Sea Ecoregion"),
+      filter(grepl(ecoregion, EcoRegion),
              FisheriesGuild %in% fisheries_guild) %>%
       # filter(StockKeyLabel %in% c("spr.27.22-32","her.27.25-2932", "her.27.3031",
       #                             "her.27.20-24","her.27.28"))%>%
@@ -967,6 +978,23 @@ plot_kobe <- function(ecoregion,
       ungroup() %>%
       arrange(!is.na(total), total) %>%
       mutate(StockKeyLabel = factor(StockKeyLabel, StockKeyLabel))
+    
+    if(ecoregion == "Celtic Seas Ecoregion"){
+      catchno<- catchBar%>%filter(StockKeyLabel %in% c("aru.27.123a4",
+                                                     "bli.27.nea",
+                                                     "bll.27.3a47de",
+                                                     "cap.27.2a514",
+                                                     "her.27.1-24a514a",
+                                                     "lin.27.5b",
+                                                     "reb.2127.sp",
+                                                     "reg.27.561214",
+                                                     "rjb.27.3a4",
+                                                     "rng.27.1245a8914ab",
+                                                     "san.sa.7r",
+                                                     "smn-dp"))
+      catchBar <- anti_join(catchBar, catchno, by = "StockKeyLabel")
+    }
+    
     
     if(length(fisheries_guild) >= 2) {
       catchBar <- filter(catchBar, total >= catch_limit)
@@ -1012,6 +1040,9 @@ plot_kobe <- function(ecoregion,
                                        bar_plot, ncol = 2,
                                        respect = TRUE, top = labTitle))
       }
+    # g<-gridExtra::arrangeGrob(kobe_plot,
+    #                           bar_plot, ncol = 2,
+    #                           respect = TRUE, top = labTitle)
       if(save_plot) {
         png(paste0(output_path, file_name, ".png"),
             width = fig.width,
@@ -1063,7 +1094,7 @@ plot_kobe <- function(ecoregion,
 
 # Landings and discards disaggregated by guild
 guild_discards_fun <- function(ecoregion,
-                               active_year = 2017,
+                               active_year = 2018,
                                cap_month = "bla",
                                cap_year = "2018",
                                output_path = NULL,
@@ -1093,8 +1124,24 @@ guild_discards_fun <- function(ecoregion,
   p3_dat_ts <-  stock_catch_full %>%
     filter(grepl(ecoregion, EcoRegion))
   
-  p3_dat_ts <-  stock_catch(active_year) %>%
-    filter(grepl(ecoregion, EcoRegion))
+  if(ecoregion == "Celtic Seas Ecoregion"){
+    p3no<- p3_dat_ts%>%filter(StockKeyLabel %in% c("aru.27.123a4",
+                                                   "bli.27.nea",
+                                                   "bll.27.3a47de",
+                                                   "cap.27.2a514",
+                                                   "her.27.1-24a514a",
+                                                   "lin.27.5b",
+                                                   "reb.2127.sp",
+                                                   "reg.27.561214",
+                                                   "rjb.27.3a4",
+                                                   "rng.27.1245a8914ab",
+                                                   "san.sa.7r",
+                                                   "smn-dp"))
+    p3_dat_ts <- anti_join(p3_dat_ts, p3no, by = "StockKeyLabel")
+  }
+  
+  # p3_dat_ts <-  stock_catch(active_year) %>%
+  #   filter(grepl(ecoregion, EcoRegion))
   
   if(ecoregion == "Baltic Sea Ecoregion"){
     # Get rid of crustacean and elasmobranchs in the Baltic... to appease ADGFO

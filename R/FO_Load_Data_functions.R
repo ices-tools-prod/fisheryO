@@ -2,7 +2,7 @@
 ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ##
   #### DATA SOURCE: ICES Stock Database ####
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ##
- 
+ #change this function to use icesSD package. 
     load_sid <- function(){
     stock_list_raw <- jsonlite::fromJSON("http://sd.ices.dk/services/odata4/StockListDWs4",
                                               simplifyDataFrame = TRUE)$value
@@ -25,7 +25,7 @@
                                        data = "summary",
                                        combine = TRUE)
   
-    sag_summary_raw <<- sag_summary_raw %>% filter(Purpose == "Advice")
+    sag_summary_raw <<- sag_summary_raw %>% filter(Purpose %in% c("Advice", "InitAdvice"))
 
     
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ##
@@ -49,7 +49,7 @@
                                                                                                     "AssessmentKey",
                                                                                                     "StockKeyLabel", "Purpose")]))
     #to get rid of double 
-    sag_keys_raw <- sag_keys_raw %>% filter(Purpose == "Advice")
+    sag_keys_raw <- sag_keys_raw %>% filter(Purpose %in% c("Advice", "InitAdvice"))
     sag_keys_raw <<- sag_keys_raw[,-4]
   
   # if("sag_stock_status_raw" %in% raw_data){
@@ -82,7 +82,7 @@
                                           na.strings = c("...", "-", "ns", "."))
   
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ##
-  #### DATA SOURCE: ICES official catch statistics (2006-2016) ####
+  #### DATA SOURCE: ICES official catch statistics (2006-201X) ####
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ##
     load_official_catches<- function(){
       catchURL <- "http://ices.dk/marine-data/Documents/CatchStats/OfficialNominalCatches.zip"
@@ -118,15 +118,15 @@
   #### DATA SOURCE: FAO species names and labels ####
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ##
     #this should be in the package
-    # spURL <- "http://www.fao.org/fishery/static/ASFIS/ASFIS_sp.zip"
-    # tmpFileSp <- tempfile(fileext = ".zip")
-    # download.file(spURL, destfile = tmpFileSp, mode = "wb", quiet = TRUE)
-    # FAO_file <- grep(".*txt", unzip(tmpFileSp,list = TRUE)$Name, value = TRUE)
-    # species_list_raw <- read.delim(unz(tmpFileSp, FAO_file),
-    #                                fill = TRUE,
-    #                                stringsAsFactors = FALSE,
-    #                                header = TRUE,
-    #                                na.strings = "")
+    spURL <- "http://www.fao.org/fishery/static/ASFIS/ASFIS_sp.zip"
+    tmpFileSp <- tempfile(fileext = ".zip")
+    download.file(spURL, destfile = tmpFileSp, mode = "wb", quiet = TRUE)
+    FAO_file <- grep(".*txt", unzip(tmpFileSp,list = TRUE)$Name, value = TRUE)
+    species_list_raw <- read.delim(unz(tmpFileSp, FAO_file),
+                                   fill = TRUE,
+                                   stringsAsFactors = FALSE,
+                                   header = TRUE,
+                                   na.strings = "")
    
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ##
   #### DATA SOURCE: STECF Effort and Catch tables ####
@@ -135,6 +135,10 @@
     stecf_effort_raw <- readRDS("data-raw/STECF_effort_data.rds")
     devtools::use_data(stecf_effort_raw, overwrite = TRUE)
  
+    StecfURL<- "https://visualise.jrc.ec.europa.eu/vizql/t/dcf/w/effort_public_report/v/effort/vud/sessions/1D0D3F77E59B4727A20DB11E2275510F-1:1/views/14425121001966086373_5796457947632830931?csv=true"
+    stecf<- data.frame()
+    download.file(StecfURL, destfile = stecf,mode = "wb", quiet = TRUE)
+    
     stecf_landings_raw <- readRDS("data-raw/STECF_landings_data.rds")
     devtools::use_data(stecf_landings_raw, overwrite = TRUE)
   

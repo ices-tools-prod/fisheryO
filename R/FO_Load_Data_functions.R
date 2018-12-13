@@ -25,7 +25,8 @@
                                        data = "summary",
                                        combine = TRUE)
   
-    sag_summary_raw <<- sag_summary_raw %>% filter(Purpose %in% c("Advice", "InitAdvice"))
+    # sag_summary_raw <<- sag_summary_raw %>% filter(Purpose %in% c("Advice", "InitAdvice"))
+    sag_summary_raw <<- sag_summary_raw %>% filter(Purpose %in% c("Advice"))
 
     
   ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ##
@@ -49,7 +50,8 @@
                                                                                                     "AssessmentKey",
                                                                                                     "StockKeyLabel", "Purpose")]))
     #to get rid of double 
-    sag_keys_raw <- sag_keys_raw %>% filter(Purpose %in% c("Advice", "InitAdvice"))
+    # sag_keys_raw <- sag_keys_raw %>% filter(Purpose %in% c("Advice", "InitAdvice"))
+    sag_keys_raw <- sag_keys_raw %>% filter(Purpose %in% c("Advice"))
     sag_keys_raw <<- sag_keys_raw[,-4]
   
   # if("sag_stock_status_raw" %in% raw_data){

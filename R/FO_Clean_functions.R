@@ -408,26 +408,28 @@ sag_ref_summary <- stock_list_frmt %>%
   left_join(sag_summary_clean, by = "StockKeyLabel") #%>%
 
 
-sag_complete_summary <- sag_ref_summary %>%
-  mutate(MSYBtrigger = ifelse(stockSizeDescription %in% relative_SSB,
-                              0.5,
-                              MSYBtrigger),
-         MSYBtrigger = ifelse(!stockSizeDescription %in% keeper_SSB,
-                              NA,
-                              MSYBtrigger),
-         MSYBtrigger = ifelse(MSYBtrigger == 0,
-                              NA,
-                              MSYBtrigger),
-         FMSY = ifelse(fishingPressureDescription %in% relative_F,
-                       1,
-                       FMSY),
-         FMSY = ifelse(!fishingPressureDescription %in% keeper_F,
-                       NA,
-                       FMSY),
-         FMSY = ifelse(FMSY == 0,
-                       NA,
-                       FMSY)
-  )
+
+#I think this piece is removing the relatives for plot 12
+sag_complete_summary <- sag_ref_summary #%>%
+  # mutate(MSYBtrigger = ifelse(stockSizeDescription %in% relative_SSB,
+  #                             0.5,
+  #                             MSYBtrigger),
+  #        MSYBtrigger = ifelse(!stockSizeDescription %in% keeper_SSB,
+  #                             NA,
+  #                             MSYBtrigger),
+  #        MSYBtrigger = ifelse(MSYBtrigger == 0,
+  #                             NA,
+  #                             MSYBtrigger),
+  #        FMSY = ifelse(fishingPressureDescription %in% relative_F,
+  #                      1,
+  #                      FMSY),
+  #        FMSY = ifelse(!fishingPressureDescription %in% keeper_F,
+  #                      NA,
+  #                      FMSY),
+  #        FMSY = ifelse(FMSY == 0,
+  #                      NA,
+  #                      FMSY)
+  # )
  stock_list <<- stock_list
  stock_list_frmt <<- stock_list_frmt
  sag_complete_summary <<- sag_complete_summary
@@ -535,9 +537,11 @@ format_summary_table <- function(active_year = active_year) {
 stockID <- stock_list_raw %>% select(StockKeyLabel, PreviousStockKeyLabel)
 stockID <- unique(stockID)%>% drop_na()
 stockID$correct <- stockID$StockKeyLabel
+stockID <- stockID %>% filter()
 stockID <- stockID [,-1]
 stockID$StockKeyLabel <- stockID$PreviousStockKeyLabel 
 stockID <- stockID [,-1]
+stockID <- stockID %>% filter(correct != "mon.27.78ab")
 
 sag_stock_status <- unique(sag_stock_status)
 sag_wrong <- sag_stock_status %>% filter(StockKeyLabel %in% stockID$StockKeyLabel)
@@ -547,6 +551,7 @@ sag_wrong <- sag_wrong %>% left_join(stockID)
 sag_wrong$StockKeyLabel <- sag_wrong$correct
 sag_wrong <- sag_wrong[,-17]
 sag_stock_status <- sag_stock_status %>% rbind(sag_wrong)
+
 
 stock_list <-unique(stock_list)
 
@@ -559,9 +564,19 @@ stock_summary_table <-  stck_frmt %>%
   select(StockKeyLabel,
          YearOfLastAssessment,
          year, status)
+
+stock_sum <- stock_summary_table 
+stock_sum$year <- gsub("MSYBescapement","BMSY", stock_sum$year)
+
+stock_summary_table <- stock_sum
+
 stock_summary_table <- unique(stock_summary_table)%>%
   tidyr::spread(year, status)
 
+#a little trick for autumn herring
+
+stock_summary_table$BMSY2018[which(stock_summary_table$StockKeyLabel == "her.27.3a47d")] <- "GREEN"
+stock_summary_table$BPA2018[which(stock_summary_table$StockKeyLabel == "her.27.3a47d")] <- "GREEN"
 
 #' Convert FPA to SBL
 #'
@@ -691,12 +706,12 @@ summary_table <- stock_summary_table %>%
   select(StockKeyLabel,
          contains("MSY"),
          contains("PA"),
-         contains("SBL"),
-         -contains("proxy"),
-         -contains("escapement"))
+         contains("SBL"))#,
+         # -contains("proxy"),
+         # -contains("escapement"))
 
 
-
+## I would like to remove this part, and create the summary table from summary_table. This is redundant and adds error.
 # stockDat
 summary_table_frmt <- stck_frmt %>%  #slFull
   left_join(summary_table, by = "StockKeyLabel") %>%
@@ -724,27 +739,35 @@ summary_table_frmt <- stck_frmt %>%  #slFull
 
 summary_table_frmt <- bind_rows(
   summary_table_frmt %>%
+    filter(YearOfLastAssessment == active_year-3) %>%
+    mutate(D3C1 = ifelse(AdviceCategory  %in% c("MSY", "MP", "PA"),
+                         FMSY2014,
+                         FPA2014),
+           D3C2 = ifelse(AdviceCategory  %in% c("MSY", "MP", "PA"),
+                         BMSY2015,
+                         BPA2015)),
+  summary_table_frmt %>%
     filter(YearOfLastAssessment == active_year-2) %>%
-    mutate(D3C1 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
+    mutate(D3C1 = ifelse(AdviceCategory  %in% c("MSY", "MP", "PA"),
                          FMSY2015,
                          FPA2015),
-           D3C2 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
+           D3C2 = ifelse(AdviceCategory  %in% c("MSY", "MP", "PA"),
                          BMSY2016,
                          BPA2016)),
   summary_table_frmt %>%
     filter(YearOfLastAssessment == active_year-1) %>%
-    mutate(D3C1 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
+    mutate(D3C1 = ifelse(AdviceCategory  %in% c("MSY", "MP", "PA"),
                          FMSY2016,
                          FPA2016),
-           D3C2 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
+           D3C2 = ifelse(AdviceCategory  %in% c("MSY", "MP", "PA"),
                          BMSY2017,
                          BPA2017)),
   summary_table_frmt %>%
     filter(YearOfLastAssessment == active_year) %>%
-    mutate(D3C1 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
+    mutate(D3C1 = ifelse(AdviceCategory  %in% c("MSY", "MP", "PA"),
                          FMSY2017,
                          FPA2017),
-           D3C2 = ifelse(AdviceCategory  %in% c("MSY", "MP"),
+           D3C2 = ifelse(AdviceCategory  %in% c("MSY", "MP", "PA"),
                          BMSY2018,
                          BPA2018)
     )
@@ -828,11 +851,17 @@ stck_frmt <- stck_frmt %>%filter(grepl(pattern = ecoregion, EcoRegion))
 
 if(ecoregion == "Celtic Seas Ecoregion"){
   CSout_stocks <- c("aru.27.123a4", "bli.27.nea", "bll.27.3a47de",
-                    "cap.27.2a514", "her.27.1-24a514a", "lin.27.5b", "reb.2127.sp",
+                    "cap.27.2a514", "her.27.1-24a514a", "lin.27.5b", "reb.2127.dp",
                     "reg.27.561214", "rjb.27.3a4", "rng.27.1245a8914ab",
                     "san.sa.7r", "smn-dp")
   stck_frmt <<- stck_frmt [!(stck_frmt$StockKeyLabel %in% CSout_stocks), ]
 }
+
+# if(ecoregion == "Greater North Sea Ecoregion"){
+#   out_stocks<-c("mon.27.78abd")
+#   stck_frmt <<- stck_frmt [!(stck_frmt$StockKeyLabel %in% out_stocks), ]
+# }
+
 summary_tbl <- summary_table
 
 pie_table <- stck_frmt %>%
@@ -890,7 +919,7 @@ pie_table <- stck_frmt %>%
                                                   NA))))))
   
  #Hopefully it wont be needed when is in sid:  
- # pie_table$FisheriesGuild[which(pie_table$StockKeyLabel == "tsu.27.nea")] <- "demersal"
+  pie_table$FisheriesGuild[which(pie_table$StockKeyLabel == "tsu.27.nea")] <- "demersal"
    pie_table <<-pie_table
 
    # return(list("stock_props" = pie_table))
@@ -952,6 +981,7 @@ pie_table_stock <- pie_tbl %>%
                         VALUE)) %>%
   group_by(EcoRegion, FisheriesGuild, VARIABLE, VALUE)
 
+pie_tbl$EcoRegion <- ecoregion
 pie_table_count <- pie_tbl %>%
   select(EcoRegion,
          FisheriesGuild,
@@ -1029,6 +1059,7 @@ ges_stock_props <- function(active_year = active_year,
 pie_tbl <- pie_table
 sag_complete_smmry <- sag_complete_summary
 
+pie_tbl$EcoRegion <- ecoregion
 ges_table_count <- pie_tbl %>% #pie_table
   select(EcoRegion,
          D3C2 = BMSY,
@@ -1043,20 +1074,47 @@ ges_table_count <- pie_tbl %>% #pie_table
 
 # Take last year of catch data. If catch is not available, use landings.
 # Remove stocks without quantified catch or landings
-ges_catch_stock <-  sag_complete_smmry %>%
-  tidyr::unnest(EcoRegion) %>%
+sag_smmry <- sag_complete_smmry %>% 
+  filter(grepl(pattern = ecoregion, EcoRegion))
+
+if(ecoregion == "Celtic Seas Ecoregion"){
+  sagno<- sag_smmry%>%filter(StockKeyLabel %in% c("aru.27.123a4",
+                                                 "bli.27.nea",
+                                                 "bll.27.3a47de",
+                                                 "cap.27.2a514",
+                                                 "her.27.1-24a514a",
+                                                 "lin.27.5b",
+                                                 "reb.2127.dp",
+                                                 "reg.27.561214",
+                                                 "rjb.27.3a4",
+                                                 "rng.27.1245a8914ab",
+                                                 "san.sa.7r",
+                                                 "smn-dp"))
+  sag_smmry <- anti_join(sag_smmry, sagno, by = "StockKeyLabel")
+}
+  
+
+# if(ecoregion == "Greater North Sea Ecoregion"){
+#     sagno<- sag_smmry%>%filter(StockKeyLabel %in% c("mon.27.78abd"))
+#     sag_smmry <- anti_join(sag_smmry, sagno, by = "StockKeyLabel")
+#   }
+
+ges_catch_stock <-  sag_smmry %>%
+  #tidyr::unnest(EcoRegion) %>%
   group_by(StockKeyLabel) %>%
   filter(Year == YearOfLastAssessment - 1,
-         EcoRegion %in% ecoregion,
+         #EcoRegion %in% ecoregion,
          FisheriesGuild %in% fisheries_guild) %>%
   ungroup() %>%
   mutate(CATCH = ifelse(is.na(catches) & !is.na(landings),
                         landings,
                         catches)) %>%
-  filter(!is.na(CATCH)) %>%
+  #filter(!is.na(CATCH)) %>%
   select(StockKeyLabel,
          CATCH) %>%
   distinct(.keep_all = TRUE)
+
+# ges_catch_stock$CATCH[which(ges_catch_stock$StockKeyLabel == "ghl.27.561214")] <- 23466
 
 # Split and sum catch by variable and color
 ges_table_catch <- ges_catch_stock %>%
@@ -1079,7 +1137,8 @@ ges_table_catch <- ges_catch_stock %>%
 ges_table <- rbind(ges_table_count, ges_table_catch)
 
 # devtools::use_data(ges_table)
- return(ges_table)
+ges_table <<-ges_table 
+# return(ges_table)
  }
 
 #' Clean stock status trends
@@ -1115,6 +1174,17 @@ ges_table <- rbind(ges_table_count, ges_table_catch)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Stock Status over time data #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+#Little trick to have HR data in nep.fu.3-4
+
+sag_complete_summary$F[which(sag_complete_summary$StockKeyLabel == "nep.fu.3-4"& sag_complete_summary$Year == 2011)] <- 3.91 
+sag_complete_summary$F[which(sag_complete_summary$StockKeyLabel == "nep.fu.3-4"& sag_complete_summary$Year == 2012)] <- 8.55 
+sag_complete_summary$F[which(sag_complete_summary$StockKeyLabel == "nep.fu.3-4"& sag_complete_summary$Year == 2013)] <- 5.8 
+sag_complete_summary$F[which(sag_complete_summary$StockKeyLabel == "nep.fu.3-4"& sag_complete_summary$Year == 2014)] <- 3.03 
+sag_complete_summary$F[which(sag_complete_summary$StockKeyLabel == "nep.fu.3-4"& sag_complete_summary$Year == 2015)] <- 2.05 
+sag_complete_summary$F[which(sag_complete_summary$StockKeyLabel == "nep.fu.3-4"& sag_complete_summary$Year == 2016)] <- 3.07 
+sag_complete_summary$F[which(sag_complete_summary$StockKeyLabel == "nep.fu.3-4"& sag_complete_summary$Year == 2017)] <- 2.55 
+
+
 
 clean_stock_trends <- function(active_year = active_year,
                                ecoregion =  c("Greater North Sea Ecoregion","Baltic Sea Ecoregion",
@@ -1165,7 +1235,13 @@ clean_stock_trends <- function(active_year = active_year,
     sag_complete_smmry <- anti_join(sag_complete_smmry, sagno, by = "StockKeyLabel")
   }
   
-  # sag_complete_smmry$FisheriesGuild[which(sag_complete_smmry$StockKeyLabel == "usk.27.6b")] <- "demersal"
+  if(ecoregion == "Greater North Sea Ecoregion"){
+    sagno<- sag_complete_smmry%>%filter(StockKeyLabel %in% c("mon.27.78abd"))
+    sag_complete_smmry <- anti_join(sag_complete_smmry, sagno, by = "StockKeyLabel")
+  }
+  
+  #sag_complete_smmry$FisheriesGuild[which(sag_complete_smmry$StockKeyLabel == "usk.27.6b")] <- "demersal"
+  sag_complete_smmry$FisheriesGuild[which(sag_complete_smmry$StockKeyLabel == "tsu.27.6b")] <- "demersal"
   
   stock_means <- sag_complete_smmry %>%
     tidyr::unnest(EcoRegion) %>%
@@ -1230,10 +1306,10 @@ clean_stock_trends <- function(active_year = active_year,
     #group_by(METRIC, Year)%>%
     summarize(plotValue = mean(stockValue, na.rm = TRUE),
               lineGroup = "MEAN") %>%
-    #select(pageGroup = rlang::UQ(grouping_variable),
+    select(pageGroup = rlang::UQ(grouping_variable),
     #select(pageGroup = FisheriesGuild,
     #for neafc plots
-    select(pageGroup = FisheriesGuild,
+    #select(pageGroup = FisheriesGuild,
            lineGroup,
            Year,
            plotGroup = METRIC,
@@ -1350,6 +1426,9 @@ stock_catch <- function(active_year = active_year) {
   # return(stock_catch_full)
 }
 
+
+
+
 #' Stock status and catch relative to reference points
 #'
 #' \code{stock_status} returns a data frame of stock status relative to reference points and
@@ -1429,6 +1508,8 @@ stock_status <- function(active_year = active_year){
   stock_status_full <<- stock_status_full
   # return(stock_status_full)
 }
+
+
 
 #' ICES catch time series
 #'
@@ -1657,7 +1738,7 @@ ices_catch_data <- function() {
            COMMON_NAME,
            VALUE)
   
-  
+  ices_catch_dat$GUILD[which(ices_catch_dat$SPECIES_CODE == "WHB")] <- "pelagic"
   
   ices_catch_dat <<- ices_catch_dat
   # return(ices_catch_dat)

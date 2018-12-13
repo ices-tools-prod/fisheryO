@@ -23,7 +23,16 @@
 
 # AV: I am going to take out the save_plot, ggsave is enough, 
 # could be added to the manual as suggestion
-# ggsave("C_Catches2018V2.png", path = "~/", width = 178, height = 100.5, units = "mm", dpi = 300)
+# ggsave("CS_figure5.png", path = "~/", width = 178, height = 70.5, units = "mm", dpi = 300)
+
+ggsave(filename = paste0(output_path, file_name, ".png"),
+       # paste0("~/git/ices-dk/fisheryO/output/", fig_name, "_", IA, ".png"),
+       plot = pl,
+       width = fig.width,
+       height = fig.height,
+       units = "mm",
+       dpi = 300)
+
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 # ICES Area and Ecoregion Map #
@@ -332,7 +341,15 @@ stockSummaryTable_fun <- function(ecoregion,
   
   
   doc <- officer::read_docx() %>%
-    flextable::body_add_flextable(FT)
+    flextable::body_add_flextable(FT)%>%
+    print(target = paste0(output_path, file_name, ".docx")) %>%
+    invisible()
+  
+  flextable::body_add_flextable(doc, FT)
+  
+  doc = docx( )
+  doc = addFlexTable( doc, flextable = FT[2] )
+  writeDoc( doc, file = "add_ft_ex.docx" )
   
   
   #this is not working, cant remember how I did with the baltic!!
@@ -460,6 +477,7 @@ p1 <- ggplot(data = rowDat, aes(x = "", y = fraction, fill = VALUE)) +
   coord_polar(theta = "y", direction = 1) +
   facet_grid(FisheriesGuild ~ VARIABLE)
 
+p1
 if(return_plot) {
    return(p1)
  }
@@ -599,6 +617,7 @@ gesPie_fun <- function(ecoregion,
     coord_polar(theta = "y") +
     facet_grid(METRIC ~ VARIABLE)
   
+  p1
   
   if(return_plot) {
     return(p1)
@@ -689,7 +708,7 @@ stock_trends_fun <- function(ecoregion,
   plotting_variable <- rlang::sym(plotting_var)
   
   
-  p1_dat <- stock_trends_frmt %>% #filter(pageGroup == fisheries_guild)%>%
+  p1_dat <- stock_trends_frmt %>% filter(pageGroup == fisheries_guild)%>%
     ungroup() %>%
      # filter(grepl(ecoregion, EcoRegion)) %>%
     mutate(plotGroup = case_when(plotGroup == "SSB_SSBMEAN"~ "SSB/SSB[mean]",
@@ -724,7 +743,7 @@ stock_trends_fun <- function(ecoregion,
   # col_vector = unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
   # values<- col_vector
   values <- ggthemes::tableau_color_pal('tableau20')(length(adj_names))
-  values <- c("red", "blue","grey", "green")
+  # values <- c("red", "blue","grey", "green")
   #values <- ggthemes::tableau_color_pal('tableau20')(length(1:20))
   #values <- values[c(1,2,3,7,19)]
   legend_pos <- "bottom"
@@ -742,7 +761,7 @@ stock_trends_fun <- function(ecoregion,
   #for neafc plots
   
   #plot_title <- ecoregion
-  plot_title <- NULL
+  # plot_title <- NULL
   cap_lab <- labs(title = plot_title, x = "Year", y = "",
                     caption = sprintf("ICES Stock Assessment Database, %s/%s. ICES, Copenhagen",
                                       cap_month,
@@ -805,15 +824,17 @@ stock_trends_fun <- function(ecoregion,
   
   
   
-   return(p1_plot) 
-  
-  if(return_data) {
-      if(is.null(output_path)) {
+  #  return(p1_plot) 
+  # 
+  # if(return_data) {
+  #     if(is.null(output_path)) {
         output_path <- "~/"
-      }
-    write.csv(x = p1_dat, file = paste0(output_path, file_name, ".csv"), row.names = FALSE)
-    write.csv(x = stock_trends, file = paste0(output_path, "GNS_EOtrends2018.csv"), row.names = FALSE)
-  }
+  #     }
+     write.csv(x = p1_dat, file = paste0(output_path, file_name, ".csv"), row.names = FALSE)
+    # write.csv(x = stock_trends, file = paste0(output_path, "GNS_EOtrends2018.csv"), row.names = FALSE)
+     p1_plot
+     
+     # }
 }
 
 #' Kobe plot of stock status
@@ -893,7 +914,7 @@ plot_kobe <- function(ecoregion,
   
   if(any(fisheries_guild %in% "all")) {
     fisheries_guild <- c("benthic", "demersal", "pelagic", "crustacean", "elasmobranch")
-    labTitle <- "All stocks"
+    labTitle <- "All stocks Top 10"
   } else {
     labTitle <- fisheries_guild
   }
@@ -945,7 +966,12 @@ plot_kobe <- function(ecoregion,
                               "smn-dp"))
   kobeDat <- anti_join(kobeDat, kobeno, by = "StockKeyLabel")
   }
-
+  if(ecoregion == "Greater North Sea Ecoregion"){
+    kobeno<- kobeDat%>%filter(StockKeyLabel %in% c("mon.27.78abd"))
+    kobeDat <- anti_join(kobeDat, kobeno, by = "StockKeyLabel")
+  }
+  
+  
 kobeDat$tip <- sprintf('
                          <div class="tipchart">
                          <h6>%s</h6>
@@ -989,7 +1015,7 @@ kobeDat$tip <- sprintf('
     
   }
   
-   kobeDat <- kobeDat %>% filter(StockKeyLabel %in% catchBar$StockKeyLabel) 
+    # kobeDat <- kobeDat %>% filter(StockKeyLabel %in% catchBar$StockKeyLabel) 
   
     kobeDat$colList[which(kobeDat$StockKeyLabel == "her.27.28")] <- "GREEN"
   
@@ -1051,17 +1077,25 @@ kobeDat$tip <- sprintf('
       catchBar <- anti_join(catchBar, catchno, by = "StockKeyLabel")
     }
     
+    if(ecoregion == "Greater North Sea Ecoregion"){
+      catchno<- catchBar%>%filter(StockKeyLabel %in% c("mon.27.78abd"))
+      catchBar <- anti_join(catchBar, catchno, by = "StockKeyLabel")
+    }
     
     if(length(fisheries_guild) >= 2) {
       catchBar <- filter(catchBar, total >= catch_limit)
     }
     catchBar$colList[which(catchBar$StockKeyLabel == "her.27.28")] <- "GREEN"
+    # catchBar$catches[which(catchBar$StockKeyLabel == "ghl.27.561214")] <- 23466
+    # catchBar <- catchBar[order(catchBar$total),] 
+    #catchBar$StockKeyLabel <- factor(catchBar$StockKeyLabel, levels = catchBar$StockKeyLabel)
     
     # filter for "All stocks" to reduce to top 25 in catches
-    catchBar <- catchBar %>% top_n(25,catches)
+    # catchBar <- catchBar %>% top_n(25,catches)
+    #catchBar <- catchBar %>% top_n(10,catches)
     
     bar_plot <-
-      ggplot(catchBar, aes(x =StockKeyLabel, y = catches/1000)) +
+      ggplot(catchBar, aes(x =StockKeyLabel, y = catches/1000, ordered = TRUE)) +
       geom_segment(aes(x = StockKeyLabel, y = catches/1000,
                        xend = StockKeyLabel, yend = 0, color = colList), size = 2, na.rm = TRUE) +
       geom_segment(aes(x = StockKeyLabel, y = landings/1000,
@@ -1388,10 +1422,10 @@ if(save_plot){
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 ices_catch_plot <- function(ecoregion, 
                             type = c("COMMON_NAME", "COUNTRY", "GUILD")[1],
-                            line_count = 14,
-                            start_year = 1990,
+                            line_count = 11,
+                            #start_year = 1990,
                             plot_type = c("line", "area")[1],
-                            cap_month = "October",
+                            cap_month = "November",
                             cap_year = "2018",
                             return_data = FALSE,
                             file_name = NULL,
@@ -1408,7 +1442,7 @@ ices_catch_plot <- function(ecoregion,
     }
   }
   
-    cap_lab <-labs(title = plot_title, x = "",
+    cap_lab <-labs(x = "",
                      y = "Landings (thousand tonnes)",
                      caption = sprintf("Historical Nominal Catches 1950-2010, \nOfficial Nominal Catches 2006-2016, \nPreliminary Catches 2017. Accessed %s/%s. ICES, Copenhagen.",
                                        cap_year,
@@ -1417,6 +1451,8 @@ ices_catch_plot <- function(ecoregion,
   iaDat <- ices_catch_dat %>%
     filter(ECOREGION == ecoregion) %>%
     rename_(.dots = setNames(type, "type_var"))
+  
+  
   
   #for neafc
   # iaDat <- iaDat %>% filter(YEAR > 1979)
@@ -1435,9 +1471,12 @@ ices_catch_plot <- function(ecoregion,
   }
   
   #little thing to get Anglerfishes and Megrim in the plot
-  # iaDat$type_var[which(iaDat$type_var == "Angler(=Monk)")] <- "Anglerfishes nei"
-  # iaDat$type_var[which(iaDat$type_var == "Monkfishes nei")] <- "Anglerfishes nei"
-  # iaDat$type_var[which(iaDat$type_var == "Megrim")] <- "Megrims nei"
+   iaDat$type_var[which(iaDat$type_var == "Angler(=Monk)")] <- "Anglerfish spp"
+   iaDat$type_var[which(iaDat$type_var == "Monkfishes nei")] <- "Anglerfish spp"
+   iaDat$type_var[which(iaDat$type_var == "Anglerfishes nei")] <- "Anglerfish spp"
+   iaDat$type_var[which(iaDat$type_var == "Megrims nei")] <- "Megrim"
+   iaDat$type_var[which(iaDat$type_var == "Norway lobster")] <- "Nephrops"
+   
   # 
   
   catchPlot <- iaDat %>%
@@ -1553,6 +1592,7 @@ ices_catch_plot <- function(ecoregion,
                                          segment.color = 'grey60')
     
   }
+  pl
   
   if(return_data) {
     write.csv(x = catchPlot, file = paste0(output_path, file_name, ".csv"), row.names = FALSE)
